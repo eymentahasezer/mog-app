@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>25 Max App | Face Rating</title>
+    <title>25 Max App | Ultimate Face Rating</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,19 +38,19 @@
             height: 100%;
             z-index: -1;
             background: 
-                radial-gradient(ellipse at 20% 20%, rgba(0, 255, 65, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(0, 200, 50, 0.04) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.8) 0%, transparent 60%);
+                radial-gradient(ellipse at 20% 20%, rgba(0, 255, 65, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 200, 50, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.7) 0%, transparent 60%);
             animation: glowPulse 8s ease-in-out infinite alternate;
         }
 
         @keyframes glowPulse {
-            0% { opacity: 0.7; }
+            0% { opacity: 0.6; }
             100% { opacity: 1; }
         }
 
         .container {
-            max-width: 480px;
+            max-width: 500px;
             width: 100%;
             margin: 0 auto;
             position: relative;
@@ -65,13 +65,13 @@
         }
 
         .glass-card {
-            background: rgba(22, 22, 30, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(18, 18, 28, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            padding: 35px 25px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+            padding: 30px 20px;
             text-align: center;
         }
 
@@ -79,49 +79,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 8px;
+            gap: 8px;
+            margin-bottom: 6px;
         }
-
         .pizza-container {
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             flex-shrink: 0;
-            position: relative;
         }
-
         .pizza-container svg {
             width: 100%;
             height: 100%;
         }
 
         @keyframes cheeseMelt {
-            0% {
-                d: path("M18,16 Q22,10 28,16 L29,17 Q29,19 28,17 Q24,12 22,14 L18,16 Z");
-                opacity: 0.4;
-            }
-            20% {
-                d: path("M18,16 Q22,10 28,16 L30,24 Q31,28 29,24 Q26,15 22,14 L18,16 Z");
-                opacity: 0.9;
-            }
-            45% {
-                d: path("M18,16 Q22,10 28,16 L31,34 Q32,40 30,34 Q27,20 22,14 L18,16 Z");
-                opacity: 1;
-            }
-            70% {
-                d: path("M18,16 Q22,10 28,16 L31,40 Q32,46 30,40 Q27,24 22,14 L18,16 Z");
-                opacity: 0.6;
-            }
-            85% {
-                d: path("M18,16 Q22,10 28,16 L29,20 Q29,22 28,20 Q24,13 22,14 L18,16 Z");
-                opacity: 0.3;
-            }
-            100% {
-                d: path("M18,16 Q22,10 28,16 L29,17 Q29,19 28,17 Q24,12 22,14 L18,16 Z");
-                opacity: 0.4;
-            }
+            0% { d: path("M18,16 Q22,10 28,16 L29,17 Q29,19 28,17 Q24,12 22,14 L18,16 Z"); opacity: 0.4; }
+            20% { d: path("M18,16 Q22,10 28,16 L30,24 Q31,28 29,24 Q26,15 22,14 L18,16 Z"); opacity: 0.9; }
+            45% { d: path("M18,16 Q22,10 28,16 L31,34 Q32,40 30,34 Q27,20 22,14 L18,16 Z"); opacity: 1; }
+            70% { d: path("M18,16 Q22,10 28,16 L31,40 Q32,46 30,40 Q27,24 22,14 L18,16 Z"); opacity: 0.6; }
+            85% { d: path("M18,16 Q22,10 28,16 L29,20 Q29,22 28,20 Q24,13 22,14 L18,16 Z"); opacity: 0.3; }
+            100% { d: path("M18,16 Q22,10 28,16 L29,17 Q29,19 28,17 Q24,12 22,14 L18,16 Z"); opacity: 0.4; }
         }
-
         .melting-cheese {
             animation: cheeseMelt 3s ease-in-out infinite;
         }
@@ -133,7 +111,6 @@
             80% { transform: translateY(26px); opacity: 0.3; }
             100% { transform: translateY(32px); opacity: 0; }
         }
-
         .drip {
             animation: dripDrop 3s ease-in-out infinite;
         }
@@ -141,10 +118,10 @@
         h2 {
             font-family: 'Inter', sans-serif;
             font-weight: 800;
-            font-size: 2rem;
+            font-size: 1.9rem;
             letter-spacing: 3px;
             margin: 0;
-            background: linear-gradient(135deg, #00ff41, #00c830);
+            background: linear-gradient(135deg, #00ff41, #00b32b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -153,8 +130,8 @@
         }
 
         .subtitle {
-            color: #888;
-            font-size: 12px;
+            color: #777;
+            font-size: 11px;
             font-weight: 600;
             letter-spacing: 2px;
             margin-bottom: 25px;
@@ -164,17 +141,14 @@
         .input-group {
             background: rgba(0, 0, 0, 0.4);
             border-radius: 14px;
-            padding: 8px 16px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 6px 14px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
-        .input-group .icon {
-            font-size: 18px;
-            flex-shrink: 0;
-        }
+        .input-group .icon { font-size: 18px; }
         .input-group input {
             width: 100%;
             background: transparent;
@@ -182,7 +156,7 @@
             padding: 12px 0;
             color: #fff;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
         }
         .input-group input::placeholder {
@@ -192,12 +166,11 @@
 
         .btn {
             width: 100%;
-            padding: 16px;
+            padding: 15px;
             border: none;
             border-radius: 14px;
-            color: white;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 15px;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             cursor: pointer;
@@ -205,180 +178,219 @@
             font-family: 'Inter', sans-serif;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #00c830, #00ff41);
-            box-shadow: 0 8px 25px rgba(0, 255, 65, 0.3);
+            background: linear-gradient(135deg, #00b32b, #00ff41);
+            box-shadow: 0 8px 22px rgba(0, 255, 65, 0.25);
             color: #000;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(0, 255, 65, 0.5);
-        }
-        .btn-primary:disabled {
-            background: #2a2a35;
-            color: #666;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0, 255, 65, 0.45); }
+        .btn-primary:disabled { background: #2a2a35; color: #666; box-shadow: none; cursor: not-allowed; transform: none; }
         .btn-outline {
             background: transparent;
             border: 1.5px solid rgba(0, 255, 65, 0.4);
             color: #00ff41;
-            margin-top: 12px;
+            margin-top: 10px;
         }
-        .btn-outline:hover {
-            background: rgba(0, 255, 65, 0.1);
-            border-color: #00ff41;
-        }
+        .btn-outline:hover { background: rgba(0, 255, 65, 0.08); border-color: #00ff41; }
 
-        .upload-buttons {
-            display: flex;
-            gap: 12px;
-            margin: 20px 0;
-        }
+        .upload-buttons { display: flex; gap: 12px; margin: 20px 0; }
         .upload-btn {
-            flex: 1;
-            padding: 14px;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 2px dashed rgba(0, 255, 65, 0.3);
-            color: #00ff41;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            text-align: center;
+            flex: 1; padding: 14px; border-radius: 12px;
+            background: rgba(0,0,0,0.4); border: 2px dashed rgba(0, 255, 65, 0.3);
+            color: #00ff41; cursor: pointer; font-weight: 600; font-size: 14px;
+            transition: all 0.3s; text-align: center;
         }
-        .upload-btn:hover {
-            border-color: #00ff41;
-            background: rgba(0, 255, 65, 0.05);
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.15);
-        }
-        input[type="file"] {
-            display: none;
-        }
+        .upload-btn:hover { border-color: #00ff41; background: rgba(0,255,65,0.05); box-shadow: 0 0 20px rgba(0,255,65,0.1); }
+        input[type="file"] { display: none; }
 
-        .preview-scanner-wrapper {
-            position: relative;
-            display: none;
-            margin: 15px 0;
-        }
-        .preview-scanner-wrapper.active {
-            display: block;
-        }
-
+        .preview-scanner-wrapper { position: relative; display: none; margin: 15px 0; }
+        .preview-scanner-wrapper.active { display: block; }
         #preview {
-            width: 100%;
-            border-radius: 16px;
-            display: block;
-            border: 2px solid rgba(0, 255, 65, 0.3);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            width: 100%; border-radius: 16px; display: block;
+            border: 2px solid rgba(0, 255, 65, 0.3); box-shadow: 0 15px 30px rgba(0,0,0,0.5);
         }
-
         .scanner-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-            border-radius: 16px;
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; overflow: hidden; border-radius: 16px;
         }
-
         .scan-line-h {
-            position: absolute;
-            left: 0;
-            width: 100%;
-            height: 2px;
+            position: absolute; left:0; width:100%; height:2px;
             background: linear-gradient(90deg, transparent, #00ff41, #00ff41, transparent);
-            box-shadow: 0 0 20px #00ff41, 0 0 40px #00ff41, 0 0 80px #00cc33;
-            animation: scanVertical 2s ease-in-out infinite;
+            box-shadow: 0 0 20px #00ff41; animation: scanVertical 2s ease-in-out infinite;
         }
         @keyframes scanVertical {
-            0% { top: -5px; }
-            50% { top: 100%; }
-            100% { top: -5px; }
+            0% { top: -5px; } 50% { top: 100%; } 100% { top: -5px; }
         }
-
         .scan-line-v {
-            position: absolute;
-            top: 0;
-            height: 100%;
-            width: 2px;
+            position: absolute; top:0; height:100%; width:2px;
             background: linear-gradient(180deg, transparent, #00ff41, #00ff41, transparent);
-            box-shadow: 0 0 20px #00ff41, 0 0 40px #00ff41, 0 0 80px #00cc33;
-            animation: scanHorizontal 2s ease-in-out infinite;
-            animation-delay: 0.5s;
+            box-shadow: 0 0 20px #00ff41; animation: scanHorizontal 2s ease-in-out infinite; animation-delay: 0.5s;
         }
         @keyframes scanHorizontal {
-            0% { left: -5px; }
-            50% { left: 100%; }
-            100% { left: -5px; }
+            0% { left: -5px; } 50% { left: 100%; } 100% { left: -5px; }
         }
-
         .corner {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border-color: #00ff41;
-            border-style: solid;
-            box-shadow: 0 0 10px #00ff41;
+            position: absolute; width: 25px; height: 25px; border-color: #00ff41; border-style: solid; box-shadow: 0 0 8px #00ff41;
         }
-        .corner-tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
-        .corner-tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
-        .corner-bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
-        .corner-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
-
+        .corner-tl { top:8px; left:8px; border-width: 2px 0 0 2px; }
+        .corner-tr { top:8px; right:8px; border-width: 2px 2px 0 0; }
+        .corner-bl { bottom:8px; left:8px; border-width: 0 0 2px 2px; }
+        .corner-br { bottom:8px; right:8px; border-width: 0 2px 2px 0; }
         .scanning-label {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'JetBrains Mono', monospace;
-            color: #00ff41;
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 4px;
-            text-shadow: 0 0 20px #00ff41, 0 0 40px #00cc33;
-            animation: pulseText 1.5s ease-in-out infinite;
-            z-index: 5;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 255, 65, 0.4);
+            position: absolute; top:50%; left:50%; transform: translate(-50%,-50%);
+            font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 14px; font-weight: 700;
+            letter-spacing: 3px; text-shadow: 0 0 20px #00ff41;
+            background: rgba(0,0,0,0.7); padding: 8px 18px; border-radius: 8px;
+            border: 1px solid rgba(0,255,65,0.4); animation: pulseText 1.5s infinite;
         }
         @keyframes pulseText {
-            0%, 100% { opacity: 0.6; text-shadow: 0 0 20px #00ff41; }
-            50% { opacity: 1; text-shadow: 0 0 40px #00ff41, 0 0 60px #00cc33; }
+            0%,100% { opacity:0.6; } 50% { opacity:1; }
         }
 
-        .result-box {
+        /* Sonuç kartları */
+        .result-container {
             margin-top: 20px;
             text-align: left;
-            background: rgba(15, 15, 22, 0.8);
-            backdrop-filter: blur(15px);
-            border-radius: 18px;
-            border-left: 4px solid #00ff41;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 20px;
             display: none;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            line-height: 1.7;
-            color: #ccc;
-            white-space: pre-line;
-            word-break: break-word;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.5s ease;
+            animation: fadeSlide 0.5s ease;
         }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeSlide {
+            from { opacity:0; transform: translateY(10px); }
+            to { opacity:1; transform: translateY(0); }
+        }
+
+        .score-badges {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .badge {
+            flex: 1;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #00ff41;
+            border-radius: 14px;
+            padding: 12px 5px;
+            text-align: center;
+            color: #00ff41;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(0,255,65,0.2);
+            transition: all 0.3s;
+        }
+        .badge .label {
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+        .badge .value {
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+        .badge.over {
+            border-color: #ff3333;
+            color: #ff3333;
+            box-shadow: 0 0 15px rgba(255,0,0,0.3);
+        }
+        .badge.over .value {
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .metric-bars {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .metric-bar {
+            flex: 1;
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 12px 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .metric-bar .metric-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .bar-bg {
+            width: 100%;
+            height: 10px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00b32b, #00ff41);
+            box-shadow: 0 0 10px #00ff41;
+            transition: width 0.8s ease;
+            border-radius: 10px;
+        }
+        .metric-value {
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #00ff41;
+            margin-top: 6px;
+            font-size: 14px;
+        }
+
+        .detail-box {
+            background: rgba(0,0,0,0.4);
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+            max-height: 280px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #00ff41 #1a1a1a;
+        }
+        .detail-box h4 {
+            font-size: 13px;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+        .detail-list {
+            list-style: none;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        .detail-list li {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .detail-list li strong {
+            color: #00ff41;
+            font-weight: 600;
+        }
+        .detail-list li.negative strong {
+            color: #ff5555;
+        }
+
+        .raw-text {
+            background: rgba(0,0,0,0.4);
+            border-radius: 14px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            white-space: pre-line;
+            color: #bbb;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .error-box {
-            background: rgba(220, 38, 38, 0.1);
+            background: rgba(220,38,38,0.1);
             border-left: 4px solid #ef4444;
             color: #fca5a5;
             padding: 14px;
@@ -391,7 +403,7 @@
         footer {
             margin-top: 20px;
             color: #444;
-            font-size: 11px;
+            font-size: 10px;
             letter-spacing: 1.5px;
         }
     </style>
@@ -400,7 +412,6 @@
     <div class="bg-glow"></div>
 
     <div class="container">
-        
         <!-- ========== SAYFA 1: API KEY GİRİŞ ========== -->
         <div class="page active" id="pageLogin">
             <div class="glass-card">
@@ -414,9 +425,7 @@
                             <circle cx="37" cy="26" r="5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
                             <circle cx="28" cy="37" r="5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
                             <circle cx="36" cy="35" r="4.5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
-                            <path class="melting-cheese" 
-                                  d="M20,14 Q24,10 30,14 L31,16 Q31,18 30,16 Q26,12 24,14 L20,14 Z" 
-                                  fill="#fff8dc" opacity="0.6"/>
+                            <path class="melting-cheese" d="M20,14 Q24,10 30,14 L31,16 Q31,18 30,16 Q26,12 24,14 L20,14 Z" fill="#fff8dc" opacity="0.6"/>
                             <circle class="drip" cx="27" cy="36" r="3" fill="#fff8dc" opacity="0">
                                 <animate attributeName="cy" values="34;42;50;50" dur="3s" repeatCount="indefinite"/>
                                 <animate attributeName="opacity" values="0;1;0.6;0" dur="3s" repeatCount="indefinite"/>
@@ -433,12 +442,9 @@
                     <input type="password" id="apiKeyInput" placeholder="Gemini API Key giriniz..." autocomplete="off">
                 </div>
 
-                <button class="btn btn-primary" id="btnLogin">
-                    GİRİŞ YAP
-                </button>
-
+                <button class="btn btn-primary" id="btnLogin">GİRİŞ YAP</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v9.0 • Blackpill Engine</footer>
+                <footer>v10.0 • Blackpill Engine</footer>
             </div>
         </div>
 
@@ -455,9 +461,7 @@
                             <circle cx="37" cy="26" r="5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
                             <circle cx="28" cy="37" r="5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
                             <circle cx="36" cy="35" r="4.5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
-                            <path class="melting-cheese" 
-                                  d="M20,14 Q24,10 30,14 L31,16 Q31,18 30,16 Q26,12 24,14 L20,14 Z" 
-                                  fill="#fff8dc" opacity="0.6"/>
+                            <path class="melting-cheese" d="M20,14 Q24,10 30,14 L31,16 Q31,18 30,16 Q26,12 24,14 L20,14 Z" fill="#fff8dc" opacity="0.6"/>
                             <circle class="drip" cx="27" cy="36" r="3" fill="#fff8dc" opacity="0">
                                 <animate attributeName="cy" values="34;42;50;50" dur="3s" repeatCount="indefinite"/>
                                 <animate attributeName="opacity" values="0;1;0.6;0" dur="3s" repeatCount="indefinite"/>
@@ -470,14 +474,9 @@
                 <p class="subtitle">Yüz Analizi</p>
 
                 <div class="upload-buttons">
-                    <label for="galleryInput" class="upload-btn">
-                        🖼️ GALERİ
-                    </label>
+                    <label for="galleryInput" class="upload-btn">🖼️ GALERİ</label>
                     <input type="file" id="galleryInput" accept="image/*">
-                    
-                    <label for="cameraInput" class="upload-btn">
-                        📷 KAMERA
-                    </label>
+                    <label for="cameraInput" class="upload-btn">📷 KAMERA</label>
                     <input type="file" id="cameraInput" accept="image/*" capture="user">
                 </div>
 
@@ -497,20 +496,26 @@
                 <button class="btn btn-primary" id="btnAnalyze">
                     <span id="btnText">ANALİZİ BAŞLAT</span>
                 </button>
-
-                <button class="btn btn-outline" id="btnLogout">
-                    ↩ ÇIKIŞ YAP
-                </button>
+                <button class="btn btn-outline" id="btnLogout">↩ ÇIKIŞ YAP</button>
 
                 <div class="error-box" id="analyzeError"></div>
-                <div class="result-box" id="result"></div>
+
+                <!-- Sonuç Alanı -->
+                <div class="result-container" id="resultContainer">
+                    <!-- Rozetler (HTN/MTN, PSL, Appeal) -->
+                    <div class="score-badges" id="scoreBadges"></div>
+                    <!-- Harmony & Dimorphism barları -->
+                    <div class="metric-bars" id="metricBars"></div>
+                    <!-- En iyi / en kötü özellikler scroll -->
+                    <div class="detail-box" id="detailBox"></div>
+                    <!-- Ham metin -->
+                    <div class="raw-text" id="rawText"></div>
+                </div>
             </div>
         </div>
-
     </div>
 
     <script>
-        // GÜNCEL MODEL: gemini-3.6-flash
         const MODEL_NAME = 'gemini-3.6-flash';
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent`;
         
@@ -527,56 +532,48 @@
             page.classList.add('active');
         }
 
-        // Otomatik giriş kontrolü
         window.addEventListener('DOMContentLoaded', () => {
-            const savedKey = localStorage.getItem('25max_api_key_v9');
+            const savedKey = localStorage.getItem('25max_api_key_v10');
             if (savedKey && savedKey.length > 20) {
                 showPage(pageAnalyze);
             }
         });
 
-        // ---------- GİRİŞ BUTONU ----------
+        // ---------- GİRİŞ ----------
         document.getElementById('btnLogin').addEventListener('click', () => {
             const apiKey = document.getElementById('apiKeyInput').value.trim();
             const errorBox = document.getElementById('loginError');
-            
             errorBox.style.display = 'none';
-
             if (!apiKey || apiKey.length < 20) {
                 errorBox.textContent = '⚠️ Geçerli bir Gemini API Key giriniz!';
                 errorBox.style.display = 'block';
                 return;
             }
-
-            localStorage.setItem('25max_api_key_v9', apiKey);
+            localStorage.setItem('25max_api_key_v10', apiKey);
             document.getElementById('apiKeyInput').value = '';
             showPage(pageAnalyze);
         });
 
-        // Enter ile giriş
         document.getElementById('apiKeyInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('btnLogin').click();
-            }
+            if (e.key === 'Enter') document.getElementById('btnLogin').click();
         });
 
-        // ---------- ÇIKIŞ BUTONU ----------
+        // ---------- ÇIKIŞ ----------
         document.getElementById('btnLogout').addEventListener('click', () => {
-            localStorage.removeItem('25max_api_key_v9');
+            localStorage.removeItem('25max_api_key_v10');
             document.getElementById('apiKeyInput').value = '';
             resetUpload();
-            document.getElementById('result').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'none';
             document.getElementById('analyzeError').style.display = 'none';
             showPage(pageLogin);
         });
 
         // ---------- GÖRSEL YÜKLEME ----------
-        document.getElementById('galleryInput').addEventListener('change', function(event) {
-            handleFileSelect(event.target.files[0]);
+        document.getElementById('galleryInput').addEventListener('change', function(e) {
+            handleFileSelect(e.target.files[0]);
         });
-
-        document.getElementById('cameraInput').addEventListener('change', function(event) {
-            handleFileSelect(event.target.files[0]);
+        document.getElementById('cameraInput').addEventListener('change', function(e) {
+            handleFileSelect(e.target.files[0]);
         });
 
         function handleFileSelect(file) {
@@ -586,28 +583,20 @@
             const scannerOverlay = document.getElementById('scannerOverlay');
             
             errorBox.style.display = 'none';
-            document.getElementById('result').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'none';
             scannerOverlay.style.display = 'none';
 
-            if (!file) {
-                resetUpload();
-                return;
-            }
-
+            if (!file) { resetUpload(); return; }
             if (!file.type.startsWith('image/')) {
                 showAnalyzeError("Geçersiz dosya! JPEG, PNG veya WebP seçin.");
-                resetUpload();
-                return;
+                resetUpload(); return;
             }
-
             if (file.size > MAX_SIZE_MB * 1024 * 1024) {
                 showAnalyzeError(`Dosya ${MAX_SIZE_MB}MB'dan küçük olmalı!`);
-                resetUpload();
-                return;
+                resetUpload(); return;
             }
 
             currentMimeType = file.type;
-
             const reader = new FileReader();
             reader.onerror = () => { showAnalyzeError("Dosya okunamadı!"); resetUpload(); };
             reader.onload = (e) => {
@@ -615,8 +604,7 @@
                 img.onload = () => {
                     if (img.width < 80 || img.height < 80) {
                         showAnalyzeError("Fotoğraf çok küçük (min 80x80 piksel).");
-                        resetUpload();
-                        return;
+                        resetUpload(); return;
                     }
                     preview.src = e.target.result;
                     previewWrapper.classList.add('active');
@@ -648,14 +636,14 @@
 
         // ---------- ANALİZ BUTONU ----------
         document.getElementById('btnAnalyze').addEventListener('click', async () => {
-            const apiKey = localStorage.getItem('25max_api_key_v9');
+            const apiKey = localStorage.getItem('25max_api_key_v10');
             const btn = document.getElementById('btnAnalyze');
             const btnText = document.getElementById('btnText');
             const scannerOverlay = document.getElementById('scannerOverlay');
-            const resultDiv = document.getElementById('result');
+            const resultContainer = document.getElementById('resultContainer');
             const errorBox = document.getElementById('analyzeError');
 
-            resultDiv.style.display = 'none';
+            resultContainer.style.display = 'none';
             errorBox.style.display = 'none';
 
             if (!apiKey) {
@@ -671,42 +659,42 @@
             btnText.textContent = "ANALİZ EDİLİYOR...";
             scannerOverlay.style.display = 'block';
 
-            const prompt = `Sen bir yapay zeka estetik derecelendirme motorusun. Yüklenen insan yüzünü acımasızca, yalnızca biyo-geometrik ve bilimsel kriterlere göre değerlendir. Kesinlikle iltifat etme, duygusal yorum katma. Türkçe konuş, fakat terimleri İngilizce orijinal kullan (gonial angle, canthal tilt, UEE, midface ratio, IPD, scleral show, vs.).
+            const prompt = `Sen bir yapay zeka estetik derecelendirme motorusun. Yüklenen insan yüzünü acımasızca, yalnızca biyo-geometrik ve bilimsel kriterlere göre değerlendir. Kesinlikle iltifat etme, duygusal yorum katma. Türkçe konuş, fakat terimleri İngilizce orijinal kullan (gonial angle, canthal tilt, UEE, midface ratio, IPD, scleral show, FWHr, vs.).
 
-Aşağıdaki 5 kategoriyi 1-10 arası puanla, kısa yorumlar yap ve en son "MOG SKORU" ver.
+Aşağıdaki tüm değerleri EKSİKSİZ hesapla ve belirtilen formatta çıktı ver. Sakın yarım bırakma.
 
-1. ÇENE & KEMİK (Gonial Angle, Ramus, Chin, Zygos)
-2. GÖZ BÖLGESİ (Canthal Tilt, UEE, Brow Ridge, IPD)
-3. ORTA YÜZ & BURUN (Midface Ratio, Dorsal, Tip)
-4. DUDAK & ALT YÜZ (Lower Third, Philtrum)
-5. SİMETRİ & CİLT/SAÇ (Asimetri, Akne, Norwood)
+**İSTEKLER:**
+- **GENEL MOG SKORU** (1-10 arası)
+- **PSL PUANI** (1-10 arası) ve karşılık geldiği kategori: LTN (4.0-4.9), MTN (5.0-5.9), HTN (6.0-6.9), Chadlite (7.0-7.9), Chad (8.0+). Eğer PSL 4.0'ın altındaysa kategori "IT'S OVER BRO" yaz.
+- **APPEAL PUANI** (1-10 arası, PSL'den biraz bağımsız, genel çekicilik)
+- **HARMONY YÜZDESİ** (% olarak, yüz uyumu)
+- **DIMORPHISM YÜZDESİ** (% olarak, cinsiyet özellikleri belirginliği)
+- **EN İYİ 10 ÖZELLİK** (varsa, yoksa mevcut en iyileri sırala)
+- **EN KÖTÜ 10 ÖZELLİK** (varsa, yoksa mevcut en kötüleri sırala)
+- **DETAYLI AÇIKLAMA** (tüm yüz bölgeleri: çene, göz, burun, dudak, simetri, cilt, saç, FWHr, canthal tilt vb.)
 
-Çıktı formatın tam olarak şu olmalı:
----
-**🔥 25 MAX ANALİZ RAPORU**
+**ÇIKTI FORMATI (KESİNLİKLE BU ŞABLONU KULLAN, JSON benzeri etiketlerle):**
+<MOG>7.2</MOG>
+<PSL>6.8</PSL>
+<PSL_KATEGORI>HTN</PSL_KATEGORI>
+<APPEAL>7.0</APPEAL>
+<HARMONY>78</HARMONY>
+<DIMORPHISM>65</DIMORPHISM>
+<BEST>
+1. Güçlü çene hattı (Gonial angle 122°)
+2. Pozitif canthal tilt (+3°)
+...
+</BEST>
+<WORST>
+1. Hafif UEE (üst göz kapağı açıklığı)
+2. Asimetrik burun delikleri
+...
+</WORST>
+<DETAY>
+Burada tüm yüzün acımasız detaylı analizi.
+</DETAY>
 
-**Çene & Kemik: [X.X]/10**
-[Yorum]
-
-**Göz Bölgesi: [X.X]/10**
-[Yorum]
-
-**Orta Yüz & Burun: [X.X]/10**
-[Yorum]
-
-**Dudak & Alt Yüz: [X.X]/10**
-[Yorum]
-
-**Simetri & Sağlık: [X.X]/10**
-[Yorum]
-
----
-**🏆 GENEL MOG SKORU: [X.X] / 10**
-
-**En Büyük Kusur (Failo):** [Tek cümle]
-**En Güçlü Yan (Halo):** [Tek cümle]
----
-Gerçekler acıtır, acımasız ol.`;
+Kesinlikle formatın dışına çıkma. Tüm etiketleri doldur.`;
 
             try {
                 const response = await fetch(`${API_URL}?key=${apiKey}`, {
@@ -719,7 +707,7 @@ Gerçekler acıtır, acımasız ol.`;
                                 { inline_data: { mime_type: currentMimeType, data: base64Image } }
                             ]
                         }],
-                        generationConfig: { temperature: 0.3, maxOutputTokens: 1100 }
+                        generationConfig: { temperature: 0.2, maxOutputTokens: 1500 }
                     })
                 });
 
@@ -732,17 +720,10 @@ Gerçekler acıtır, acımasız ol.`;
                 const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!aiText) throw new Error("AI yanıtı boş geldi, tekrar deneyin.");
 
-                let formatted = aiText
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#00ff41;">$1</strong>')
-                    .replace(/---/g, '<hr style="border-color:#333; margin:15px 0;">')
-                    .replace(/\n/g, '<br>');
-
-                resultDiv.innerHTML = formatted;
-                resultDiv.style.display = 'block';
-                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                // Sonucu işle ve görselleştir
+                renderResult(aiText);
+                resultContainer.style.display = 'block';
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
             } catch (err) {
                 showAnalyzeError('Hata: ' + err.message);
@@ -752,6 +733,77 @@ Gerçekler acıtır, acımasız ol.`;
                 scannerOverlay.style.display = 'none';
             }
         });
+
+        function extractTag(text, tag) {
+            const regex = new RegExp(`<${tag}>(.*?)<\/${tag}>`, 's');
+            const match = text.match(regex);
+            return match ? match[1].trim() : null;
+        }
+
+        function renderResult(rawText) {
+            const mog = extractTag(rawText, 'MOG') || '?';
+            const psl = extractTag(rawText, 'PSL') || '?';
+            const pslCat = extractTag(rawText, 'PSL_KATEGORI') || '?';
+            const appeal = extractTag(rawText, 'APPEAL') || '?';
+            const harmony = extractTag(rawText, 'HARMONY') || '0';
+            const dimorphism = extractTag(rawText, 'DIMORPHISM') || '0';
+            const best = extractTag(rawText, 'BEST') || '';
+            const worst = extractTag(rawText, 'WORST') || '';
+            const detay = extractTag(rawText, 'DETAY') || rawText;
+
+            // Rozetler
+            const isOver = pslCat.toUpperCase().includes("IT'S OVER") || parseFloat(psl) < 4.0;
+            const overClass = isOver ? ' over' : '';
+            const badgeHtml = `
+                <div class="badge${overClass}">
+                    <div class="label">PSL Kategori</div>
+                    <div class="value">${isOver ? "IT'S OVER<br>BRO" : pslCat}</div>
+                </div>
+                <div class="badge">
+                    <div class="label">PSL Puan</div>
+                    <div class="value">${psl}</div>
+                </div>
+                <div class="badge">
+                    <div class="label">Appeal</div>
+                    <div class="value">${appeal}</div>
+                </div>
+            `;
+            document.getElementById('scoreBadges').innerHTML = badgeHtml;
+
+            // Metrik barlar
+            const harmonyNum = parseInt(harmony) || 0;
+            const dimNum = parseInt(dimorphism) || 0;
+            const barsHtml = `
+                <div class="metric-bar">
+                    <div class="metric-label">Harmony</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${harmonyNum}%;"></div></div>
+                    <div class="metric-value">%${harmonyNum}</div>
+                </div>
+                <div class="metric-bar">
+                    <div class="metric-label">Dimorphism</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${dimNum}%;"></div></div>
+                    <div class="metric-value">%${dimNum}</div>
+                </div>
+            `;
+            document.getElementById('metricBars').innerHTML = barsHtml;
+
+            // En iyi / en kötü listeleri
+            const bestList = best.split('\n').filter(l => l.trim()).map(l => `<li><strong>✓</strong> ${l.replace(/^\d+\.\s*/, '')}</li>`).join('');
+            const worstList = worst.split('\n').filter(l => l.trim()).map(l => `<li class="negative"><strong>✗</strong> ${l.replace(/^\d+\.\s*/, '')}</li>`).join('');
+            const detailHtml = `
+                <h4 style="color:#00ff41;">✅ EN İYİ ÖZELLİKLER</h4>
+                <ul class="detail-list">${bestList || '<li>Belirtilmedi</li>'}</ul>
+                <h4 style="color:#ff5555; margin-top:15px;">❌ EN KÖTÜ ÖZELLİKLER</h4>
+                <ul class="detail-list">${worstList || '<li>Belirtilmedi</li>'}</ul>
+            `;
+            document.getElementById('detailBox').innerHTML = detailHtml;
+
+            // Ham detay metni
+            document.getElementById('rawText').innerHTML = detay
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
 
     </script>
 </body>
