@@ -10,87 +10,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #0a0a0f;
             color: #e0e0e0;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow-x: hidden;
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; overflow-x: hidden;
         }
 
         .bg-glow {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(0, 255, 65, 0.05) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(0, 200, 50, 0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.7) 0%, transparent 60%);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(ellipse at 20% 20%, rgba(0, 255, 65, 0.05) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 80%, rgba(0, 200, 50, 0.03) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.7) 0%, transparent 60%);
             animation: glowPulse 8s ease-in-out infinite alternate;
         }
+        @keyframes glowPulse { 0% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        @keyframes glowPulse {
-            0% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-
-        .container {
-            max-width: 500px;
-            width: 100%;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .page {
-            display: none;
-        }
-        .page.active {
-            display: block;
-        }
+        .container { max-width: 500px; width: 100%; margin: 0 auto; position: relative; z-index: 1; }
+        .page { display: none; }
+        .page.active { display: block; }
 
         .glass-card {
-            background: rgba(18, 18, 28, 0.7);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
-            padding: 30px 20px;
-            text-align: center;
+            background: rgba(18, 18, 28, 0.7); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6); padding: 30px 20px; text-align: center;
         }
 
-        .logo-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-        .pizza-container {
-            width: 56px;
-            height: 56px;
-            flex-shrink: 0;
-        }
-        .pizza-container svg {
-            width: 100%;
-            height: 100%;
-        }
+        .logo-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 6px; }
+        .pizza-container { width: 56px; height: 56px; flex-shrink: 0; }
+        .pizza-container svg { width: 100%; height: 100%; }
 
         @keyframes cheeseMelt {
             0% { d: path("M18,16 Q22,10 28,16 L29,17 Q29,19 28,17 Q24,12 22,14 L18,16 Z"); opacity: 0.4; }
@@ -100,9 +52,7 @@
             85% { d: path("M18,16 Q22,10 28,16 L29,20 Q29,22 28,20 Q24,13 22,14 L18,16 Z"); opacity: 0.3; }
             100% { d: path("M18,16 Q22,10 28,16 L29,17 Q29,19 28,17 Q24,12 22,14 L18,16 Z"); opacity: 0.4; }
         }
-        .melting-cheese {
-            animation: cheeseMelt 3s ease-in-out infinite;
-        }
+        .melting-cheese { animation: cheeseMelt 3s ease-in-out infinite; }
 
         @keyframes dripDrop {
             0% { transform: translateY(0); opacity: 0; }
@@ -111,84 +61,40 @@
             80% { transform: translateY(26px); opacity: 0.3; }
             100% { transform: translateY(32px); opacity: 0; }
         }
-        .drip {
-            animation: dripDrop 3s ease-in-out infinite;
-        }
+        .drip { animation: dripDrop 3s ease-in-out infinite; }
 
         h2 {
-            font-family: 'Inter', sans-serif;
-            font-weight: 800;
-            font-size: 1.9rem;
-            letter-spacing: 3px;
-            margin: 0;
+            font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.9rem; letter-spacing: 3px; margin: 0;
             background: linear-gradient(135deg, #00ff41, #00b32b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-transform: uppercase;
-            line-height: 1;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            text-transform: uppercase; line-height: 1;
         }
-
-        .subtitle {
-            color: #777;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-        }
+        .subtitle { color: #777; font-size: 11px; font-weight: 600; letter-spacing: 2px; margin-bottom: 25px; text-transform: uppercase; }
 
         .input-group {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 14px;
-            padding: 6px 14px;
-            margin-bottom: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            background: rgba(0, 0, 0, 0.4); border-radius: 14px; padding: 6px 14px; margin-bottom: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.06); display: flex; align-items: center; gap: 10px;
         }
         .input-group .icon { font-size: 18px; }
         .input-group input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            padding: 12px 0;
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            outline: none;
+            width: 100%; background: transparent; border: none; padding: 12px 0;
+            color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none;
         }
-        .input-group input::placeholder {
-            color: #555;
-            font-family: 'Inter', sans-serif;
-        }
+        .input-group input::placeholder { color: #555; font-family: 'Inter', sans-serif; }
 
         .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 15px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            width: 100%; padding: 15px; border: none; border-radius: 14px; font-weight: 700; font-size: 15px;
+            letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
         }
         .btn-primary {
             background: linear-gradient(135deg, #00b32b, #00ff41);
-            box-shadow: 0 8px 22px rgba(0, 255, 65, 0.25);
-            color: #000;
+            box-shadow: 0 8px 22px rgba(0, 255, 65, 0.25); color: #000;
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0, 255, 65, 0.45); }
         .btn-primary:disabled { background: #2a2a35; color: #666; box-shadow: none; cursor: not-allowed; transform: none; }
         .btn-outline {
-            background: transparent;
-            border: 1.5px solid rgba(0, 255, 65, 0.4);
-            color: #00ff41;
-            margin-top: 10px;
+            background: transparent; border: 1.5px solid rgba(0, 255, 65, 0.4); color: #00ff41; margin-top: 10px;
         }
         .btn-outline:hover { background: rgba(0, 255, 65, 0.08); border-color: #00ff41; }
 
@@ -217,17 +123,13 @@
             background: linear-gradient(90deg, transparent, #00ff41, #00ff41, transparent);
             box-shadow: 0 0 20px #00ff41; animation: scanVertical 2s ease-in-out infinite;
         }
-        @keyframes scanVertical {
-            0% { top: -5px; } 50% { top: 100%; } 100% { top: -5px; }
-        }
+        @keyframes scanVertical { 0% { top: -5px; } 50% { top: 100%; } 100% { top: -5px; } }
         .scan-line-v {
             position: absolute; top:0; height:100%; width:2px;
             background: linear-gradient(180deg, transparent, #00ff41, #00ff41, transparent);
             box-shadow: 0 0 20px #00ff41; animation: scanHorizontal 2s ease-in-out infinite; animation-delay: 0.5s;
         }
-        @keyframes scanHorizontal {
-            0% { left: -5px; } 50% { left: 100%; } 100% { left: -5px; }
-        }
+        @keyframes scanHorizontal { 0% { left: -5px; } 50% { left: 100%; } 100% { left: -5px; } }
         .corner {
             position: absolute; width: 25px; height: 25px; border-color: #00ff41; border-style: solid; box-shadow: 0 0 8px #00ff41;
         }
@@ -242,177 +144,84 @@
             background: rgba(0,0,0,0.7); padding: 8px 18px; border-radius: 8px;
             border: 1px solid rgba(0,255,65,0.4); animation: pulseText 1.5s infinite;
         }
-        @keyframes pulseText {
-            0%,100% { opacity:0.6; } 50% { opacity:1; }
+        @keyframes pulseText { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
+
+        /* İlerleme çubuğu */
+        .progress-wrap {
+            display: none; margin: 15px 0; text-align: center;
+        }
+        .progress-bar-bg {
+            width: 100%; height: 6px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 8px;
+        }
+        .progress-bar-fill {
+            height: 100%; background: linear-gradient(90deg, #00b32b, #00ff41);
+            box-shadow: 0 0 15px #00ff41; transition: width 0.3s ease; border-radius: 6px;
+        }
+        .progress-text {
+            font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 13px; letter-spacing: 2px;
         }
 
         /* Sonuç kartları */
         .result-container {
-            margin-top: 20px;
-            text-align: left;
-            display: none;
-            animation: fadeSlide 0.5s ease;
+            margin-top: 20px; text-align: left; display: none; animation: fadeSlide 0.5s ease;
         }
-        @keyframes fadeSlide {
-            from { opacity:0; transform: translateY(10px); }
-            to { opacity:1; transform: translateY(0); }
-        }
+        @keyframes fadeSlide { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
 
-        .score-badges {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
+        .score-badges { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
         .badge {
-            flex: 1;
-            background: rgba(0,0,0,0.5);
-            border: 2px solid #00ff41;
-            border-radius: 14px;
-            padding: 12px 5px;
-            text-align: center;
-            color: #00ff41;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            box-shadow: 0 0 15px rgba(0,255,65,0.2);
-            transition: all 0.3s;
+            flex: 1; background: rgba(0,0,0,0.5); border: 2px solid #00ff41; border-radius: 14px;
+            padding: 12px 5px; text-align: center; color: #00ff41;
+            font-family: 'JetBrains Mono', monospace; font-weight: 700;
+            box-shadow: 0 0 15px rgba(0,255,65,0.2); transition: all 0.3s;
         }
-        .badge .label {
-            font-size: 10px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: #aaa;
-            margin-bottom: 6px;
-        }
-        .badge .value {
-            font-size: 20px;
-            letter-spacing: 1px;
-        }
-        .badge.over {
-            border-color: #ff3333;
-            color: #ff3333;
-            box-shadow: 0 0 15px rgba(255,0,0,0.3);
-        }
-        .badge.over .value {
-            font-size: 14px;
-            line-height: 1.2;
-        }
+        .badge .label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #aaa; margin-bottom: 6px; }
+        .badge .value { font-size: 20px; letter-spacing: 1px; }
+        .badge.over { border-color: #ff3333; color: #ff3333; box-shadow: 0 0 15px rgba(255,0,0,0.3); }
+        .badge.over .value { font-size: 14px; line-height: 1.2; }
 
-        .metric-bars {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+        .metric-bars { display: flex; gap: 15px; margin-bottom: 20px; }
         .metric-bar {
-            flex: 1;
-            background: rgba(0,0,0,0.4);
-            border-radius: 12px;
-            padding: 12px 10px;
+            flex: 1; background: rgba(0,0,0,0.4); border-radius: 12px; padding: 12px 10px;
             border: 1px solid rgba(255,255,255,0.05);
         }
-        .metric-bar .metric-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #aaa;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-        .bar-bg {
-            width: 100%;
-            height: 10px;
-            background: #1a1a1a;
-            border-radius: 10px;
-            overflow: hidden;
-        }
+        .metric-bar .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #aaa; margin-bottom: 8px; text-align: center; }
+        .bar-bg { width: 100%; height: 10px; background: #1a1a1a; border-radius: 10px; overflow: hidden; }
         .bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00b32b, #00ff41);
-            box-shadow: 0 0 10px #00ff41;
-            transition: width 0.8s ease;
-            border-radius: 10px;
+            height: 100%; background: linear-gradient(90deg, #00b32b, #00ff41);
+            box-shadow: 0 0 10px #00ff41; transition: width 0.8s ease; border-radius: 10px;
         }
-        .metric-value {
-            text-align: center;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            color: #00ff41;
-            margin-top: 6px;
-            font-size: 14px;
-        }
+        .metric-value { text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #00ff41; margin-top: 6px; font-size: 14px; }
 
         .detail-box {
-            background: rgba(0,0,0,0.4);
-            border-radius: 14px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255,255,255,0.05);
-            max-height: 280px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #00ff41 #1a1a1a;
+            background: rgba(0,0,0,0.4); border-radius: 14px; padding: 15px; margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.05); max-height: 280px; overflow-y: auto;
+            scrollbar-width: thin; scrollbar-color: #00ff41 #1a1a1a;
         }
-        .detail-box h4 {
-            font-size: 13px;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 8px;
-        }
-        .detail-list {
-            list-style: none;
-            font-size: 13px;
-            line-height: 1.8;
-        }
-        .detail-list li {
-            padding: 4px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-        }
-        .detail-list li strong {
-            color: #00ff41;
-            font-weight: 600;
-        }
-        .detail-list li.negative strong {
-            color: #ff5555;
-        }
+        .detail-box h4 { font-size: 13px; letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
+        .detail-list { list-style: none; font-size: 13px; line-height: 1.8; }
+        .detail-list li { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .detail-list li strong { color: #00ff41; font-weight: 600; }
+        .detail-list li.negative strong { color: #ff5555; }
 
         .raw-text {
-            background: rgba(0,0,0,0.4);
-            border-radius: 14px;
-            padding: 15px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            line-height: 1.7;
-            white-space: pre-line;
-            color: #bbb;
-            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.4); border-radius: 14px; padding: 15px;
+            font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7;
+            white-space: pre-line; color: #bbb; border: 1px solid rgba(255,255,255,0.05);
         }
 
         .error-box {
-            background: rgba(220,38,38,0.1);
-            border-left: 4px solid #ef4444;
-            color: #fca5a5;
-            padding: 14px;
-            border-radius: 12px;
-            margin-top: 15px;
-            display: none;
-            font-size: 14px;
+            background: rgba(220,38,38,0.1); border-left: 4px solid #ef4444;
+            color: #fca5a5; padding: 14px; border-radius: 12px; margin-top: 15px;
+            display: none; font-size: 14px;
         }
-
-        footer {
-            margin-top: 20px;
-            color: #444;
-            font-size: 10px;
-            letter-spacing: 1.5px;
-        }
+        footer { margin-top: 20px; color: #444; font-size: 10px; letter-spacing: 1.5px; }
     </style>
 </head>
 <body>
     <div class="bg-glow"></div>
 
     <div class="container">
-        <!-- ========== SAYFA 1: API KEY GİRİŞ ========== -->
+        <!-- SAYFA 1: API KEY GİRİŞ -->
         <div class="page active" id="pageLogin">
             <div class="glass-card">
                 <div class="logo-wrapper">
@@ -444,11 +253,11 @@
 
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ YAP</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v10.0 • Blackpill Engine</footer>
+                <footer>v11.0 • Blackpill Engine</footer>
             </div>
         </div>
 
-        <!-- ========== SAYFA 2: YÜZ ANALİZ ========== -->
+        <!-- SAYFA 2: YÜZ ANALİZ -->
         <div class="page" id="pageAnalyze">
             <div class="glass-card">
                 <div class="logo-wrapper">
@@ -489,8 +298,16 @@
                         <div class="corner corner-tr"></div>
                         <div class="corner corner-bl"></div>
                         <div class="corner corner-br"></div>
-                        <div class="scanning-label">◈ ANALİZ EDİLİYOR ◈</div>
+                        <div class="scanning-label" id="scanningLabel">◈ ANALİZ EDİLİYOR ◈</div>
                     </div>
+                </div>
+
+                <!-- İlerleme çubuğu -->
+                <div class="progress-wrap" id="progressWrap">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">%0</div>
                 </div>
 
                 <button class="btn btn-primary" id="btnAnalyze">
@@ -502,13 +319,9 @@
 
                 <!-- Sonuç Alanı -->
                 <div class="result-container" id="resultContainer">
-                    <!-- Rozetler (HTN/MTN, PSL, Appeal) -->
                     <div class="score-badges" id="scoreBadges"></div>
-                    <!-- Harmony & Dimorphism barları -->
                     <div class="metric-bars" id="metricBars"></div>
-                    <!-- En iyi / en kötü özellikler scroll -->
                     <div class="detail-box" id="detailBox"></div>
-                    <!-- Ham metin -->
                     <div class="raw-text" id="rawText"></div>
                 </div>
             </div>
@@ -533,10 +346,8 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const savedKey = localStorage.getItem('25max_api_key_v10');
-            if (savedKey && savedKey.length > 20) {
-                showPage(pageAnalyze);
-            }
+            const savedKey = localStorage.getItem('25max_api_key_v11');
+            if (savedKey && savedKey.length > 20) showPage(pageAnalyze);
         });
 
         // ---------- GİRİŞ ----------
@@ -549,19 +360,17 @@
                 errorBox.style.display = 'block';
                 return;
             }
-            localStorage.setItem('25max_api_key_v10', apiKey);
+            localStorage.setItem('25max_api_key_v11', apiKey);
             document.getElementById('apiKeyInput').value = '';
             showPage(pageAnalyze);
         });
-
         document.getElementById('apiKeyInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') document.getElementById('btnLogin').click();
         });
 
         // ---------- ÇIKIŞ ----------
         document.getElementById('btnLogout').addEventListener('click', () => {
-            localStorage.removeItem('25max_api_key_v10');
-            document.getElementById('apiKeyInput').value = '';
+            localStorage.removeItem('25max_api_key_v11');
             resetUpload();
             document.getElementById('resultContainer').style.display = 'none';
             document.getElementById('analyzeError').style.display = 'none';
@@ -569,12 +378,8 @@
         });
 
         // ---------- GÖRSEL YÜKLEME ----------
-        document.getElementById('galleryInput').addEventListener('change', function(e) {
-            handleFileSelect(e.target.files[0]);
-        });
-        document.getElementById('cameraInput').addEventListener('change', function(e) {
-            handleFileSelect(e.target.files[0]);
-        });
+        document.getElementById('galleryInput').addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+        document.getElementById('cameraInput').addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
 
         function handleFileSelect(file) {
             const errorBox = document.getElementById('analyzeError');
@@ -585,6 +390,7 @@
             errorBox.style.display = 'none';
             document.getElementById('resultContainer').style.display = 'none';
             scannerOverlay.style.display = 'none';
+            document.getElementById('progressWrap').style.display = 'none';
 
             if (!file) { resetUpload(); return; }
             if (!file.type.startsWith('image/')) {
@@ -608,10 +414,9 @@
                     }
                     preview.src = e.target.result;
                     previewWrapper.classList.add('active');
-                    const parts = e.target.result.split(',');
-                    base64Image = parts.length === 2 ? parts[1] : "";
+                    base64Image = e.target.result.split(',')[1] || "";
                 };
-                img.onerror = () => { showAnalyzeError("Görsel bozuk veya geçersiz!"); resetUpload(); };
+                img.onerror = () => { showAnalyzeError("Görsel bozuk!"); resetUpload(); };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
@@ -623,6 +428,7 @@
             document.getElementById('previewWrapper').classList.remove('active');
             document.getElementById('preview').src = "";
             document.getElementById('scannerOverlay').style.display = 'none';
+            document.getElementById('progressWrap').style.display = 'none';
             base64Image = "";
             currentMimeType = "image/jpeg";
         }
@@ -634,67 +440,80 @@
             setTimeout(() => { if (box) box.style.display = 'none'; }, 5000);
         }
 
-        // ---------- ANALİZ BUTONU ----------
+        // Yüzdelik animasyon
+        function startProgress() {
+            const wrap = document.getElementById('progressWrap');
+            const fill = document.getElementById('progressFill');
+            const text = document.getElementById('progressText');
+            wrap.style.display = 'block';
+            let percent = 0;
+            const interval = setInterval(() => {
+                percent += Math.random() * 8 + 2;
+                if (percent >= 90) {
+                    percent = 90;
+                    clearInterval(interval);
+                }
+                fill.style.width = percent + '%';
+                text.textContent = '%' + Math.floor(percent);
+            }, 200);
+            return {
+                complete: () => {
+                    clearInterval(interval);
+                    fill.style.width = '100%';
+                    text.textContent = '%100';
+                    setTimeout(() => { wrap.style.display = 'none'; }, 600);
+                }
+            };
+        }
+
+        // ---------- ANALİZ ----------
         document.getElementById('btnAnalyze').addEventListener('click', async () => {
-            const apiKey = localStorage.getItem('25max_api_key_v10');
+            const apiKey = localStorage.getItem('25max_api_key_v11');
             const btn = document.getElementById('btnAnalyze');
             const btnText = document.getElementById('btnText');
             const scannerOverlay = document.getElementById('scannerOverlay');
+            const scanningLabel = document.getElementById('scanningLabel');
             const resultContainer = document.getElementById('resultContainer');
             const errorBox = document.getElementById('analyzeError');
 
             resultContainer.style.display = 'none';
             errorBox.style.display = 'none';
 
-            if (!apiKey) {
-                showAnalyzeError("API anahtarı bulunamadı! Lütfen tekrar giriş yapın.");
-                return;
-            }
-            if (!base64Image) {
-                showAnalyzeError("Lütfen önce bir fotoğraf seçin!");
-                return;
-            }
+            if (!apiKey) { showAnalyzeError("API anahtarı bulunamadı!"); return; }
+            if (!base64Image) { showAnalyzeError("Lütfen önce bir fotoğraf seçin!"); return; }
 
             btn.disabled = true;
             btnText.textContent = "ANALİZ EDİLİYOR...";
             scannerOverlay.style.display = 'block';
+            scanningLabel.textContent = '◈ ANALİZ EDİLİYOR ◈';
 
-            const prompt = `Sen bir yapay zeka estetik derecelendirme motorusun. Yüklenen insan yüzünü acımasızca, yalnızca biyo-geometrik ve bilimsel kriterlere göre değerlendir. Kesinlikle iltifat etme, duygusal yorum katma. Türkçe konuş, fakat terimleri İngilizce orijinal kullan (gonial angle, canthal tilt, UEE, midface ratio, IPD, scleral show, FWHr, vs.).
+            const progress = startProgress();
 
-Aşağıdaki tüm değerleri EKSİKSİZ hesapla ve belirtilen formatta çıktı ver. Sakın yarım bırakma.
+            const prompt = `Sen bir yapay zeka estetik derecelendirme motorusun. Yüklenen insan yüzünü acımasızca, yalnızca biyo-geometrik ve bilimsel kriterlere göre değerlendir. Türkçe konuş, terimleri İngilizce kullan (gonial angle, canthal tilt, UEE, FWHr, IPD, scleral show, midface ratio).
 
-**İSTEKLER:**
-- **GENEL MOG SKORU** (1-10 arası)
-- **PSL PUANI** (1-10 arası) ve karşılık geldiği kategori: LTN (4.0-4.9), MTN (5.0-5.9), HTN (6.0-6.9), Chadlite (7.0-7.9), Chad (8.0+). Eğer PSL 4.0'ın altındaysa kategori "IT'S OVER BRO" yaz.
-- **APPEAL PUANI** (1-10 arası, PSL'den biraz bağımsız, genel çekicilik)
-- **HARMONY YÜZDESİ** (% olarak, yüz uyumu)
-- **DIMORPHISM YÜZDESİ** (% olarak, cinsiyet özellikleri belirginliği)
-- **EN İYİ 10 ÖZELLİK** (varsa, yoksa mevcut en iyileri sırala)
-- **EN KÖTÜ 10 ÖZELLİK** (varsa, yoksa mevcut en kötüleri sırala)
-- **DETAYLI AÇIKLAMA** (tüm yüz bölgeleri: çene, göz, burun, dudak, simetri, cilt, saç, FWHr, canthal tilt vb.)
+AŞAĞIDAKİ HER ETİKETİ EKSİKSİZ DOLDUR. BOŞ BIRAKMAK YASAK.
 
-**ÇIKTI FORMATI (KESİNLİKLE BU ŞABLONU KULLAN, JSON benzeri etiketlerle):**
-<MOG>7.2</MOG>
-<PSL>6.8</PSL>
-<PSL_KATEGORI>HTN</PSL_KATEGORI>
-<APPEAL>7.0</APPEAL>
-<HARMONY>78</HARMONY>
-<DIMORPHISM>65</DIMORPHISM>
+<MOG>genel mog skoru 1-10</MOG>
+<PSL>psl skoru 1-10</PSL>
+<PSL_KATEGORI>LTN/MTN/HTN/Chadlite/Chad (4.0 altıysa IT'S OVER BRO yaz)</PSL_KATEGORI>
+<APPEAL>appeal skoru 1-10 (PSL'den bağımsız ama yakın, genel çekicilik)</APPEAL>
+<HARMONY>yüz uyum yüzdesi sadece sayı</HARMONY>
+<DIMORPHISM>cinsiyet özellikleri belirginlik yüzdesi sadece sayı</DIMORPHISM>
 <BEST>
-1. Güçlü çene hattı (Gonial angle 122°)
-2. Pozitif canthal tilt (+3°)
-...
+1. özellik
+2. özellik
+... (en az 5, mümkünse 10 tane)
 </BEST>
 <WORST>
-1. Hafif UEE (üst göz kapağı açıklığı)
-2. Asimetrik burun delikleri
-...
+1. kusur
+2. kusur
+... (en az 5, mümkünse 10 tane)
 </WORST>
 <DETAY>
-Burada tüm yüzün acımasız detaylı analizi.
+Tüm yüzün acımasız detaylı metin analizi. Çene, göz, burun, dudak, simetri, cilt, saç, FWHr, canthal tilt hepsini kapsa.
 </DETAY>
 
-Kesinlikle formatın dışına çıkma. Tüm etiketleri doldur.`;
+Kesinlikle format dışına çıkma. Her etiketi doldur.`;
 
             try {
                 const response = await fetch(`${API_URL}?key=${apiKey}`, {
@@ -707,7 +526,7 @@ Kesinlikle formatın dışına çıkma. Tüm etiketleri doldur.`;
                                 { inline_data: { mime_type: currentMimeType, data: base64Image } }
                             ]
                         }],
-                        generationConfig: { temperature: 0.2, maxOutputTokens: 1500 }
+                        generationConfig: { temperature: 0.1, maxOutputTokens: 1500 }
                     })
                 });
 
@@ -718,19 +537,23 @@ Kesinlikle formatın dışına çıkma. Tüm etiketleri doldur.`;
 
                 const data = await response.json();
                 const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!aiText) throw new Error("AI yanıtı boş geldi, tekrar deneyin.");
+                if (!aiText) throw new Error("AI yanıtı boş geldi.");
 
-                // Sonucu işle ve görselleştir
+                progress.complete();
+                scanningLabel.textContent = '◈ ANALİZ TAMAMLANDI ◈';
+                setTimeout(() => { scannerOverlay.style.display = 'none'; }, 800);
+
                 renderResult(aiText);
                 resultContainer.style.display = 'block';
                 resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
             } catch (err) {
+                progress.complete();
+                scannerOverlay.style.display = 'none';
                 showAnalyzeError('Hata: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btnText.textContent = "ANALİZİ BAŞLAT";
-                scannerOverlay.style.display = 'none';
             }
         });
 
@@ -747,14 +570,13 @@ Kesinlikle formatın dışına çıkma. Tüm etiketleri doldur.`;
             const appeal = extractTag(rawText, 'APPEAL') || '?';
             const harmony = extractTag(rawText, 'HARMONY') || '0';
             const dimorphism = extractTag(rawText, 'DIMORPHISM') || '0';
-            const best = extractTag(rawText, 'BEST') || '';
-            const worst = extractTag(rawText, 'WORST') || '';
+            const best = extractTag(rawText, 'BEST') || 'Belirtilmedi';
+            const worst = extractTag(rawText, 'WORST') || 'Belirtilmedi';
             const detay = extractTag(rawText, 'DETAY') || rawText;
 
-            // Rozetler
             const isOver = pslCat.toUpperCase().includes("IT'S OVER") || parseFloat(psl) < 4.0;
             const overClass = isOver ? ' over' : '';
-            const badgeHtml = `
+            document.getElementById('scoreBadges').innerHTML = `
                 <div class="badge${overClass}">
                     <div class="label">PSL Kategori</div>
                     <div class="value">${isOver ? "IT'S OVER<br>BRO" : pslCat}</div>
@@ -768,37 +590,31 @@ Kesinlikle formatın dışına çıkma. Tüm etiketleri doldur.`;
                     <div class="value">${appeal}</div>
                 </div>
             `;
-            document.getElementById('scoreBadges').innerHTML = badgeHtml;
 
-            // Metrik barlar
-            const harmonyNum = parseInt(harmony) || 0;
-            const dimNum = parseInt(dimorphism) || 0;
-            const barsHtml = `
+            const hNum = parseInt(harmony) || 0;
+            const dNum = parseInt(dimorphism) || 0;
+            document.getElementById('metricBars').innerHTML = `
                 <div class="metric-bar">
                     <div class="metric-label">Harmony</div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${harmonyNum}%;"></div></div>
-                    <div class="metric-value">%${harmonyNum}</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${hNum}%;"></div></div>
+                    <div class="metric-value">%${hNum}</div>
                 </div>
                 <div class="metric-bar">
                     <div class="metric-label">Dimorphism</div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${dimNum}%;"></div></div>
-                    <div class="metric-value">%${dimNum}</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${dNum}%;"></div></div>
+                    <div class="metric-value">%${dNum}</div>
                 </div>
             `;
-            document.getElementById('metricBars').innerHTML = barsHtml;
 
-            // En iyi / en kötü listeleri
             const bestList = best.split('\n').filter(l => l.trim()).map(l => `<li><strong>✓</strong> ${l.replace(/^\d+\.\s*/, '')}</li>`).join('');
             const worstList = worst.split('\n').filter(l => l.trim()).map(l => `<li class="negative"><strong>✗</strong> ${l.replace(/^\d+\.\s*/, '')}</li>`).join('');
-            const detailHtml = `
+            document.getElementById('detailBox').innerHTML = `
                 <h4 style="color:#00ff41;">✅ EN İYİ ÖZELLİKLER</h4>
                 <ul class="detail-list">${bestList || '<li>Belirtilmedi</li>'}</ul>
                 <h4 style="color:#ff5555; margin-top:15px;">❌ EN KÖTÜ ÖZELLİKLER</h4>
                 <ul class="detail-list">${worstList || '<li>Belirtilmedi</li>'}</ul>
             `;
-            document.getElementById('detailBox').innerHTML = detailHtml;
 
-            // Ham detay metni
             document.getElementById('rawText').innerHTML = detay
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
