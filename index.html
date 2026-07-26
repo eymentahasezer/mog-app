@@ -211,7 +211,7 @@
                 </div>
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ YAP</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v18.0 • Dual Engine</footer>
+                <footer>v19.0 • Dual Engine • Gemini + Gemma</footer>
             </div>
         </div>
 
@@ -272,11 +272,11 @@
         const _k = "25max2024secure";
         function dK(e){let r='';for(let i=0;i<e.length;i++)r+=String.fromCharCode(e.charCodeAt(i)^_k.charCodeAt(i%_k.length));return r;}
         const GEMINI_KEY = dK(atob("GDwbHRkPEx4XFRIOFBwSEg0TGh0RGBALBgYaGQ4XDw4UAgc="));
-        const GROQ_KEY = dK(atob("BRoSHQYPDBkbFggCAwYPFRodCAAXEBQRCQcXGAcCDQYPFQoGCBwDAAcL"));
+        const OR_KEY = dK(atob("BRoSHQYPDBkbFggCAwYPFRodCAAXEBQRCQcXGAcCDQYPFQoGCBwDAAcL"));
         const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
-        const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
         
-        let base64Image = "", currentMimeType = "image/jpeg", engineUsed = "";
+        let base64Image = "", currentMimeType = "image/jpeg";
         const MAX_SIZE_MB = 5;
         const pageLogin = document.getElementById('pageLogin');
         const pageAnalyze = document.getElementById('pageAnalyze');
@@ -373,78 +373,48 @@ DIMORPHISM: [40-95]
 IYI: [virgülle en az 5 iyi özellik]
 KOTU: [virgülle en az 5 kötü özellik]
 DETAY: [2-3 cümle acımasız yorum]
-ÖRNEK: MOG: 6.8 / PSL: 6.2 / PSL_KATEGORI: HTN / APPEAL: 6.5 / HARMONY: 72 / DIMORPHISM: 65 / IYI: keskin çene, pozitif canthal tilt, simetrik burun, dolgun dudak, temiz cilt / KOTU: UEE, asimetrik kaş, geniş burun, saç çizgisi gerilemesi, göz altı morlukları / DETAY: Ortalamanın üstünde ancak göz bölgesi zayıf.`;        async function callEngine1() {
-            engineUsed = 'CoreEngine v2.1';
-            console.log('🟢 Motor 1 çağrılıyor...');
-            try {
-                const r = await fetchWithTimeout(`${GEMINI_URL}?key=${GEMINI_KEY}`, {
-                    method:'POST', headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({
-                        contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
-                        generationConfig:{temperature:0.4,maxOutputTokens:600}
-                    })
-                }, 25000);
-                
-                if(!r.ok) {
-                    const errData = await r.json().catch(()=>({}));
-                    console.error('🔴 Motor 1 hatası:', errData);
-                    throw new Error(errData.error?.message || 'HTTP '+r.status);
-                }
-                
-                const d = await r.json();
-                const text = d.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(!text) throw new Error('Boş yanıt');
-                console.log('✅ Motor 1 başarılı');
-                return text;
-            } catch(e) {
-                console.error('🔴 Motor 1 exception:', e.message);
-                throw e;
-            }
+ÖRNEK: MOG: 6.8 / PSL: 6.2 / PSL_KATEGORI: HTN / APPEAL: 6.5 / HARMONY: 72 / DIMORPHISM: 65 / IYI: keskin çene, pozitif canthal tilt, simetrik burun, dolgun dudak, temiz cilt / KOTU: UEE, asimetrik kaş, geniş burun, saç çizgisi gerilemesi, göz altı morlukları / DETAY: Ortalamanın üstünde ancak göz bölgesi zayıf.`;        async function callGemini() {
+            console.log('🟢 Gemini çağrılıyor...');
+            const r = await fetchWithTimeout(`${GEMINI_URL}?key=${GEMINI_KEY}`, {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({
+                    contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
+                    generationConfig:{temperature:0.4,maxOutputTokens:600}
+                })
+            }, 25000);
+            if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
+            const d=await r.json();
+            const t=d.candidates?.[0]?.content?.parts?.[0]?.text;
+            if(!t||t.trim().length<10)throw new Error('Yanıt çok kısa');
+            console.log('✅ Gemini başarılı');
+            return t;
         }
 
-        async function callEngine2() {
-            engineUsed = 'VisionEngine X1';
-            console.log('🟠 Motor 2 çağrılıyor...');
-            
-            const models = ['llama-3.2-11b-vision-preview', 'llama-3.2-90b-vision-preview'];
-            
-            for(const m of models) {
-                try {
-                    console.log('🟠 Model deneniyor:', m);
-                    const r = await fetchWithTimeout(GROQ_URL, {
-                        method:'POST',
-                        headers:{
-                            'Content-Type':'application/json',
-                            'Authorization':`Bearer ${GROQ_KEY}`
-                        },
-                        body:JSON.stringify({
-                            model:m,
-                            messages:[{
-                                role:'user',
-                                content:[
-                                    {type:'text',text:PROMPT},
-                                    {type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}
-                                ]
-                            }],
-                            temperature:0.4,
-                            max_tokens:600
-                        })
-                    }, 20000);
-                    
-                    if(r.ok) {
-                        const d = await r.json();
-                        console.log('✅ Motor 2 başarılı:', m);
-                        return d.choices?.[0]?.message?.content;
-                    } else {
-                        const errData = await r.json().catch(()=>({}));
-                        console.error('🔴 Model hatası:', m, errData);
-                    }
-                } catch(e) {
-                    console.error('🔴 Exception:', m, e.message);
-                    continue;
-                }
-            }
-            throw new Error('Motor 2: Tüm modeller başarısız');
+        async function callOpenRouter() {
+            console.log('🟠 OpenRouter (Gemma 4) çağrılıyor...');
+            const r = await fetchWithTimeout(OR_URL, {
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                    'Authorization':`Bearer ${OR_KEY}`,
+                    'HTTP-Referer':'https://25max.app',
+                    'X-Title':'25 Max App'
+                },
+                body:JSON.stringify({
+                    model:'google/gemma-4-31b-it:free',
+                    messages:[{role:'user',content:[
+                        {type:'text',text:PROMPT},
+                        {type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}
+                    ]}],
+                    temperature:0.4,max_tokens:600
+                })
+            }, 30000);
+            if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
+            const d=await r.json();
+            const t=d.choices?.[0]?.message?.content;
+            if(!t||t.trim().length<10)throw new Error('Yanıt çok kısa');
+            console.log('✅ OpenRouter başarılı');
+            return t;
         }
 
         document.getElementById('btnAnalyze').addEventListener('click', async () => {
@@ -458,11 +428,9 @@ DETAY: [2-3 cümle acımasız yorum]
             const prog=startProgress();
             try {
                 let txt;
-                try { txt = await callEngine1(); } catch(e) {
+                try { txt = await callGemini(); } catch(e) {
                     sl.textContent='◈ YEDEK MOTOR ◈';
-                    try { txt = await callEngine2(); } catch(e2) {
-                        throw new Error('Tüm motorlar başarısız! Lütfen tekrar deneyin.');
-                    }
+                    txt = await callOpenRouter();
                 }
                 if(!txt) throw new Error("Boş yanıt");
                 prog.complete();
