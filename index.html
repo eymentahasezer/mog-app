@@ -438,7 +438,7 @@
                 </button>
 
                 <div class="error-box" id="loginError"></div>
-                <footer>v8.0 • Blackpill Engine</footer>
+                <footer>v9.0 • Blackpill Engine</footer>
             </div>
         </div>
 
@@ -510,7 +510,8 @@
     </div>
 
     <script>
-        const MODEL_NAME = 'gemini-2.5-flash';
+        // GÜNCEL MODEL: gemini-3.6-flash
+        const MODEL_NAME = 'gemini-3.6-flash';
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent`;
         
         let base64Image = "";
@@ -528,7 +529,7 @@
 
         // Otomatik giriş kontrolü
         window.addEventListener('DOMContentLoaded', () => {
-            const savedKey = localStorage.getItem('25max_api_key_v8');
+            const savedKey = localStorage.getItem('25max_api_key_v9');
             if (savedKey && savedKey.length > 20) {
                 showPage(pageAnalyze);
             }
@@ -547,7 +548,7 @@
                 return;
             }
 
-            localStorage.setItem('25max_api_key_v8', apiKey);
+            localStorage.setItem('25max_api_key_v9', apiKey);
             document.getElementById('apiKeyInput').value = '';
             showPage(pageAnalyze);
         });
@@ -561,7 +562,7 @@
 
         // ---------- ÇIKIŞ BUTONU ----------
         document.getElementById('btnLogout').addEventListener('click', () => {
-            localStorage.removeItem('25max_api_key_v8');
+            localStorage.removeItem('25max_api_key_v9');
             document.getElementById('apiKeyInput').value = '';
             resetUpload();
             document.getElementById('result').style.display = 'none';
@@ -647,7 +648,7 @@
 
         // ---------- ANALİZ BUTONU ----------
         document.getElementById('btnAnalyze').addEventListener('click', async () => {
-            const apiKey = localStorage.getItem('25max_api_key_v8');
+            const apiKey = localStorage.getItem('25max_api_key_v9');
             const btn = document.getElementById('btnAnalyze');
             const btnText = document.getElementById('btnText');
             const scannerOverlay = document.getElementById('scannerOverlay');
