@@ -131,7 +131,7 @@
         .progress-bar-bg { width: 100%; height: 6px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
         .progress-bar-fill {
             height: 100%; background: linear-gradient(90deg, #00b32b, #00ff41);
-            box-shadow: 0 0 15px #00ff41; transition: width 0.3s ease; border-radius: 6px;
+            box-shadow: 0 0 15px #00ff41; transition: width 0.5s ease; border-radius: 6px;
         }
         .progress-text { font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 13px; letter-spacing: 2px; }
         .result-container { margin-top: 20px; text-align: left; display: none; animation: fadeSlide 0.5s ease; }
@@ -211,7 +211,7 @@
                 </div>
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ YAP</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v16.0 • Private Engine</footer>
+                <footer>v17.0 • Private Engine</footer>
             </div>
         </div>
 
@@ -268,15 +268,11 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <script>
-        // Şifreli API anahtarları
+    </div>    <script>
         const _k = "25max2024secure";
         function dK(e){let r='';for(let i=0;i<e.length;i++)r+=String.fromCharCode(e.charCodeAt(i)^_k.charCodeAt(i%_k.length));return r;}
         const GEMINI_KEY = dK(atob("GDwbHRkPEx4XFRIOFBwSEg0TGh0RGBALBgYaGQ4XDw4UAgc="));
         const GROQ_KEY = dK(atob("GAwPEBsWAgYKGBQKBBoPFh0IAAIbHhIMEQ4FBgcXGAcCDQYPFQoGCBwDAAcL"));
-
         const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
         const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
         
@@ -336,49 +332,56 @@
         }
 
         function resetUpload() {
-            document.getElementById('galleryInput').value="";
-            document.getElementById('cameraInput').value="";
-            document.getElementById('previewWrapper').classList.remove('active');
-            document.getElementById('preview').src="";
-            document.getElementById('scannerOverlay').style.display='none';
-            document.getElementById('progressWrap').style.display='none';
+            document.getElementById('galleryInput').value=""; document.getElementById('cameraInput').value="";
+            document.getElementById('previewWrapper').classList.remove('active'); document.getElementById('preview').src="";
+            document.getElementById('scannerOverlay').style.display='none'; document.getElementById('progressWrap').style.display='none';
             base64Image=""; currentMimeType="image/jpeg";
         }
 
         function showErr(m) {
-            const b=document.getElementById('analyzeError');
-            b.textContent='⚠️ '+m; b.style.display='block';
+            const b=document.getElementById('analyzeError'); b.textContent='⚠️ '+m; b.style.display='block';
             setTimeout(()=>{if(b)b.style.display='none';},5000);
         }
 
         function startProgress() {
             const w=document.getElementById('progressWrap'), f=document.getElementById('progressFill'), t=document.getElementById('progressText');
             w.style.display='block'; let p=0;
-            const i=setInterval(()=>{p+=Math.random()*8+2; if(p>=90){p=90;clearInterval(i);} f.style.width=p+'%'; t.textContent='%'+Math.floor(p);},200);
+            const i=setInterval(()=>{
+                p+=Math.random()*3+0.5;
+                if(p>=85){p=85;clearInterval(i);
+                    const si=setInterval(()=>{p+=0.3;if(p>=95){p=95;clearInterval(si);}f.style.width=p+'%';t.textContent='%'+Math.floor(p);},500);
+                }
+                f.style.width=p+'%'; t.textContent='%'+Math.floor(p);
+            },300);
             return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},600);}};
-        }        const PROMPT = `Bu yüzü acımasızca değerlendir. Şu formatta cevap ver:
+        }
 
+        async function fetchWithTimeout(url, options, timeout=25000) {
+            const controller=new AbortController();
+            const tid=setTimeout(()=>controller.abort(),timeout);
+            try{const r=await fetch(url,{...options,signal:controller.signal});clearTimeout(tid);return r;}
+            catch(e){clearTimeout(tid);if(e.name==='AbortError')throw new Error('Zaman aşımı');throw e;}
+        }
+
+        const PROMPT = `Bu yüzü acımasızca değerlendir. Şu formatta cevap ver:
 MOG: [1-10]
 PSL: [1-10]
 PSL_KATEGORI: [LTN/MTN/HTN/Chadlite/Chad/IT'S OVER BRO]
 APPEAL: [1-10]
 HARMONY: [40-95]
 DIMORPHISM: [40-95]
-IYI: [en az 5 iyi özellik, virgülle]
-KOTU: [en az 5 kötü özellik, virgülle]
-DETAY: [2-3 cümle]
-
-ÖRNEK: MOG: 6.8 / PSL: 6.2 / PSL_KATEGORI: HTN / APPEAL: 6.5 / HARMONY: 72 / DIMORPHISM: 65 / IYI: keskin çene hattı, pozitif canthal tilt, simetrik burun, dolgun dudaklar, temiz cilt / KOTU: hafif UEE, asimetrik kaşlar, geniş burun kanatları, saç çizgisi gerilemesi, göz altı morlukları / DETAY: Ortalamanın üstünde ancak göz bölgesi zayıf.`;
-
-        async function callEngine1() {
+IYI: [virgülle en az 5 iyi özellik]
+KOTU: [virgülle en az 5 kötü özellik]
+DETAY: [2-3 cümle acımasız yorum]
+ÖRNEK: MOG: 6.8 / PSL: 6.2 / PSL_KATEGORI: HTN / APPEAL: 6.5 / HARMONY: 72 / DIMORPHISM: 65 / IYI: keskin çene, pozitif canthal tilt, simetrik burun, dolgun dudak, temiz cilt / KOTU: UEE, asimetrik kaş, geniş burun, saç çizgisi gerilemesi, göz altı morlukları / DETAY: Ortalamanın üstünde ancak göz bölgesi zayıf.`;        async function callEngine1() {
             engineUsed = 'CoreEngine v2.1';
-            const r = await fetch(`${GEMINI_URL}?key=${GEMINI_KEY}`, {
-                method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({
-                    contents: [{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
-                    generationConfig:{temperature:0.4,maxOutputTokens:1000}
+            const r = await fetchWithTimeout(`${GEMINI_URL}?key=${GEMINI_KEY}`, {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({
+                    contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
+                    generationConfig:{temperature:0.4,maxOutputTokens:800}
                 })
-            });
+            }, 20000);
             if(!r.ok) throw new Error('Engine1');
             const d = await r.json();
             return d.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -386,11 +389,10 @@ DETAY: [2-3 cümle]
 
         async function callEngine2() {
             engineUsed = 'VisionEngine X1';
-            const models = ['llama-4-scout-17b-16e-instruct', 'llama-3.2-11b-vision-preview', 'llama-3.2-90b-vision-preview'];
-            let lastErr;
+            const models = ['llama-4-scout-17b-16e-instruct', 'llama-3.2-11b-vision-preview'];
             for(const m of models) {
                 try {
-                    const r = await fetch(GROQ_URL, {
+                    const r = await fetchWithTimeout(GROQ_URL, {
                         method:'POST',
                         headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
                         body:JSON.stringify({
@@ -399,16 +401,13 @@ DETAY: [2-3 cümle]
                                 {type:'text',text:PROMPT},
                                 {type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}
                             ]}],
-                            temperature:0.4,max_tokens:1000
+                            temperature:0.4,max_tokens:800
                         })
-                    });
-                    if(r.ok) {
-                        const d = await r.json();
-                        return d.choices?.[0]?.message?.content;
-                    }
-                } catch(e) { lastErr = e; }
+                    }, 15000);
+                    if(r.ok){const d=await r.json();return d.choices?.[0]?.message?.content;}
+                }catch(e){continue;}
             }
-            throw lastErr || new Error('Tüm modeller başarısız');
+            throw new Error('Tüm motorlar zaman aşımı');
         }
 
         document.getElementById('btnAnalyze').addEventListener('click', async () => {
@@ -423,13 +422,14 @@ DETAY: [2-3 cümle]
             try {
                 let txt;
                 try { txt = await callEngine1(); } catch(e) {
+                    sl.textContent='◈ YEDEK MOTOR ◈';
                     try { txt = await callEngine2(); } catch(e2) {
-                        throw new Error('Analiz motorları çalışmadı!');
+                        throw new Error('Tüm motorlar başarısız!');
                     }
                 }
                 if(!txt) throw new Error("Boş yanıt");
                 prog.complete();
-                sl.textContent='◈ ANALİZ TAMAMLANDI ◈';
+                sl.textContent='◈ TAMAMLANDI ◈';
                 setTimeout(()=>{so.style.display='none';},800);
                 renderResult(txt);
                 rc.style.display='block';
@@ -498,7 +498,7 @@ DETAY: [2-3 cümle]
                     {name:'✅ EN İYİ',value:r.best.map(i=>`✅ ${i}`).join('\n')||'Belirtilmedi',inline:false},
                     {name:'❌ EN KÖTÜ',value:r.worst.map(i=>`❌ ${i}`).join('\n')||'Belirtilmedi',inline:false}
                 ],
-                footer:{text:'25 Max App • Advanced Analysis Engine'},
+                footer:{text:'25 Max App • Advanced Engine'},
                 timestamp:new Date().toISOString()
             };
             if(pu) emb.image={url:pu};
