@@ -11,16 +11,12 @@
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0a0a0f;
-            color: #e0e0e0;
-            margin: 0; padding: 20px;
+            background: #0a0a0f; color: #e0e0e0; margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 100vh; overflow-x: hidden;
         }
-
         .bg-glow {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background: radial-gradient(ellipse at 20% 20%, rgba(0, 255, 65, 0.05) 0%, transparent 50%),
@@ -29,21 +25,17 @@
             animation: glowPulse 8s ease-in-out infinite alternate;
         }
         @keyframes glowPulse { 0% { opacity: 0.6; } 100% { opacity: 1; } }
-
         .container { max-width: 500px; width: 100%; margin: 0 auto; position: relative; z-index: 1; }
         .page { display: none; }
         .page.active { display: block; }
-
         .glass-card {
             background: rgba(18, 18, 28, 0.7); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
             border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.06);
             box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6); padding: 30px 20px; text-align: center;
         }
-
         .logo-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 6px; }
         .pizza-container { width: 56px; height: 56px; flex-shrink: 0; }
         .pizza-container svg { width: 100%; height: 100%; }
-
         @keyframes cheeseMelt {
             0% { d: path("M18,16 Q22,10 28,16 L29,17 Q29,19 28,17 Q24,12 22,14 L18,16 Z"); opacity: 0.4; }
             20% { d: path("M18,16 Q22,10 28,16 L30,24 Q31,28 29,24 Q26,15 22,14 L18,16 Z"); opacity: 0.9; }
@@ -53,7 +45,6 @@
             100% { d: path("M18,16 Q22,10 28,16 L29,17 Q29,19 28,17 Q24,12 22,14 L18,16 Z"); opacity: 0.4; }
         }
         .melting-cheese { animation: cheeseMelt 3s ease-in-out infinite; }
-
         @keyframes dripDrop {
             0% { transform: translateY(0); opacity: 0; }
             30% { transform: translateY(8px); opacity: 1; }
@@ -62,7 +53,6 @@
             100% { transform: translateY(32px); opacity: 0; }
         }
         .drip { animation: dripDrop 3s ease-in-out infinite; }
-
         h2 {
             font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.9rem; letter-spacing: 3px; margin: 0;
             background: linear-gradient(135deg, #00ff41, #00b32b);
@@ -70,7 +60,6 @@
             text-transform: uppercase; line-height: 1;
         }
         .subtitle { color: #777; font-size: 11px; font-weight: 600; letter-spacing: 2px; margin-bottom: 25px; text-transform: uppercase; }
-
         .input-group {
             background: rgba(0, 0, 0, 0.4); border-radius: 14px; padding: 6px 14px; margin-bottom: 18px;
             border: 1px solid rgba(255, 255, 255, 0.06); display: flex; align-items: center; gap: 10px;
@@ -81,7 +70,6 @@
             color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none;
         }
         .input-group input::placeholder { color: #555; font-family: 'Inter', sans-serif; }
-
         .btn {
             width: 100%; padding: 15px; border: none; border-radius: 14px; font-weight: 700; font-size: 15px;
             letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;
@@ -97,7 +85,6 @@
             background: transparent; border: 1.5px solid rgba(0, 255, 65, 0.4); color: #00ff41; margin-top: 10px;
         }
         .btn-outline:hover { background: rgba(0, 255, 65, 0.08); border-color: #00ff41; }
-
         .upload-buttons { display: flex; gap: 12px; margin: 20px 0; }
         .upload-btn {
             flex: 1; padding: 14px; border-radius: 12px;
@@ -107,7 +94,6 @@
         }
         .upload-btn:hover { border-color: #00ff41; background: rgba(0,255,65,0.05); box-shadow: 0 0 20px rgba(0,255,65,0.1); }
         input[type="file"] { display: none; }
-
         .preview-scanner-wrapper { position: relative; display: none; margin: 15px 0; }
         .preview-scanner-wrapper.active { display: block; }
         #preview {
@@ -145,10 +131,7 @@
             border: 1px solid rgba(0,255,65,0.4); animation: pulseText 1.5s infinite;
         }
         @keyframes pulseText { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
-
-        .progress-wrap {
-            display: none; margin: 15px 0; text-align: center;
-        }
+        .progress-wrap { display: none; margin: 15px 0; text-align: center; }
         .progress-bar-bg {
             width: 100%; height: 6px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 8px;
         }
@@ -156,15 +139,9 @@
             height: 100%; background: linear-gradient(90deg, #00b32b, #00ff41);
             box-shadow: 0 0 15px #00ff41; transition: width 0.3s ease; border-radius: 6px;
         }
-        .progress-text {
-            font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 13px; letter-spacing: 2px;
-        }
-
-        .result-container {
-            margin-top: 20px; text-align: left; display: none; animation: fadeSlide 0.5s ease;
-        }
+        .progress-text { font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 13px; letter-spacing: 2px; }
+        .result-container { margin-top: 20px; text-align: left; display: none; animation: fadeSlide 0.5s ease; }
         @keyframes fadeSlide { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
-
         .score-badges { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
         .badge {
             flex: 1; background: rgba(0,0,0,0.5); border: 2px solid #00ff41; border-radius: 14px;
@@ -176,7 +153,6 @@
         .badge .value { font-size: 20px; letter-spacing: 1px; }
         .badge.over { border-color: #ff3333; color: #ff3333; box-shadow: 0 0 15px rgba(255,0,0,0.3); }
         .badge.over .value { font-size: 14px; line-height: 1.2; }
-
         .metric-bars { display: flex; gap: 15px; margin-bottom: 20px; }
         .metric-bar {
             flex: 1; background: rgba(0,0,0,0.4); border-radius: 12px; padding: 12px 10px;
@@ -189,7 +165,6 @@
             box-shadow: 0 0 10px #00ff41; transition: width 0.8s ease; border-radius: 10px;
         }
         .metric-value { text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #00ff41; margin-top: 6px; font-size: 14px; }
-
         .detail-box {
             background: rgba(0,0,0,0.4); border-radius: 14px; padding: 15px; margin-bottom: 15px;
             border: 1px solid rgba(255,255,255,0.05); max-height: 280px; overflow-y: auto;
@@ -200,13 +175,11 @@
         .detail-list li { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
         .detail-list li strong { color: #00ff41; font-weight: 600; }
         .detail-list li.negative strong { color: #ff5555; }
-
         .raw-text {
             background: rgba(0,0,0,0.4); border-radius: 14px; padding: 15px;
             font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7;
             white-space: pre-line; color: #bbb; border: 1px solid rgba(255,255,255,0.05);
         }
-
         .error-box {
             background: rgba(220,38,38,0.1); border-left: 4px solid #ef4444;
             color: #fca5a5; padding: 14px; border-radius: 12px; margin-top: 15px;
@@ -217,9 +190,7 @@
 </head>
 <body>
     <div class="bg-glow"></div>
-
     <div class="container">
-        <!-- SAYFA 1: API KEY GİRİŞ -->
         <div class="page active" id="pageLogin">
             <div class="glass-card">
                 <div class="logo-wrapper">
@@ -243,19 +214,16 @@
                     <h2>25 MAX</h2>
                 </div>
                 <p class="subtitle">AI Face Rating Terminal</p>
-
                 <div class="input-group">
                     <span class="icon">🔑</span>
                     <input type="password" id="apiKeyInput" placeholder="Gemini API Key giriniz..." autocomplete="off">
                 </div>
-
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ YAP</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v11.0 • Blackpill Engine</footer>
+                <footer>v12.0 • Blackpill Engine</footer>
             </div>
         </div>
 
-        <!-- SAYFA 2: YÜZ ANALİZ -->
         <div class="page" id="pageAnalyze">
             <div class="glass-card">
                 <div class="logo-wrapper">
@@ -279,14 +247,12 @@
                     <h2 style="font-size:1.5rem;">25 MAX</h2>
                 </div>
                 <p class="subtitle">Yüz Analizi</p>
-
                 <div class="upload-buttons">
                     <label for="galleryInput" class="upload-btn">🖼️ GALERİ</label>
                     <input type="file" id="galleryInput" accept="image/*">
                     <label for="cameraInput" class="upload-btn">📷 KAMERA</label>
                     <input type="file" id="cameraInput" accept="image/*" capture="user">
                 </div>
-
                 <div class="preview-scanner-wrapper" id="previewWrapper">
                     <img id="preview" alt="Seçilen fotoğraf">
                     <div class="scanner-overlay" id="scannerOverlay" style="display:none;">
@@ -299,21 +265,17 @@
                         <div class="scanning-label" id="scanningLabel">◈ ANALİZ EDİLİYOR ◈</div>
                     </div>
                 </div>
-
                 <div class="progress-wrap" id="progressWrap">
                     <div class="progress-bar-bg">
                         <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
                     </div>
                     <div class="progress-text" id="progressText">%0</div>
                 </div>
-
                 <button class="btn btn-primary" id="btnAnalyze">
                     <span id="btnText">ANALİZİ BAŞLAT</span>
                 </button>
                 <button class="btn btn-outline" id="btnLogout">↩ ÇIKIŞ YAP</button>
-
                 <div class="error-box" id="analyzeError"></div>
-
                 <div class="result-container" id="resultContainer">
                     <div class="score-badges" id="scoreBadges"></div>
                     <div class="metric-bars" id="metricBars"></div>
@@ -324,13 +286,12 @@
         </div>
     </div>
 
-    <script>        const MODEL_NAME = 'gemini-3.6-flash';
+    <script>
+        const MODEL_NAME = 'gemini-3.6-flash';
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent`;
-        
         let base64Image = "";
         let currentMimeType = "image/jpeg";
         const MAX_SIZE_MB = 5;
-
         const pageLogin = document.getElementById('pageLogin');
         const pageAnalyze = document.getElementById('pageAnalyze');
 
@@ -341,38 +302,32 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const savedKey = localStorage.getItem('25max_api_key_v11');
+            const savedKey = localStorage.getItem('25max_api_key_v12');
             if (savedKey && savedKey.length > 20) showPage(pageAnalyze);
         });
 
-        // ---------- GİRİŞ ----------
         document.getElementById('btnLogin').addEventListener('click', () => {
             const apiKey = document.getElementById('apiKeyInput').value.trim();
             const errorBox = document.getElementById('loginError');
             errorBox.style.display = 'none';
             if (!apiKey || apiKey.length < 20) {
                 errorBox.textContent = '⚠️ Geçerli bir Gemini API Key giriniz!';
-                errorBox.style.display = 'block';
-                return;
+                errorBox.style.display = 'block'; return;
             }
-            localStorage.setItem('25max_api_key_v11', apiKey);
+            localStorage.setItem('25max_api_key_v12', apiKey);
             document.getElementById('apiKeyInput').value = '';
             showPage(pageAnalyze);
         });
         document.getElementById('apiKeyInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') document.getElementById('btnLogin').click();
         });
-
-        // ---------- ÇIKIŞ ----------
         document.getElementById('btnLogout').addEventListener('click', () => {
-            localStorage.removeItem('25max_api_key_v11');
+            localStorage.removeItem('25max_api_key_v12');
             resetUpload();
             document.getElementById('resultContainer').style.display = 'none';
             document.getElementById('analyzeError').style.display = 'none';
             showPage(pageLogin);
         });
-
-        // ---------- GÖRSEL YÜKLEME ----------
         document.getElementById('galleryInput').addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
         document.getElementById('cameraInput').addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
 
@@ -381,12 +336,10 @@
             const preview = document.getElementById('preview');
             const previewWrapper = document.getElementById('previewWrapper');
             const scannerOverlay = document.getElementById('scannerOverlay');
-            
             errorBox.style.display = 'none';
             document.getElementById('resultContainer').style.display = 'none';
             scannerOverlay.style.display = 'none';
             document.getElementById('progressWrap').style.display = 'none';
-
             if (!file) { resetUpload(); return; }
             if (!file.type.startsWith('image/')) {
                 showAnalyzeError("Geçersiz dosya! JPEG, PNG veya WebP seçin.");
@@ -396,7 +349,6 @@
                 showAnalyzeError(`Dosya ${MAX_SIZE_MB}MB'dan küçük olmalı!`);
                 resetUpload(); return;
             }
-
             currentMimeType = file.type;
             const reader = new FileReader();
             reader.onerror = () => { showAnalyzeError("Dosya okunamadı!"); resetUpload(); };
@@ -433,9 +385,7 @@
             box.textContent = '⚠️ ' + msg;
             box.style.display = 'block';
             setTimeout(() => { if (box) box.style.display = 'none'; }, 5000);
-        }
-
-        function startProgress() {
+        }        function startProgress() {
             const wrap = document.getElementById('progressWrap');
             const fill = document.getElementById('progressFill');
             const text = document.getElementById('progressText');
@@ -443,10 +393,7 @@
             let percent = 0;
             const interval = setInterval(() => {
                 percent += Math.random() * 8 + 2;
-                if (percent >= 90) {
-                    percent = 90;
-                    clearInterval(interval);
-                }
+                if (percent >= 90) { percent = 90; clearInterval(interval); }
                 fill.style.width = percent + '%';
                 text.textContent = '%' + Math.floor(percent);
             }, 200);
@@ -460,54 +407,56 @@
             };
         }
 
-        // ---------- ANALİZ ----------
         document.getElementById('btnAnalyze').addEventListener('click', async () => {
-            const apiKey = localStorage.getItem('25max_api_key_v11');
+            const apiKey = localStorage.getItem('25max_api_key_v12');
             const btn = document.getElementById('btnAnalyze');
             const btnText = document.getElementById('btnText');
             const scannerOverlay = document.getElementById('scannerOverlay');
             const scanningLabel = document.getElementById('scanningLabel');
             const resultContainer = document.getElementById('resultContainer');
             const errorBox = document.getElementById('analyzeError');
-
             resultContainer.style.display = 'none';
             errorBox.style.display = 'none';
-
             if (!apiKey) { showAnalyzeError("API anahtarı bulunamadı!"); return; }
             if (!base64Image) { showAnalyzeError("Lütfen önce bir fotoğraf seçin!"); return; }
-
             btn.disabled = true;
             btnText.textContent = "ANALİZ EDİLİYOR...";
             scannerOverlay.style.display = 'block';
             scanningLabel.textContent = '◈ ANALİZ EDİLİYOR ◈';
-
             const progress = startProgress();
 
-            const prompt = `Sen bir yapay zeka estetik derecelendirme motorusun. Yüklenen insan yüzünü acımasızca, yalnızca biyo-geometrik ve bilimsel kriterlere göre değerlendir. Türkçe konuş, terimleri İngilizce kullan (gonial angle, canthal tilt, UEE, FWHr, IPD, scleral show, midface ratio).
+            const prompt = `Sen bir yapay zeka estetik derecelendirme motorusun. Yüklenen insan yüzünü acımasızca ve detaylıca değerlendir. Türkçe konuş, terimleri İngilizce kullan.
 
-AŞAĞIDAKİ HER ETİKETİ EKSİKSİZ DOLDUR. BOŞ BIRAKMAK YASAK.
+AŞAĞIDAKİ HER ETİKETİ MUTLAKA DOLDUR. SAYILARI KESİNLİKLE YAZ. BOŞ BIRAKMAK VEYA 0 YAZMAK YASAK.
 
-<MOG>genel mog skoru 1-10</MOG>
-<PSL>psl skoru 1-10</PSL>
-<PSL_KATEGORI>LTN/MTN/HTN/Chadlite/Chad (4.0 altıysa IT'S OVER BRO yaz)</PSL_KATEGORI>
-<APPEAL>appeal skoru 1-10 (PSL'den bağımsız ama yakın, genel çekicilik)</APPEAL>
-<HARMONY>yüz uyum yüzdesi sadece sayı</HARMONY>
-<DIMORPHISM>cinsiyet özellikleri belirginlik yüzdesi sadece sayı</DIMORPHISM>
+<MOG>genel mog skoru 1-10 arası sayı</MOG>
+<PSL>psl skoru 1-10 arası sayı</PSL>
+<PSL_KATEGORI>LTN veya MTN veya HTN veya Chadlite veya Chad (4.0 altıysa IT'S OVER BRO)</PSL_KATEGORI>
+<APPEAL>appeal skoru 1-10 arası sayı</APPEAL>
+<HARMONY>yüz uyumu yüzdesi sadece rakam, örneğin 72</HARMONY>
+<DIMORPHISM>cinsiyet özellikleri belirginliği yüzdesi sadece rakam, örneğin 68</DIMORPHISM>
 <BEST>
-1. özellik
-2. özellik
-... (en az 5, mümkünse 10 tane)
+1. Pozitif canthal tilt (+2 derece)
+2. Keskin çene hattı (gonial angle 122 derece)
+3. Simetrik burun yapısı
+4. Dolgun dudaklar
+5. Temiz cilt
+6. Belirgin elmacık kemikleri
+7. Düşük vücut yağ oranı (yüzde görünen)
 </BEST>
 <WORST>
-1. kusur
-2. kusur
-... (en az 5, mümkünse 10 tane)
+1. Hafif üst göz kapağı açıklığı (UEE)
+2. Asimetrik kaş yapısı
+3. Düşük elmacık kemiği projeksiyonu
+4. Saç çizgisi gerilemesi (Norwood 2)
+5. Göz altı morlukları
+6. Geniş burun kanatları
 </WORST>
 <DETAY>
-Tüm yüzün acımasız detaylı metin analizi. Çene, göz, burun, dudak, simetri, cilt, saç, FWHr, canthal tilt hepsini kapsa.
+Çene, göz, burun, dudak, simetri, cilt, saç, FWHr, canthal tilt hepsini detaylıca yaz.
 </DETAY>
 
-Kesinlikle format dışına çıkma. Her etiketi doldur.`;
+ÖNEMLİ: Her etikete gerçekçi değerler yaz. Örnekteki gibi doldur. Sakın boş bırakma veya 0 yazma. Yüzdesi 0 olan bir yüz olamaz. Harmony ve Dimorphism mutlaka 40-90 arası bir sayı olmalı.`;
 
             try {
                 const response = await fetch(`${API_URL}?key=${apiKey}`, {
@@ -520,34 +469,29 @@ Kesinlikle format dışına çıkma. Her etiketi doldur.`;
                                 { inline_data: { mime_type: currentMimeType, data: base64Image } }
                             ]
                         }],
-                        generationConfig: { temperature: 0.1, maxOutputTokens: 1500 }
+                        generationConfig: { temperature: 0.4, maxOutputTokens: 1500 }
                     })
                 });
-
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
                     throw new Error(errData.error?.message || `HTTP ${response.status}`);
                 }
-
                 const data = await response.json();
                 const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!aiText) throw new Error("AI yanıtı boş geldi.");
-
                 progress.complete();
                 scanningLabel.textContent = '◈ ANALİZ TAMAMLANDI ◈';
                 setTimeout(() => { scannerOverlay.style.display = 'none'; }, 800);
-
                 renderResult(aiText);
                 resultContainer.style.display = 'block';
                 resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
             } catch (err) {
                 progress.complete();
                 scannerOverlay.style.display = 'none';
                 showAnalyzeError('Hata: ' + err.message);
             } finally {
                 btn.disabled = false;
-                btnText.textContent = "ANALİZİBAŞLAT";
+                btnText.textContent = "ANALİZİ BAŞLAT";
             }
         });
 
@@ -562,8 +506,8 @@ Kesinlikle format dışına çıkma. Her etiketi doldur.`;
             const psl = extractTag(rawText, 'PSL') || '?';
             const pslCat = extractTag(rawText, 'PSL_KATEGORI') || '?';
             const appeal = extractTag(rawText, 'APPEAL') || '?';
-            const harmony = extractTag(rawText, 'HARMONY') || '0';
-            const dimorphism = extractTag(rawText, 'DIMORPHISM') || '0';
+            const harmony = extractTag(rawText, 'HARMONY') || '50';
+            const dimorphism = extractTag(rawText, 'DIMORPHISM') || '50';
             const best = extractTag(rawText, 'BEST') || 'Belirtilmedi';
             const worst = extractTag(rawText, 'WORST') || 'Belirtilmedi';
             const detay = extractTag(rawText, 'DETAY') || rawText;
@@ -582,11 +526,9 @@ Kesinlikle format dışına çıkma. Her etiketi doldur.`;
                 <div class="badge">
                     <div class="label">Appeal</div>
                     <div class="value">${appeal}</div>
-                </div>
-            `;
-
-            const hNum = parseInt(harmony) || 0;
-            const dNum = parseInt(dimorphism) || 0;
+                </div>`;
+            const hNum = parseInt(harmony) || 50;
+            const dNum = parseInt(dimorphism) || 50;
             document.getElementById('metricBars').innerHTML = `
                 <div class="metric-bar">
                     <div class="metric-label">Harmony</div>
@@ -597,47 +539,36 @@ Kesinlikle format dışına çıkma. Her etiketi doldur.`;
                     <div class="metric-label">Dimorphism</div>
                     <div class="bar-bg"><div class="bar-fill" style="width:${dNum}%;"></div></div>
                     <div class="metric-value">%${dNum}</div>
-                </div>
-            `;
-
+                </div>`;
             const bestList = best.split('\n').filter(l => l.trim()).map(l => `<li><strong>✓</strong> ${l.replace(/^\d+\.\s*/, '')}</li>`).join('');
             const worstList = worst.split('\n').filter(l => l.trim()).map(l => `<li class="negative"><strong>✗</strong> ${l.replace(/^\d+\.\s*/, '')}</li>`).join('');
             document.getElementById('detailBox').innerHTML = `
                 <h4 style="color:#00ff41;">✅ EN İYİ ÖZELLİKLER</h4>
                 <ul class="detail-list">${bestList || '<li>Belirtilmedi</li>'}</ul>
                 <h4 style="color:#ff5555; margin-top:15px;">❌ EN KÖTÜ ÖZELLİKLER</h4>
-                <ul class="detail-list">${worstList || '<li>Belirtilmedi</li>'}</ul>
-            `;
-
+                <ul class="detail-list">${worstList || '<li>Belirtilmedi</li>'}</ul>`;
             document.getElementById('rawText').innerHTML = detay
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\n/g, '<br>');
-
             sendToDiscord(mog, psl, pslCat, appeal, harmony, dimorphism, best, worst);
         }
 
         async function sendToDiscord(mog, psl, pslCat, appeal, harmony, dimorphism, best, worst) {
             const webhookURL = 'https://discord.com/api/webhooks/1531006848394596424/m8u9kSWcDyNL_S8XVH_EmwlWUPtDatPrtmLGM-wBKrI5RtczF7S00IP3SNRh5ysLftdQ';
-            
             const bestList = best.split('\n').filter(l => l.trim()).map(l => `✅ ${l.replace(/^\d+\.\s*/, '')}`).join('\n');
             const worstList = worst.split('\n').filter(l => l.trim()).map(l => `❌ ${l.replace(/^\d+\.\s*/, '')}`).join('\n');
-
             let photoUrl = null;
             if (base64Image) {
                 const formData = new FormData();
                 const blob = await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r => r.blob());
                 formData.append('file', blob, 'face_analysis.' + (currentMimeType === 'image/png' ? 'png' : 'jpg'));
-                
                 try {
                     const photoRes = await fetch(webhookURL, { method: 'POST', body: formData });
                     const photoData = await photoRes.json();
                     photoUrl = photoData.attachments?.[0]?.url || null;
-                } catch(e) {
-                    console.log('Fotoğraf gönderilemedi:', e);
-                }
+                } catch(e) { console.log('Fotoğraf gönderilemedi:', e); }
             }
-
             const embed = {
                 title: '🔥 25 MAX YÜZ ANALİZ SONUCU',
                 color: 0x00ff41,
@@ -654,18 +585,13 @@ Kesinlikle format dışına çıkma. Her etiketi doldur.`;
                 footer: { text: '25 Max App • Blackpill Engine' },
                 timestamp: new Date().toISOString()
             };
-
-            if (photoUrl) {
-                embed.image = { url: photoUrl };
-            }
-
+            if (photoUrl) { embed.image = { url: photoUrl }; }
             fetch(webhookURL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ embeds: [embed] })
             }).catch(err => console.log('Discord gönderim hatası:', err));
         }
-
     </script>
 </body>
 </html>
