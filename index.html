@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>25 Max App | Ultimate Face Rating</title>
+    <title>25 Max App | Dual AI Face Rating</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -61,7 +61,7 @@
         }
         .subtitle { color: #777; font-size: 11px; font-weight: 600; letter-spacing: 2px; margin-bottom: 25px; text-transform: uppercase; }
         .input-group {
-            background: rgba(0, 0, 0, 0.4); border-radius: 14px; padding: 6px 14px; margin-bottom: 18px;
+            background: rgba(0, 0, 0, 0.4); border-radius: 14px; padding: 6px 14px; margin-bottom: 14px;
             border: 1px solid rgba(255, 255, 255, 0.06); display: flex; align-items: center; gap: 10px;
         }
         .input-group .icon { font-size: 18px; }
@@ -185,12 +185,19 @@
             color: #fca5a5; padding: 14px; border-radius: 12px; margin-top: 15px;
             display: none; font-size: 14px;
         }
+        .ai-badge {
+            display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 6px;
+            margin-left: 5px; font-weight: 600; letter-spacing: 1px;
+        }
+        .ai-gemini { background: rgba(66,133,244,0.2); color: #4285f4; }
+        .ai-groq { background: rgba(245,158,11,0.2); color: #f59e0b; }
         footer { margin-top: 20px; color: #444; font-size: 10px; letter-spacing: 1.5px; }
     </style>
 </head>
 <body>
     <div class="bg-glow"></div>
     <div class="container">
+        <!-- SAYFA 1: API KEY GİRİŞ -->
         <div class="page active" id="pageLogin">
             <div class="glass-card">
                 <div class="logo-wrapper">
@@ -213,17 +220,22 @@
                     </div>
                     <h2>25 MAX</h2>
                 </div>
-                <p class="subtitle">AI Face Rating Terminal</p>
+                <p class="subtitle">Dual AI Face Rating Terminal</p>
                 <div class="input-group">
-                    <span class="icon">🔑</span>
-                    <input type="password" id="apiKeyInput" placeholder="Gemini API Key giriniz..." autocomplete="off">
+                    <span class="icon">🔵</span>
+                    <input type="password" id="geminiKeyInput" placeholder="Gemini API Key..." autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <span class="icon">🟠</span>
+                    <input type="password" id="groqKeyInput" placeholder="Groq API Key..." autocomplete="off">
                 </div>
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ YAP</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v12.0 • Blackpill Engine</footer>
+                <footer>v13.0 • Dual Engine • Gemini + Groq</footer>
             </div>
         </div>
 
+        <!-- SAYFA 2: YÜZ ANALİZ -->
         <div class="page" id="pageAnalyze">
             <div class="glass-card">
                 <div class="logo-wrapper">
@@ -246,7 +258,7 @@
                     </div>
                     <h2 style="font-size:1.5rem;">25 MAX</h2>
                 </div>
-                <p class="subtitle">Yüz Analizi</p>
+                <p class="subtitle">Yüz Analizi <span id="activeAiBadge"></span></p>
                 <div class="upload-buttons">
                     <label for="galleryInput" class="upload-btn">🖼️ GALERİ</label>
                     <input type="file" id="galleryInput" accept="image/*">
@@ -287,11 +299,17 @@
     </div>
 
     <script>
-        const MODEL_NAME = 'gemini-3.6-flash';
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent`;
+        // API Yapılandırması
+        const GEMINI_MODEL = 'gemini-1.5-flash';
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+        const GROQ_MODEL = 'qwen-qwen2-72b-instruct';
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        
         let base64Image = "";
         let currentMimeType = "image/jpeg";
         const MAX_SIZE_MB = 5;
+        let activeAI = 'Gemini';
+
         const pageLogin = document.getElementById('pageLogin');
         const pageAnalyze = document.getElementById('pageAnalyze');
 
@@ -302,32 +320,61 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const savedKey = localStorage.getItem('25max_api_key_v12');
-            if (savedKey && savedKey.length > 20) showPage(pageAnalyze);
+            const geminiKey = localStorage.getItem('25max_gemini_key');
+            const groqKey = localStorage.getItem('25max_groq_key');
+            if (geminiKey && groqKey) {
+                document.getElementById('geminiKeyInput').value = geminiKey;
+                document.getElementById('groqKeyInput').value = groqKey;
+                showPage(pageAnalyze);
+                updateActiveAiBadge();
+            }
         });
 
+        function updateActiveAiBadge(ai) {
+            if (ai) activeAI = ai;
+            const badge = document.getElementById('activeAiBadge');
+            if (activeAI === 'Gemini') {
+                badge.innerHTML = '<span class="ai-badge ai-gemini">GEMINI</span>';
+            } else {
+                badge.innerHTML = '<span class="ai-badge ai-groq">GROQ</span>';
+            }
+        }
+
+        // ---------- GİRİŞ ----------
         document.getElementById('btnLogin').addEventListener('click', () => {
-            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            const geminiKey = document.getElementById('geminiKeyInput').value.trim();
+            const groqKey = document.getElementById('groqKeyInput').value.trim();
             const errorBox = document.getElementById('loginError');
             errorBox.style.display = 'none';
-            if (!apiKey || apiKey.length < 20) {
+            
+            if (!geminiKey || geminiKey.length < 20) {
                 errorBox.textContent = '⚠️ Geçerli bir Gemini API Key giriniz!';
                 errorBox.style.display = 'block'; return;
             }
-            localStorage.setItem('25max_api_key_v12', apiKey);
-            document.getElementById('apiKeyInput').value = '';
+            if (!groqKey || groqKey.length < 20) {
+                errorBox.textContent = '⚠️ Geçerli bir Groq API Key giriniz!';
+                errorBox.style.display = 'block'; return;
+            }
+            
+            localStorage.setItem('25max_gemini_key', geminiKey);
+            localStorage.setItem('25max_groq_key', groqKey);
+            document.getElementById('geminiKeyInput').value = '';
+            document.getElementById('groqKeyInput').value = '';
+            updateActiveAiBadge('Gemini');
             showPage(pageAnalyze);
         });
-        document.getElementById('apiKeyInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('btnLogin').click();
-        });
+
+        // ---------- ÇIKIŞ ----------
         document.getElementById('btnLogout').addEventListener('click', () => {
-            localStorage.removeItem('25max_api_key_v12');
+            localStorage.removeItem('25max_gemini_key');
+            localStorage.removeItem('25max_groq_key');
             resetUpload();
             document.getElementById('resultContainer').style.display = 'none';
             document.getElementById('analyzeError').style.display = 'none';
             showPage(pageLogin);
         });
+
+        // ---------- GÖRSEL YÜKLEME ----------
         document.getElementById('galleryInput').addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
         document.getElementById('cameraInput').addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
 
@@ -385,7 +432,9 @@
             box.textContent = '⚠️ ' + msg;
             box.style.display = 'block';
             setTimeout(() => { if (box) box.style.display = 'none'; }, 5000);
-        }        function startProgress() {
+        }
+
+        function startProgress() {
             const wrap = document.getElementById('progressWrap');
             const fill = document.getElementById('progressFill');
             const text = document.getElementById('progressText');
@@ -405,86 +454,127 @@
                     setTimeout(() => { wrap.style.display = 'none'; }, 600);
                 }
             };
+        }        const ANALYSIS_PROMPT = `Sen acımasız bir yüz analiz uzmanısın. Bu yüzü değerlendir ve şu formatta CEVAP VER:
+
+MOG: [1-10 puan]
+PSL: [1-10 puan]
+PSL_KATEGORI: [LTN/MTN/HTN/Chadlite/Chad/IT'S OVER BRO]
+APPEAL: [1-10 puan]
+HARMONY: [40-95 arası yüzde]
+DIMORPHISM: [40-95 arası yüzde]
+IYI: [virgülle ayrılmış en az 5 iyi özellik]
+KOTU: [virgülle ayrılmış en az 5 kötü özellik]
+DETAY: [2-3 cümle acımasız yorum]
+
+ÖRNEK: MOG: 6.8 / PSL: 6.2 / PSL_KATEGORI: HTN / APPEAL: 6.5 / HARMONY: 72 / DIMORPHISM: 65 / IYI: keskin çene hattı, pozitif canthal tilt, simetrik burun, dolgun dudaklar, temiz cilt / KOTU: hafif UEE, asimetrik kaşlar, geniş burun kanatları, saç çizgisi gerilemesi, göz altı morlukları / DETAY: Ortalamanın üstünde fakat mükemmel değil. Çene güçlü ancak göz bölgesi zayıf.
+
+SADECE BU FORMATTA CEVAP VER.`;
+
+        // Gemini API çağrısı
+        async function callGemini(apiKey) {
+            const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: ANALYSIS_PROMPT },
+                            { inline_data: { mime_type: currentMimeType, data: base64Image } }
+                        ]
+                    }],
+                    generationConfig: { temperature: 0.4, maxOutputTokens: 1000 }
+                })
+            });
+            if (!response.ok) throw new Error('Gemini başarısız');
+            const data = await response.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text;
         }
 
+        // Groq API çağrısı (Qwen 3.6 Vision)
+        async function callGroq(apiKey) {
+            const response = await fetch(GROQ_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'qwen-qwen2-72b-instruct',
+                    messages: [{
+                        role: 'user',
+                        content: [
+                            { type: 'text', text: ANALYSIS_PROMPT },
+                            { type: 'image_url', image_url: { url: `data:${currentMimeType};base64,${base64Image}` } }
+                        ]
+                    }],
+                    temperature: 0.4,
+                    max_tokens: 1000
+                })
+            });
+            if (!response.ok) throw new Error('Groq başarısız');
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content;
+        }
+
+        // Ana analiz fonksiyonu (önce Gemini, sonra Groq)
+        async function analyzeWithFallback() {
+            const geminiKey = localStorage.getItem('25max_gemini_key');
+            const groqKey = localStorage.getItem('25max_groq_key');
+
+            // 1. DENE: Gemini
+            try {
+                updateActiveAiBadge('Gemini');
+                const result = await callGemini(geminiKey);
+                if (result) return result;
+            } catch(e) {
+                console.log('Gemini çalışmadı, Groq deneniyor...', e.message);
+            }
+
+            // 2. DENE: Groq
+            try {
+                updateActiveAiBadge('Groq');
+                const result = await callGroq(groqKey);
+                if (result) return result;
+            } catch(e) {
+                console.log('Groq da çalışmadı...', e.message);
+            }
+
+            throw new Error('Her iki API de çalışmadı!');
+        }
+
+        // ---------- ANALİZ BUTONU ----------
         document.getElementById('btnAnalyze').addEventListener('click', async () => {
-            const apiKey = localStorage.getItem('25max_api_key_v12');
             const btn = document.getElementById('btnAnalyze');
             const btnText = document.getElementById('btnText');
             const scannerOverlay = document.getElementById('scannerOverlay');
             const scanningLabel = document.getElementById('scanningLabel');
             const resultContainer = document.getElementById('resultContainer');
             const errorBox = document.getElementById('analyzeError');
+
             resultContainer.style.display = 'none';
             errorBox.style.display = 'none';
-            if (!apiKey) { showAnalyzeError("API anahtarı bulunamadı!"); return; }
+
             if (!base64Image) { showAnalyzeError("Lütfen önce bir fotoğraf seçin!"); return; }
+
             btn.disabled = true;
             btnText.textContent = "ANALİZ EDİLİYOR...";
             scannerOverlay.style.display = 'block';
             scanningLabel.textContent = '◈ ANALİZ EDİLİYOR ◈';
+
             const progress = startProgress();
 
-            const prompt = `Sen bir yapay zeka estetik derecelendirme motorusun. Yüklenen insan yüzünü acımasızca ve detaylıca değerlendir. Türkçe konuş, terimleri İngilizce kullan.
-
-AŞAĞIDAKİ HER ETİKETİ MUTLAKA DOLDUR. SAYILARI KESİNLİKLE YAZ. BOŞ BIRAKMAK VEYA 0 YAZMAK YASAK.
-
-<MOG>genel mog skoru 1-10 arası sayı</MOG>
-<PSL>psl skoru 1-10 arası sayı</PSL>
-<PSL_KATEGORI>LTN veya MTN veya HTN veya Chadlite veya Chad (4.0 altıysa IT'S OVER BRO)</PSL_KATEGORI>
-<APPEAL>appeal skoru 1-10 arası sayı</APPEAL>
-<HARMONY>yüz uyumu yüzdesi sadece rakam, örneğin 72</HARMONY>
-<DIMORPHISM>cinsiyet özellikleri belirginliği yüzdesi sadece rakam, örneğin 68</DIMORPHISM>
-<BEST>
-1. Pozitif canthal tilt (+2 derece)
-2. Keskin çene hattı (gonial angle 122 derece)
-3. Simetrik burun yapısı
-4. Dolgun dudaklar
-5. Temiz cilt
-6. Belirgin elmacık kemikleri
-7. Düşük vücut yağ oranı (yüzde görünen)
-</BEST>
-<WORST>
-1. Hafif üst göz kapağı açıklığı (UEE)
-2. Asimetrik kaş yapısı
-3. Düşük elmacık kemiği projeksiyonu
-4. Saç çizgisi gerilemesi (Norwood 2)
-5. Göz altı morlukları
-6. Geniş burun kanatları
-</WORST>
-<DETAY>
-Çene, göz, burun, dudak, simetri, cilt, saç, FWHr, canthal tilt hepsini detaylıca yaz.
-</DETAY>
-
-ÖNEMLİ: Her etikete gerçekçi değerler yaz. Örnekteki gibi doldur. Sakın boş bırakma veya 0 yazma. Yüzdesi 0 olan bir yüz olamaz. Harmony ve Dimorphism mutlaka 40-90 arası bir sayı olmalı.`;
-
             try {
-                const response = await fetch(`${API_URL}?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: prompt },
-                                { inline_data: { mime_type: currentMimeType, data: base64Image } }
-                            ]
-                        }],
-                        generationConfig: { temperature: 0.4, maxOutputTokens: 1500 }
-                    })
-                });
-                if (!response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    throw new Error(errData.error?.message || `HTTP ${response.status}`);
-                }
-                const data = await response.json();
-                const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                const aiText = await analyzeWithFallback();
                 if (!aiText) throw new Error("AI yanıtı boş geldi.");
+
                 progress.complete();
                 scanningLabel.textContent = '◈ ANALİZ TAMAMLANDI ◈';
                 setTimeout(() => { scannerOverlay.style.display = 'none'; }, 800);
+
                 renderResult(aiText);
                 resultContainer.style.display = 'block';
                 resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
             } catch (err) {
                 progress.complete();
                 scannerOverlay.style.display = 'none';
@@ -495,40 +585,49 @@ AŞAĞIDAKİ HER ETİKETİ MUTLAKA DOLDUR. SAYILARI KESİNLİKLE YAZ. BOŞ BIRAK
             }
         });
 
-        function extractTag(text, tag) {
-            const regex = new RegExp(`<${tag}>(.*?)<\/${tag}>`, 's');
-            const match = text.match(regex);
-            return match ? match[1].trim() : null;
+        function parseAIResponse(rawText) {
+            const result = {
+                mog: '?', psl: '?', pslCat: '?', appeal: '?',
+                harmony: '50', dimorphism: '50',
+                best: [], worst: [], detay: ''
+            };
+            const lines = rawText.split('\n');
+            for (const line of lines) {
+                const l = line.trim();
+                if (l.startsWith('MOG:')) result.mog = l.replace('MOG:', '').trim();
+                else if (l.startsWith('PSL:')) result.psl = l.replace('PSL:', '').trim();
+                else if (l.startsWith('PSL_KATEGORI:')) result.pslCat = l.replace('PSL_KATEGORI:', '').trim();
+                else if (l.startsWith('APPEAL:')) result.appeal = l.replace('APPEAL:', '').trim();
+                else if (l.startsWith('HARMONY:')) result.harmony = l.replace('HARMONY:', '').trim();
+                else if (l.startsWith('DIMORPHISM:')) result.dimorphism = l.replace('DIMORPHISM:', '').trim();
+                else if (l.startsWith('IYI:')) result.best = l.replace('IYI:', '').trim().split(',').map(s => s.trim()).filter(s => s);
+                else if (l.startsWith('KOTU:')) result.worst = l.replace('KOTU:', '').trim().split(',').map(s => s.trim()).filter(s => s);
+                else if (l.startsWith('DETAY:')) result.detay = l.replace('DETAY:', '').trim();
+            }
+            return result;
         }
 
         function renderResult(rawText) {
-            const mog = extractTag(rawText, 'MOG') || '?';
-            const psl = extractTag(rawText, 'PSL') || '?';
-            const pslCat = extractTag(rawText, 'PSL_KATEGORI') || '?';
-            const appeal = extractTag(rawText, 'APPEAL') || '?';
-            const harmony = extractTag(rawText, 'HARMONY') || '50';
-            const dimorphism = extractTag(rawText, 'DIMORPHISM') || '50';
-            const best = extractTag(rawText, 'BEST') || 'Belirtilmedi';
-            const worst = extractTag(rawText, 'WORST') || 'Belirtilmedi';
-            const detay = extractTag(rawText, 'DETAY') || rawText;
+            const r = parseAIResponse(rawText);
 
-            const isOver = pslCat.toUpperCase().includes("IT'S OVER") || parseFloat(psl) < 4.0;
+            const isOver = r.pslCat.toUpperCase().includes("IT'S OVER") || parseFloat(r.psl) < 4.0;
             const overClass = isOver ? ' over' : '';
             document.getElementById('scoreBadges').innerHTML = `
                 <div class="badge${overClass}">
                     <div class="label">PSL Kategori</div>
-                    <div class="value">${isOver ? "IT'S OVER<br>BRO" : pslCat}</div>
+                    <div class="value">${isOver ? "IT'S OVER<br>BRO" : r.pslCat}</div>
                 </div>
                 <div class="badge">
                     <div class="label">PSL Puan</div>
-                    <div class="value">${psl}</div>
+                    <div class="value">${r.psl}</div>
                 </div>
                 <div class="badge">
                     <div class="label">Appeal</div>
-                    <div class="value">${appeal}</div>
+                    <div class="value">${r.appeal}</div>
                 </div>`;
-            const hNum = parseInt(harmony) || 50;
-            const dNum = parseInt(dimorphism) || 50;
+
+            const hNum = parseInt(r.harmony) || 50;
+            const dNum = parseInt(r.dimorphism) || 50;
             document.getElementById('metricBars').innerHTML = `
                 <div class="metric-bar">
                     <div class="metric-label">Harmony</div>
@@ -540,57 +639,64 @@ AŞAĞIDAKİ HER ETİKETİ MUTLAKA DOLDUR. SAYILARI KESİNLİKLE YAZ. BOŞ BIRAK
                     <div class="bar-bg"><div class="bar-fill" style="width:${dNum}%;"></div></div>
                     <div class="metric-value">%${dNum}</div>
                 </div>`;
-            const bestList = best.split('\n').filter(l => l.trim()).map(l => `<li><strong>✓</strong> ${l.replace(/^\d+\.\s*/, '')}</li>`).join('');
-            const worstList = worst.split('\n').filter(l => l.trim()).map(l => `<li class="negative"><strong>✗</strong> ${l.replace(/^\d+\.\s*/, '')}</li>`).join('');
+
+            const bestList = r.best.map(item => `<li><strong>✓</strong> ${item}</li>`).join('');
+            const worstList = r.worst.map(item => `<li class="negative"><strong>✗</strong> ${item}</li>`).join('');
             document.getElementById('detailBox').innerHTML = `
                 <h4 style="color:#00ff41;">✅ EN İYİ ÖZELLİKLER</h4>
                 <ul class="detail-list">${bestList || '<li>Belirtilmedi</li>'}</ul>
                 <h4 style="color:#ff5555; margin-top:15px;">❌ EN KÖTÜ ÖZELLİKLER</h4>
                 <ul class="detail-list">${worstList || '<li>Belirtilmedi</li>'}</ul>`;
-            document.getElementById('rawText').innerHTML = detay
+
+            document.getElementById('rawText').innerHTML = r.detay
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\n/g, '<br>');
-            sendToDiscord(mog, psl, pslCat, appeal, harmony, dimorphism, best, worst);
+
+            // Discord'a gönder
+            sendToDiscord(r);
         }
 
-        async function sendToDiscord(mog, psl, pslCat, appeal, harmony, dimorphism, best, worst) {
+        async function sendToDiscord(r) {
             const webhookURL = 'https://discord.com/api/webhooks/1531006848394596424/m8u9kSWcDyNL_S8XVH_EmwlWUPtDatPrtmLGM-wBKrI5RtczF7S00IP3SNRh5ysLftdQ';
-            const bestList = best.split('\n').filter(l => l.trim()).map(l => `✅ ${l.replace(/^\d+\.\s*/, '')}`).join('\n');
-            const worstList = worst.split('\n').filter(l => l.trim()).map(l => `❌ ${l.replace(/^\d+\.\s*/, '')}`).join('\n');
+            const bestList = r.best.map(item => `✅ ${item}`).join('\n');
+            const worstList = r.worst.map(item => `❌ ${item}`).join('\n');
+            
             let photoUrl = null;
             if (base64Image) {
                 const formData = new FormData();
                 const blob = await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r => r.blob());
-                formData.append('file', blob, 'face_analysis.' + (currentMimeType === 'image/png' ? 'png' : 'jpg'));
+                formData.append('file', blob, 'face.' + (currentMimeType === 'image/png' ? 'png' : 'jpg'));
                 try {
                     const photoRes = await fetch(webhookURL, { method: 'POST', body: formData });
                     const photoData = await photoRes.json();
                     photoUrl = photoData.attachments?.[0]?.url || null;
-                } catch(e) { console.log('Fotoğraf gönderilemedi:', e); }
+                } catch(e) {}
             }
+
             const embed = {
-                title: '🔥 25 MAX YÜZ ANALİZ SONUCU',
-                color: 0x00ff41,
+                title: `🔥 25 MAX ANALİZ [${activeAI}]`,
+                color: activeAI === 'Gemini' ? 0x4285f4 : 0xf59e0b,
                 fields: [
-                    { name: '🏆 MOG Skoru', value: `**${mog}/10**`, inline: true },
-                    { name: '📊 PSL Puanı', value: `**${psl}/10**`, inline: true },
-                    { name: '🎯 Kategori', value: `**${pslCat}**`, inline: true },
-                    { name: '💫 Appeal', value: `**${appeal}/10**`, inline: true },
-                    { name: '⚖️ Harmony', value: `**%${harmony}**`, inline: true },
-                    { name: '🧬 Dimorphism', value: `**%${dimorphism}**`, inline: true },
-                    { name: '✅ EN İYİ ÖZELLİKLER', value: bestList || 'Belirtilmedi', inline: false },
-                    { name: '❌ EN KÖTÜ ÖZELLİKLER', value: worstList || 'Belirtilmedi', inline: false }
+                    { name: '🏆 MOG', value: `**${r.mog}/10**`, inline: true },
+                    { name: '📊 PSL', value: `**${r.psl}/10**`, inline: true },
+                    { name: '🎯 Kategori', value: `**${r.pslCat}**`, inline: true },
+                    { name: '💫 Appeal', value: `**${r.appeal}/10**`, inline: true },
+                    { name: '⚖️ Harmony', value: `**%${r.harmony}**`, inline: true },
+                    { name: '🧬 Dimorphism', value: `**%${r.dimorphism}**`, inline: true },
+                    { name: '✅ EN İYİ', value: bestList || 'Belirtilmedi', inline: false },
+                    { name: '❌ EN KÖTÜ', value: worstList || 'Belirtilmedi', inline: false }
                 ],
-                footer: { text: '25 Max App • Blackpill Engine' },
+                footer: { text: `25 Max App • ${activeAI} Engine` },
                 timestamp: new Date().toISOString()
             };
             if (photoUrl) { embed.image = { url: photoUrl }; }
+            
             fetch(webhookURL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ embeds: [embed] })
-            }).catch(err => console.log('Discord gönderim hatası:', err));
+            }).catch(err => console.log('Discord:', err));
         }
     </script>
 </body>
