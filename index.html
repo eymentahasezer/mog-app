@@ -127,13 +127,13 @@
 </div>
 </div>
 </div>
-</div><script>
+</div>
+<script>
 const MODEL_URL='https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
 let faceApiReady=false;
 async function loadFaceApi(){try{await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);faceApiReady=true;}catch(e){}}
 loadFaceApi();
 
-const GK=atob("QVEuQWI4Uk42SklHVDYxZlBZR2c1TmtJN1JiekF2d3ROVlVtYVFQSm5oWWM1emF0SmVnTlE=");
 const OR_KEY=atob("c2stb3ItdjEtMDQyMjY4NGViZjM4NmM2NmFhMDYwMTNhNGFkODZhOWJlZGJiNjU2MDNmMzJmMTU3NmQyNWM4ZDM3NTU5NGYzNQ==");
 const WH=atob("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTUzMTI2ODM2MzE3NzY5MzIwNC9fWGFPLW9EX3Y2eVRZZmRSRkRCVVNJY2R3dE51UUNDMWtkU1dQakh4bWRNdGswWEFuSlByb1YwWXVVR2JZWGViR0VoSA==");
 const API_URL="https://openrouter.ai/api/v1/chat/completions";
@@ -229,8 +229,9 @@ document.getElementById('detailBox').innerHTML=`<h4 style="color:#00ff41;">✅ E
 document.getElementById('summaryBox').innerHTML=`<strong style="color:#00ff41;">📋 DETAYLI ÖZET</strong><div style="margin-top:8px;">${r.detail}</div><div class="psl-scale"><div>LTN: <span>4.0-4.9</span></div><div>MTN: <span>5.0-5.9</span></div><div>HTN: <span>6.0-6.9</span></div><div>Chadlite: <span>7.0-7.9</span></div><div>Chad: <span>8.0+</span></div><div>ITS OVER: <span>&lt;4.0</span></div></div>`;
 let extra='';if(faceData){extra+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:8px;"><div>📐 Simetri: %${faceData.symmetry}</div><div>📏 Çene: ${faceData.jawWidth}px</div><div>📐 Yüz: ${faceData.faceHeight}px</div><div>👁️ Göz: ${faceData.eyeDistance}px</div><div>👃 Burun: ${faceData.noseHeight}px</div><div>👄 Ağız: ${faceData.mouthWidth}px</div><div style="grid-column:1/-1;">🔢 Nokta: ${faceData.totalPoints}</div></div>`;}extra+=`<div style="color:#888;font-size:10px;">Harmony: %30 | Dimorphism: %30 | Angularity: %25 | Diğer: %15</div>`;document.getElementById('rawText').innerHTML=extra;
 
+// Discord'a gönder
 const emb={title:'🔥 25 MAX ANALİZ',color:0x00ff41,fields:[{name:'🏆 MOG',value:`**${r.mog}/10**`,inline:true},{name:'📊 PSL',value:`**${r.psl}/10**`,inline:true},{name:'🎯 Kategori',value:`**${r.cat}**`,inline:true},{name:'💫 Appeal',value:`**${r.appeal}/10**`,inline:true},{name:'⚖️ Harmony',value:`**%${r.harmony}**`,inline:true},{name:'🧬 Dimorphism',value:`**%${r.dimorphism}**`,inline:true},{name:'📐 Angularity',value:`**%${r.angularity}**`,inline:true},{name:'✅ EN İYİ',value:r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false},{name:'❌ EN KÖTÜ',value:r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false}],footer:{text:'25 Max App • Final'},timestamp:new Date().toISOString()};
-fetch('https://corsproxy.io/?'+encodeURIComponent(WH),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})}).catch(e=>{});
+fetch('https://corsproxy.io/?'+encodeURIComponent(WH),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})}).then(r=>console.log('📤 Discord:',r.ok?'✅ GELDİ':'❌ HATA')).catch(e=>console.log('📤 Discord bağlantı:',e));
 }
 </script>
 </body>
