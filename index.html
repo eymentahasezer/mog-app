@@ -294,33 +294,33 @@ f.style.width=p+'%';t.textContent='%'+Math.floor(p);
 return{complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},500);}};
 }
 </script><script>
-const PROMPT=`Bu yüzü acımasızca değerlendir. KESİNLİKLE Türkçe cevap ver. Her satırı doldur:
+const PROMPT=`Sen bir yüz analiz uzmanısın. Bu fotoğraftaki yüzü acımasızca değerlendir. TÜRKÇE konuş. Her satırı EKSİKSİZ doldur. Sıralamaları en iyiden/kötüden başlayarak yap.
 
-MOG:6.5
-PSL:6.0
+MOG:7.2
+PSL:6.8
 PSL_KATEGORI:HTN
-APPEAL:6.2
-HARMONY:68
-DIMORPHISM:62
-ANGULARITY:55
-GOOD:keskin çene hattı,pozitif canthal tilt,simetrik burun,dolgun dudaklar,temiz cilt,belirgin elmacık kemikleri
-BAD:hafif UEE,asimetrik kaşlar,geniş burun tabanı,saç çizgisi gerilemesi,göz altı morlukları
-DETAIL:Ortalamanın üstünde bir yüz. Çene hattı güçlü ancak göz bölgesi zayıf. Daha iyi kaş desteği ile Chadlite seviyesine çıkabilir.
+APPEAL:7.0
+HARMONY:75
+DIMORPHISM:68
+ANGULARITY:60
+GOOD:keskin çene hattı,pozitif canthal tilt,simetrik burun,dolgun dudaklar,temiz cilt,belirgin elmacık kemikleri,kalın kaşlar,sağlıklı saçlar
+BAD:hafif UEE,asimetrik kaş uçları,geniş burun kanatları,hafif saç çizgisi gerilemesi,göz altı morlukları,düşük brow ridge
+DETAIL:Bu yüz ortalamanın üstünde. Çene hattı güçlü ve gözler çekici ancak kaş kemiği desteği zayıf. Daha belirgin bir brow ridge ile Chadlite seviyesine yükselebilir.
 
-Yukarıdaki örnek değerleri BU YÜZE göre güncelle. Tüm alanları Türkçe doldur.`;
+BU DEĞERLERİ BU YÜZE GÖRE GÜNCELLE. HER SATIRI DOLDURMAZSAN GEÇERSİZ.`;
 
 async function analyzeFace(){
 const res=await fetch(`${API_URL}?key=${GK}`,{
 method:'POST',headers:{'Content-Type':'application/json'},
 body:JSON.stringify({
 contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
-generationConfig:{temperature:0.2,maxOutputTokens:1000}
+generationConfig:{temperature:0.3,maxOutputTokens:800}
 })
 });
 if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'API hatası');}
 const d=await res.json();
 const txt=d.candidates?.[0]?.content?.parts?.[0]?.text||'';
-if(!txt||txt.length<50)throw new Error('AI yanıtı çok kısa, tekrar dene');
+if(!txt||txt.length<30)throw new Error('AI yanıtı çok kısa');
 return txt;
 }
 
@@ -336,7 +336,6 @@ const prog=startProgress();
 try{
 const txt=await analyzeFace();
 prog.complete();so.style.display='none';
-if(!txt||txt.length<50){showErr('AI yanıtı yetersiz. Tekrar dene.');return;}
 renderResult(txt);
 rc.style.display='block';
 rc.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -345,20 +344,22 @@ finally{btn.disabled=false;bt.textContent="ANALİZ BAŞLAT";}
 });
 
 function parseAI(raw){
-const r={mog:'6.5',psl:'6.0',cat:'HTN',appeal:'6.2',harmony:'68',dimorphism:'62',angularity:'55',best:[],worst:[],detail:''};
+const r={mog:'7.2',psl:'6.8',cat:'HTN',appeal:'7.0',harmony:'75',dimorphism:'68',angularity:'60',best:[],worst:[],detail:''};
 raw.split('\n').forEach(l=>{
 const v=l.trim();
-if(v.startsWith('MOG:'))r.mog=v.substring(4).trim();
-if(v.startsWith('PSL:'))r.psl=v.substring(4).trim();
-if(v.startsWith('PSL_KATEGORI:'))r.cat=v.substring(14).trim();
-if(v.startsWith('APPEAL:'))r.appeal=v.substring(7).trim();
-if(v.startsWith('HARMONY:'))r.harmony=v.substring(8).trim();
-if(v.startsWith('DIMORPHISM:'))r.dimorphism=v.substring(11).trim();
-if(v.startsWith('ANGULARITY:'))r.angularity=v.substring(11).trim();
-if(v.startsWith('GOOD:'))r.best=v.substring(5).split(',').map(s=>s.trim()).filter(s=>s);
-if(v.startsWith('BAD:'))r.worst=v.substring(4).split(',').map(s=>s.trim()).filter(s=>s);
-if(v.startsWith('DETAIL:'))r.detail=v.substring(7).trim();
+if(v.includes('MOG:'))r.mog=v.split('MOG:')[1]?.trim()||r.mog;
+if(v.includes('PSL:'))r.psl=v.split('PSL:')[1]?.trim()||r.psl;
+if(v.includes('PSL_KATEGORI:'))r.cat=v.split('PSL_KATEGORI:')[1]?.trim()||r.cat;
+if(v.includes('APPEAL:'))r.appeal=v.split('APPEAL:')[1]?.trim()||r.appeal;
+if(v.includes('HARMONY:'))r.harmony=v.split('HARMONY:')[1]?.trim()||r.harmony;
+if(v.includes('DIMORPHISM:'))r.dimorphism=v.split('DIMORPHISM:')[1]?.trim()||r.dimorphism;
+if(v.includes('ANGULARITY:'))r.angularity=v.split('ANGULARITY:')[1]?.trim()||r.angularity;
+if(v.includes('GOOD:'))r.best=v.split('GOOD:')[1]?.split(',').map(s=>s.trim()).filter(s=>s)||r.best;
+if(v.includes('BAD:'))r.worst=v.split('BAD:')[1]?.split(',').map(s=>s.trim()).filter(s=>s)||r.worst;
+if(v.includes('DETAIL:'))r.detail=v.split('DETAIL:')[1]?.trim()||r.detail;
 });
+if(!r.best.length)r.best=['Keskin çene hattı','Simetrik burun','Dolgun dudaklar','Temiz cilt','Belirgin elmacık kemikleri'];
+if(!r.worst.length)r.worst=['Hafif UEE','Asimetrik kaşlar','Geniş burun','Saç çizgisi','Göz altı morlukları'];
 return r;
 }
 
@@ -373,17 +374,17 @@ document.getElementById('scoreBadges').innerHTML=`
 <div class="badge"><div class="label">PSL</div><div class="value">${r.psl}</div></div>
 <div class="badge"><div class="label">APPEAL</div><div class="value">${r.appeal}</div></div>`;
 
-const h=parseInt(r.harmony)||68,d=parseInt(r.dimorphism)||62,a=parseInt(r.angularity)||55;
+const h=parseInt(r.harmony)||75,d=parseInt(r.dimorphism)||68,ag=parseInt(r.angularity)||60;
 document.getElementById('metricBars').innerHTML=`
 <div class="metric-bar"><div class="metric-label">Harmony</div><div class="bar-bg"><div class="bar-fill" style="width:${h}%;"></div></div><div class="metric-value">%${h}</div></div>
 <div class="metric-bar"><div class="metric-label">Dimorphism</div><div class="bar-bg"><div class="bar-fill" style="width:${d}%;"></div></div><div class="metric-value">%${d}</div></div>
-<div class="metric-bar"><div class="metric-label">Angularity</div><div class="bar-bg"><div class="bar-fill" style="width:${a}%;"></div></div><div class="metric-value">%${a}</div></div>`;
+<div class="metric-bar"><div class="metric-label">Angularity</div><div class="bar-bg"><div class="bar-fill" style="width:${ag}%;"></div></div><div class="metric-value">%${ag}</div></div>`;
 
 const goodList=r.best.slice(0,10).map((i,n)=>`<li><strong>${n+1}.</strong> ${i}</li>`).join('');
 const badList=r.worst.slice(0,10).map((i,n)=>`<li class="negative"><strong>${n+1}.</strong> ${i}</li>`).join('');
 document.getElementById('detailBox').innerHTML=`
-<h4 style="color:#00ff41;">✅ EN İYİ (1-${r.best.length})</h4><ul class="detail-list">${goodList||'<li>Belirtilmedi</li>'}</ul>
-<h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.worst.length})</h4><ul class="detail-list">${badList||'<li>Belirtilmedi</li>'}</ul>`;
+<h4 style="color:#00ff41;">✅ EN İYİ (1-${r.best.length})</h4><ul class="detail-list">${goodList}</ul>
+<h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.worst.length})</h4><ul class="detail-list">${badList}</ul>`;
 
 document.getElementById('summaryBox').innerHTML=`
 <strong style="color:#00ff41;">📋 DETAYLI ÖZET</strong>
@@ -403,12 +404,8 @@ extra+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margi
 }
 extra+=`<div style="color:#888;font-size:10px;">Harmony: %30 | Dimorphism: %30 | Angularity: %25 | Diğer: %15</div>`;
 document.getElementById('rawText').innerHTML=extra;
-_send(r);
-}
 
-async function _send(r){
-const wh=WH;
-if(!wh||wh.length<50)return;
+// Discord'a gönder
 const emb={
 title:'🔥 25 MAX ANALİZ',color:0x00ff41,
 fields:[
@@ -418,13 +415,13 @@ fields:[
 {name:'✅ EN İYİ',value:r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false},
 {name:'❌ EN KÖTÜ',value:r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false}
 ],
-footer:{text:'25 Max App • Final'},timestamp:new Date().toISOString()
+footer:{text:'25 Max App'},timestamp:new Date().toISOString()
 };
 const body=JSON.stringify({embeds:[emb]});
-try{
-const res=await fetch('https://corsproxy.io/?'+encodeURIComponent(wh),{method:'POST',headers:{'Content-Type':'application/json'},body:body});
-console.log('✅ Discord:',res.ok?'gönderildi':'hata '+res.status);
-}catch(e){console.log('❌ Discord:',e.message);}
+
+fetch('https://corsproxy.io/?'+encodeURIComponent(WH),{
+method:'POST',headers:{'Content-Type':'application/json'},body:body
+}).then(r=>console.log('Discord:',r.ok?'✅':'❌')).catch(e=>console.log('Discord:',e));
 }
 </script>
 </body>
