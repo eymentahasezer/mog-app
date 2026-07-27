@@ -134,8 +134,9 @@ async function loadFaceApi(){try{await faceapi.nets.tinyFaceDetector.loadFromUri
 loadFaceApi();
 
 const GK=atob("QVEuQWI4Uk42SklHVDYxZlBZR2c1TmtJN1JiekF2d3ROVlVtYVFQSm5oWWM1emF0SmVnTlE=");
+const OR_KEY=atob("c2stb3ItdjEtMDQyMjY4NGViZjM4NmM2NmFhMDYwMTNhNGFkODZhOWJlZGJiNjU2MDNmMzJmMTU3NmQyNWM4ZDM3NTU5NGYzNQ==");
 const WH=atob("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTUzMTI2ODM2MzE3NzY5MzIwNC9fWGFPLW9EX3Y2eVRZZmRSRkRCVVNJY2R3dE51UUNDMWtkU1dQakh4bWRNdGswWEFuSlByb1YwWXVVR2JZWGViR0VoSA==");
-const API_URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
+const API_URL="https://openrouter.ai/api/v1/chat/completions";
 
 let base64Image="",currentMimeType="image/jpeg",faceData=null;
 const MAX_SIZE_MB=8;
@@ -198,7 +199,22 @@ DETAIL:Bu yüz ortalamanın üstünde. Çene hattı güçlü ancak kaş kemiği 
 
 BU DEĞERLERİ BU YÜZE GÖRE GÜNCELLE. HER SATIRI DOLDUR.`;
 
-async function analyzeFace(){const res=await fetch(`${API_URL}?key=${GK}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],generationConfig:{temperature:0.3,maxOutputTokens:800}})});if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'API hatası');}const d=await res.json();const txt=d.candidates?.[0]?.content?.parts?.[0]?.text||'';if(!txt||txt.length<30)throw new Error('AI yanıtı çok kısa');return txt;}
+async function analyzeFace(){
+const res=await fetch(API_URL,{
+method:'POST',
+headers:{'Content-Type':'application/json','Authorization':`Bearer ${OR_KEY}`,'HTTP-Referer':'https://25max.app','X-Title':'25 Max App'},
+body:JSON.stringify({
+model:'google/gemma-4-26b-a4b-it:free',
+messages:[{role:'user',content:[{type:'text',text:PROMPT},{type:'image_url',image_url:{url:`data:${currentMimeType};base64,${base64Image}`}}]}],
+temperature:0.3,max_tokens:800
+})
+});
+if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'API hatası');}
+const d=await res.json();
+const txt=d.choices?.[0]?.message?.content||'';
+if(!txt||txt.length<30)throw new Error('AI yanıtı çok kısa');
+return txt;
+}
 
 document.getElementById('btnAnalyze').addEventListener('click',async()=>{const btn=document.getElementById('btnAnalyze'),bt=document.getElementById('btnText');const so=document.getElementById('scannerOverlay'),sl=document.getElementById('scanningLabel');const rc=document.getElementById('resultContainer'),eb=document.getElementById('analyzeError');rc.style.display='none';eb.style.display='none';if(!base64Image){showErr("Fotoğraf seç!");return;}btn.disabled=true;bt.textContent="TARANIYOR...";so.style.display='block';sl.textContent='◈ TARANIYOR ◈';const prog=startProgress();try{const txt=await analyzeFace();prog.complete();so.style.display='none';renderResult(txt);rc.style.display='block';rc.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(err){prog.complete();so.style.display='none';showErr('Hata: '+err.message);}finally{btn.disabled=false;bt.textContent="ANALİZ BAŞLAT";}});
 
