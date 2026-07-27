@@ -356,17 +356,19 @@
             f.style.width=p+'%'; t.textContent='%'+Math.floor(p);
         },300);
         return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},600);}};
-    }        const PROMPT = `Bu yüzü acımasızca analiz et. HER SATIRI DOLDUR:
+    }        const PROMPT = `Sen bir yüz analiz uzmanısın. Bu yüzü acımasızca değerlendir. SADECE şu formatta cevap ver, başka hiçbir şey yazma:
 
-MOG: [1-10]
-PSL: [1-10]
-PSL_KATEGORI: [LTN/MTN/HTN/Chadlite/Chad/IT'S OVER BRO]
-APPEAL: [1-10]
+MOG: [1-10 puan]
+PSL: [1-10 puan]
+PSL_KATEGORI: [LTN/MTN/HTN/Chadlite/Chad]
+APPEAL: [1-10 puan]
 HARMONY: [40-95]
 DIMORPHISM: [40-95]
-IYI: [5 özellik, virgülle]
-KOTU: [5 özellik, virgülle]
-DETAY: [2 cümle]`;
+IYI: [5 iyi özellik, virgülle ayır]
+KOTU: [5 kötü özellik, virgülle ayır]
+DETAY: [2 cümlelik acımasız yorum]
+
+PSL 4.0 altındaysa PSL_KATEGORI'ye IT'S OVER BRO yaz. Sadece bu formatı doldur.`;
 
         async function analyzeImage() {
             const res = await fetch(`${API_URL}?key=${GK}`, {
