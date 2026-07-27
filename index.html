@@ -320,51 +320,36 @@
             f.style.width=p+'%'; t.textContent='%'+Math.floor(p);
         },350);
         return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},500);}};
-    }        const PROMPT = `Analyze this face. Return ONLY this exact format with realistic values:
+    }                const PROMPT = `Bu fotoğraftaki yüzü analiz et. Aşağıdaki formatta cevap ver, her satırı doldur:
 
-MOG:6.5
-PSL:6.0
-CAT:HTN
-APP:6.2
-HAR:68
-DIM:62
-FWH:1.85
-CT:+2 positive
-MR:0.95
-GA:125
-GOOD:sharp jaw,positive canthal tilt,symmetric nose,full lips,clear skin
-BAD:minor UEE,asymmetric brows,wide nose,hairline,undereye circles
-TXT:Above average face. Strong jaw but weak eye area.
+MOG: 6.5
+PSL: 6.0
+PSL_KATEGORI: HTN
+APPEAL: 6.2
+HARMONY: 68
+DIMORPHISM: 62
+IYI: keskin çene, pozitif canthal tilt, simetrik burun, dolgun dudak, temiz cilt
+KOTU: hafif UEE, asimetrik kaş, geniş burun, saç çizgisi, göz altı
+DETAY: Ortalamanın üstünde bir yüz. Çene hattı güçlü ancak göz bölgesi zayıf.
 
-Replace values for this face. Keep exact format.`;
+Bu değerleri bu yüze göre güncelle. Sadece formatı doldur, başka yorum yapma.`;
 
-        async function analyzeWithRetry() {
-            for(let i=0; i<3; i++) {
-                try {
-                    const res = await fetch(`${API_URL}?key=${GK}`, {
-                        method:'POST', headers:{'Content-Type':'application/json'},
-                        body:JSON.stringify({
-                            contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
-                            generationConfig:{temperature:0.1, maxOutputTokens:400}
-                        })
-                    });
-                    
-                    if(!res.ok) throw new Error('API hatası');
-                    
-                    const d = await res.json();
-                    const txt = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                    
-                    if(txt.includes('MOG:') && txt.includes('GOOD:') && txt.includes('BAD:')) {
-                        return txt;
-                    }
-                    
-                    await new Promise(r => setTimeout(r, 1500));
-                } catch(e) {
-                    if(i === 2) throw e;
-                    await new Promise(r => setTimeout(r, 1500));
-                }
+        async function analyzeFace() {
+            const res = await fetch(`${API_URL}?key=${GK}`, {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({
+                    contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
+                    generationConfig:{temperature:0.2, maxOutputTokens:400}
+                })
+            });
+            
+            if(!res.ok) {
+                const e = await res.json().catch(()=>({}));
+                throw new Error(e.error?.message || 'API hatası');
             }
-            throw new Error('3 deneme başarısız');
+            
+            const d = await res.json();
+            return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
         }
 
         document.getElementById('btnAnalyze').addEventListener('click', async () => {
@@ -381,13 +366,20 @@ Replace values for this face. Keep exact format.`;
             const prog=startProgress();
             
             try {
-                const txt = await analyzeWithRetry();
+                const txt = await analyzeFace();
                 prog.complete(); so.style.display='none';
+                
+                if(!txt || txt.length < 50) {
+                    showErr('AI yanıtı çok kısa. Lütfen tekrar dene.');
+                    return;
+                }
+                
                 renderResult(txt);
                 rc.style.display='block';
+                rc.scrollIntoView({behavior:'smooth',block:'nearest'});
             } catch(err) {
                 prog.complete(); so.style.display='none';
-                showErr('Hata: Tekrar dene - '+err.message);
+                showErr('Hata: ' + err.message);
             } finally {
                 btn.disabled=false; bt.textContent="ANALİZ BAŞLAT";
             }
@@ -395,27 +387,22 @@ Replace values for this face. Keep exact format.`;
 
         function parseAI(raw) {
             const r={
-                mog:'6.5', psl:'6.0', cat:'HTN', app:'6.2',
-                har:'68', dim:'62',
-                fwh:'1.85', ct:'+2° pozitif', mr:'0.95', ga:'125°',
-                good:[], bad:[], txt:''
+                mog:'6.5', psl:'6.0', cat:'HTN', appeal:'6.2',
+                harmony:'68', dimorphism:'62',
+                best:[], worst:[], detay:'Analiz tamamlandı.'
             };
             
             raw.split('\n').forEach(l => {
                 const v = l.trim();
-                if(v.startsWith('MOG:') && v.length>5) r.mog = v.substring(4).trim();
-                if(v.startsWith('PSL:') && v.length>5) r.psl = v.substring(4).trim();
-                if(v.startsWith('CAT:') && v.length>5) r.cat = v.substring(4).trim();
-                if(v.startsWith('APP:') && v.length>5) r.app = v.substring(4).trim();
-                if(v.startsWith('HAR:') && v.length>5) r.har = v.substring(4).trim();
-                if(v.startsWith('DIM:') && v.length>5) r.dim = v.substring(4).trim();
-                if(v.startsWith('FWH:')) r.fwh = v.substring(4).trim();
-                if(v.startsWith('CT:')) r.ct = v.substring(3).trim();
-                if(v.startsWith('MR:')) r.mr = v.substring(3).trim();
-                if(v.startsWith('GA:')) r.ga = v.substring(3).trim();
-                if(v.startsWith('GOOD:')) r.good = v.substring(5).split(',').map(s=>s.trim()).filter(s=>s);
-                if(v.startsWith('BAD:')) r.bad = v.substring(4).split(',').map(s=>s.trim()).filter(s=>s);
-                if(v.startsWith('TXT:')) r.txt = v.substring(4).trim();
+                if(v.includes('MOG:')) r.mog = v.split('MOG:')[1]?.trim() || r.mog;
+                if(v.includes('PSL:')) r.psl = v.split('PSL:')[1]?.trim() || r.psl;
+                if(v.includes('PSL_KATEGORI:')) r.cat = v.split('PSL_KATEGORI:')[1]?.trim() || r.cat;
+                if(v.includes('APPEAL:')) r.appeal = v.split('APPEAL:')[1]?.trim() || r.appeal;
+                if(v.includes('HARMONY:')) r.harmony = v.split('HARMONY:')[1]?.trim() || r.harmony;
+                if(v.includes('DIMORPHISM:')) r.dimorphism = v.split('DIMORPHISM:')[1]?.trim() || r.dimorphism;
+                if(v.includes('IYI:')) r.best = (v.split('IYI:')[1] || '').split(',').map(s=>s.trim()).filter(s=>s);
+                if(v.includes('KOTU:')) r.worst = (v.split('KOTU:')[1] || '').split(',').map(s=>s.trim()).filter(s=>s);
+                if(v.includes('DETAY:')) r.detay = v.split('DETAY:')[1]?.trim() || r.detay;
             });
             
             return r;
@@ -432,27 +419,24 @@ Replace values for this face. Keep exact format.`;
             document.getElementById('scoreBadges').innerHTML = `
                 <div class="badge${isOver?' over':''}"><div class="label">KATEGORİ</div><div class="value">${isOver?"IT'S OVER<br>🫩":cat}</div></div>
                 <div class="badge"><div class="label">PSL</div><div class="value">${r.psl}</div></div>
-                <div class="badge"><div class="label">APPEAL</div><div class="value">${r.app}</div></div>`;
+                <div class="badge"><div class="label">APPEAL</div><div class="value">${r.appeal}</div></div>`;
 
-            const h = parseInt(r.har) || 68;
-            const d = parseInt(r.dim) || 62;
+            const h = parseInt(r.harmony) || 68;
+            const d = parseInt(r.dimorphism) || 62;
             document.getElementById('metricBars').innerHTML = `
                 <div class="metric-bar"><div class="metric-label">Harmony</div><div class="bar-bg"><div class="bar-fill" style="width:${h}%;"></div></div><div class="metric-value">%${h}</div></div>
                 <div class="metric-bar"><div class="metric-label">Dimorphism</div><div class="bar-bg"><div class="bar-fill" style="width:${d}%;"></div></div><div class="metric-value">%${d}</div></div>`;
 
-            const goodList = r.good.slice(0,10).map((i,n) => `<li><strong>${n+1}.</strong> ${i}</li>`).join('');
-            const badList = r.bad.slice(0,10).map((i,n) => `<li class="negative"><strong>${n+1}.</strong> ${i}</li>`).join('');
+            const goodList = r.best.slice(0,10).map((i,n) => `<li><strong>${n+1}.</strong> ${i}</li>`).join('');
+            const badList = r.worst.slice(0,10).map((i,n) => `<li class="negative"><strong>${n+1}.</strong> ${i}</li>`).join('');
             
             document.getElementById('detailBox').innerHTML = `
-                <h4 style="color:#00ff41;">✅ EN İYİ (1-${r.good.length})</h4><ul class="detail-list">${goodList}</ul>
-                <h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.bad.length})</h4><ul class="detail-list">${badList}</ul>`;
+                <h4 style="color:#00ff41;">✅ EN İYİ</h4><ul class="detail-list">${goodList || '<li>Belirtilmedi</li>'}</ul>
+                <h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ</h4><ul class="detail-list">${badList || '<li>Belirtilmedi</li>'}</ul>`;
 
             let extra = '';
             if(localMetrics) extra += `<div style="font-size:11px;color:#00ff41;margin-bottom:8px;">📐 YEREL: Simetri ~%${Math.round(localMetrics.symmetry)}</div>`;
-            extra += r.txt;
-            extra += `<div style="font-size:10px;color:#555;margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
-                <div>FWHr: <span style="color:#00ff41;">${r.fwh}</span></div><div>Canthal: <span style="color:#00ff41;">${r.ct}</span></div>
-                <div>Midface: <span style="color:#00ff41;">${r.mr}</span></div><div>Gonial: <span style="color:#00ff41;">${r.ga}</span></div></div>`;
+            extra += r.detay;
             
             document.getElementById('rawText').innerHTML = extra;
             _send(r);
@@ -470,9 +454,9 @@ Replace values for this face. Keep exact format.`;
                 title:'🔥 25 MAX ANALİZ',color:0x00ff41,
                 fields:[
                     {name:'🏆 MOG',value:`**${r.mog}/10**`,inline:true},{name:'📊 PSL',value:`**${r.psl}/10**`,inline:true},{name:'🎯 Kategori',value:`**${r.cat}**`,inline:true},
-                    {name:'💫 Appeal',value:`**${r.app}/10**`,inline:true},{name:'⚖️ Harmony',value:`**%${r.har}**`,inline:true},{name:'🧬 Dimorphism',value:`**%${r.dim}**`,inline:true},
-                    {name:'✅ EN İYİ',value:r.good.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false},
-                    {name:'❌ EN KÖTÜ',value:r.bad.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false}
+                    {name:'💫 Appeal',value:`**${r.appeal}/10**`,inline:true},{name:'⚖️ Harmony',value:`**%${r.harmony}**`,inline:true},{name:'🧬 Dimorphism',value:`**%${r.dimorphism}**`,inline:true},
+                    {name:'✅ EN İYİ',value:r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false},
+                    {name:'❌ EN KÖTÜ',value:r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false}
                 ],
                 footer:{text:'25 Max App'},timestamp:new Date().toISOString()
             };
