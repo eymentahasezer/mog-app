@@ -55,14 +55,10 @@
             width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: 700; font-size: 15px;
             letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;
         }
-        .btn-primary {
-            background: #00cc33; color: #000; box-shadow: 0 8px 25px rgba(0,204,51,0.3);
-        }
+        .btn-primary { background: #00cc33; color: #000; box-shadow: 0 8px 25px rgba(0,204,51,0.3); }
         .btn-primary:hover { background: #00ff41; transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,255,65,0.4); }
         .btn-primary:disabled { background: #222; color: #555; box-shadow: none; cursor: not-allowed; }
-        .btn-outline {
-            background: transparent; border: 1px solid rgba(0,255,65,0.3); color: #00ff41; margin-top: 10px;
-        }
+        .btn-outline { background: transparent; border: 1px solid rgba(0,255,65,0.3); color: #00ff41; margin-top: 10px; }
         .btn-outline:hover { background: rgba(0,255,65,0.05); }
         .upload-buttons { display: flex; gap: 10px; margin: 20px 0; }
         .upload-btn {
@@ -74,11 +70,8 @@
         input[type="file"] { display: none; }
         .preview-scanner-wrapper { position: relative; display: none; margin: 15px 0; }
         .preview-scanner-wrapper.active { display: block; }
-        #preview {
-            width: 100%; border-radius: 14px; display: block;
-            border: 1px solid rgba(0,255,65,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-        }
-        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; border-radius: 14px; }
+        #preview { width: 100%; border-radius: 14px; display: block; border: 1px solid rgba(0,255,65,0.2); }
+        #faceCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 14px; display: none; }
         .scanner-overlay {
             position: absolute; top:0; left:0; width:100%; height:100%;
             pointer-events: none; overflow: hidden; border-radius: 14px; display:none;
@@ -167,7 +160,7 @@
                 </div>
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v29.0 • Blackpill Edition</footer>
+                <footer>v30.0 • Local + AI Hybrid</footer>
             </div>
         </div>
 
@@ -218,7 +211,8 @@
             await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
             await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);
             faceApiReady = true;
-        } catch(e) {}
+            console.log('✅ Face API hazır');
+        } catch(e) { console.log('⚠️ Face API yüklenemedi'); }
     }
     loadFaceApi();
 
@@ -226,7 +220,7 @@
     const WH = atob("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTUzMTAwNjg0ODM5NDU5NjQyNC9tOHU5a1NXY0R5TkxfUzhYVkhfRW13bFdVUERhdFBydG1MR00td0JLckk1UnRjekY3UzAwSVAzU05SaDV5c0xmdGRR");
     const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
     
-    let base64Image = "", currentMimeType = "image/jpeg", localMetrics = null;
+    let base64Image = "", currentMimeType = "image/jpeg", faceData = null;
     const MAX_SIZE_MB = 8;
     const pageLogin = document.getElementById('pageLogin');
     const pageAnalyze = document.getElementById('pageAnalyze');
@@ -240,8 +234,7 @@
     document.getElementById('btnLogin').addEventListener('click', () => {
         if (document.getElementById('passwordInput').value.trim() !== '25maxapp') {
             document.getElementById('loginError').textContent = '⚠️ Hatalı şifre!';
-            document.getElementById('loginError').style.display = 'block';
-            return;
+            document.getElementById('loginError').style.display = 'block'; return;
         }
         localStorage.setItem('_x', '1');
         document.getElementById('passwordInput').value = '';
@@ -264,7 +257,7 @@
         document.getElementById('resultContainer').style.display = 'none';
         document.getElementById('scannerOverlay').style.display = 'none';
         document.getElementById('progressWrap').style.display = 'none';
-        localMetrics = null;
+        faceData = null;
         if(!file){resetUpload();return;}
         if(!file.type.startsWith('image/')){showErr("Geçersiz dosya!");resetUpload();return;}
         if(file.size>MAX_SIZE_MB*1024*1024){showErr(`Max ${MAX_SIZE_MB}MB!`);resetUpload();return;}
@@ -277,19 +270,105 @@
                 document.getElementById('preview').src=e.target.result;
                 document.getElementById('previewWrapper').classList.add('active');
                 base64Image=e.target.result.split(',')[1]||"";
+                
+                // Face API ile yüz noktalarını bul ve canvas'a çiz
                 if(faceApiReady){
                     try{
                         const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
                         if(detections.length>0){
-                            const landmarks=detections[0].landmarks;
-                            const jaw=landmarks.getJawOutline();
-                            const leftJaw=jaw.slice(0,8);
-                            const rightJaw=jaw.slice(9,17).reverse();
-                            let diff=0;
-                            for(let i=0;i<leftJaw.length;i++) diff+=Math.abs(leftJaw[i].y-rightJaw[i].y);
-                            localMetrics={symmetry:Math.max(0,100-(diff/leftJaw.length)*10)};
+                            const canvas = document.getElementById('faceCanvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            canvas.style.display = 'block';
+                            
+                            const ctx = canvas.getContext('2d');
+                            ctx.clearRect(0,0,canvas.width,canvas.height);
+                            
+                            // Yüz noktalarını çiz (yeşil)
+                            const landmarks = detections[0].landmarks;
+                            ctx.strokeStyle = '#00ff41';
+                            ctx.lineWidth = 1;
+                            ctx.fillStyle = '#00ff41';
+                            
+                            // Tüm noktaları çiz
+                            const allPoints = landmarks.positions;
+                            allPoints.forEach(p => {
+                                ctx.beginPath();
+                                ctx.arc(p.x, p.y, 1.5, 0, 2*Math.PI);
+                                ctx.fill();
+                            });
+                            
+                            // Çene hattı
+                            const jaw = landmarks.getJawOutline();
+                            ctx.beginPath();
+                            ctx.moveTo(jaw[0].x, jaw[0].y);
+                            for(let i=1; i<jaw.length; i++) ctx.lineTo(jaw[i].x, jaw[i].y);
+                            ctx.strokeStyle = '#00ff41';
+                            ctx.stroke();
+                            
+                            // Gözler
+                            [landmarks.getLeftEye(), landmarks.getRightEye()].forEach(eye => {
+                                ctx.beginPath();
+                                ctx.moveTo(eye[0].x, eye[0].y);
+                                for(let i=1; i<eye.length; i++) ctx.lineTo(eye[i].x, eye[i].y);
+                                ctx.closePath();
+                                ctx.strokeStyle = '#00ccff';
+                                ctx.stroke();
+                            });
+                            
+                            // Kaşlar
+                            [landmarks.getLeftEyeBrow(), landmarks.getRightEyeBrow()].forEach(brow => {
+                                ctx.beginPath();
+                                ctx.moveTo(brow[0].x, brow[0].y);
+                                for(let i=1; i<brow.length; i++) ctx.lineTo(brow[i].x, brow[i].y);
+                                ctx.strokeStyle = '#ffcc00';
+                                ctx.stroke();
+                            });
+                            
+                            // Burun
+                            const nose = landmarks.getNose();
+                            ctx.beginPath();
+                            ctx.moveTo(nose[0].x, nose[0].y);
+                            for(let i=1; i<nose.length; i++) ctx.lineTo(nose[i].x, nose[i].y);
+                            ctx.strokeStyle = '#ff6600';
+                            ctx.stroke();
+                            
+                            // Dudaklar
+                            const mouth = landmarks.getMouth();
+                            ctx.beginPath();
+                            ctx.moveTo(mouth[0].x, mouth[0].y);
+                            for(let i=1; i<mouth.length; i++) ctx.lineTo(mouth[i].x, mouth[i].y);
+                            ctx.closePath();
+                            ctx.strokeStyle = '#ff00ff';
+                            ctx.stroke();
+                            
+                            // Yerel metrikler hesapla
+                            const leftJaw = jaw.slice(0,8);
+                            const rightJaw = jaw.slice(9,17).reverse();
+                            let diff = 0;
+                            for(let i=0; i<leftJaw.length; i++) diff += Math.abs(leftJaw[i].y - rightJaw[i].y);
+                            
+                            const leftEye = landmarks.getLeftEye();
+                            const rightEye = landmarks.getRightEye();
+                            
+                            faceData = {
+                                symmetry: Math.max(0, 100-(diff/leftJaw.length)*10).toFixed(1),
+                                jawWidth: Math.abs(jaw[0].x - jaw[16].x).toFixed(0),
+                                faceHeight: Math.abs(jaw[8].y - landmarks.positions[27].y).toFixed(0),
+                                eyeDistance: Math.abs(leftEye[0].x - rightEye[3].x).toFixed(0),
+                                noseHeight: Math.abs(nose[0].y - nose[6].y).toFixed(0),
+                                mouthWidth: Math.abs(mouth[0].x - mouth[6].x).toFixed(0),
+                                totalPoints: allPoints.length
+                            };
+                            
+                            // Canvas'ı preview boyutuna scale et
+                            const wrapper = document.getElementById('previewWrapper');
+                            const wrapperWidth = wrapper.offsetWidth;
+                            const scale = wrapperWidth / img.width;
+                            canvas.style.width = wrapperWidth + 'px';
+                            canvas.style.height = (img.height * scale) + 'px';
                         }
-                    }catch(e){}
+                    }catch(e){ console.log('Face API hatası:', e); }
                 }
             };
             img.src=e.target.result;
@@ -300,8 +379,9 @@
     function resetUpload() {
         document.getElementById('galleryInput').value=""; document.getElementById('cameraInput').value="";
         document.getElementById('previewWrapper').classList.remove('active'); document.getElementById('preview').src="";
+        document.getElementById('faceCanvas').style.display='none';
         document.getElementById('progressWrap').style.display='none';
-        base64Image=""; currentMimeType="image/jpeg"; localMetrics=null;
+        base64Image=""; currentMimeType="image/jpeg"; faceData=null;
     }
 
     function showErr(m) {
@@ -320,26 +400,26 @@
             f.style.width=p+'%'; t.textContent='%'+Math.floor(p);
         },350);
         return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},500);}};
-    }        const PROMPT = `Bu yüzü acımasızca değerlendir. KESİNLİKLE şu formatta cevap ver, her satırı doldur:
+    }        const PROMPT = `Analyze this face in detail. Return EXACTLY this format, fill every line with realistic values. DO NOT skip any line. Minimum 5 items for GOOD and BAD.
 
-MOG: [1-10]
-PSL: [1-10]
-PSL_KATEGORI: [LTN/MTN/HTN/Chadlite/Chad]
-APPEAL: [1-10]
-HARMONY: [40-95]
-DIMORPHISM: [40-95]
-IYI: [en az 5, mümkünse 10 iyi özellik, virgülle, en iyiden başla]
-KOTU: [en az 5, mümkünse 10 kötü özellik, virgülle, en kötüden başla]
-DETAY: [2-3 cümle acımasız yorum]
+MOG:6.5
+PSL:6.0
+PSL_KATEGORI:HTN
+APPEAL:6.2
+HARMONY:68
+DIMORPHISM:62
+GOOD:sharp jawline,positive canthal tilt,symmetric nose,full lips,clear skin,defined cheekbones,good brow ridge
+BAD:minor UEE,asymmetric brows,wide nose base,hairline recession,undereye darkness,thin upper lip
+DETAIL:Above average face with strong jaw but weak eye area. Could improve with better brow support.
 
-PSL 4.0 altındaysa PSL_KATEGORI'ye IT'S OVER BRO yaz. HER SATIRI DOLDURMAZSAN GEÇERSİZ.`;
+Replace all values for THIS face. Fill GOOD with 5-10 best features. Fill BAD with 5-10 worst features. Write DETAIL in 3-4 sentences. Return ONLY the filled format.`;
 
         async function analyzeFace() {
             const res = await fetch(`${API_URL}?key=${GK}`, {
                 method:'POST', headers:{'Content-Type':'application/json'},
                 body:JSON.stringify({
                     contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
-                    generationConfig:{temperature:0.2, maxOutputTokens:500}
+                    generationConfig:{temperature:0.2, maxOutputTokens:1000}
                 })
             });
             
@@ -351,7 +431,7 @@ PSL 4.0 altındaysa PSL_KATEGORI'ye IT'S OVER BRO yaz. HER SATIRI DOLDURMAZSAN G
             const d = await res.json();
             const txt = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
             
-            if(!txt || txt.length < 40) throw new Error('AI yanıtı çok kısa');
+            if(!txt || txt.length < 50) throw new Error('AI yanıtı çok kısa, tekrar dene');
             return txt;
         }
 
@@ -372,8 +452,8 @@ PSL 4.0 altındaysa PSL_KATEGORI'ye IT'S OVER BRO yaz. HER SATIRI DOLDURMAZSAN G
                 const txt = await analyzeFace();
                 prog.complete(); so.style.display='none';
                 
-                if(!txt || txt.length < 40) {
-                    showErr('AI yanıtı çok kısa. Tekrar dene.');
+                if(!txt || txt.length < 50) {
+                    showErr('AI yanıtı yetersiz. Lütfen tekrar dene.');
                     return;
                 }
                 
@@ -392,20 +472,20 @@ PSL 4.0 altındaysa PSL_KATEGORI'ye IT'S OVER BRO yaz. HER SATIRI DOLDURMAZSAN G
             const r={
                 mog:'6.5', psl:'6.0', cat:'HTN', appeal:'6.2',
                 harmony:'68', dimorphism:'62',
-                best:[], worst:[], detay:''
+                best:[], worst:[], detail:''
             };
             
             raw.split('\n').forEach(l => {
                 const v = l.trim();
-                if(v.includes('MOG:')) r.mog = v.split('MOG:')[1]?.trim() || r.mog;
-                if(v.includes('PSL:')) r.psl = v.split('PSL:')[1]?.trim() || r.psl;
-                if(v.includes('PSL_KATEGORI:')) r.cat = v.split('PSL_KATEGORI:')[1]?.trim() || r.cat;
-                if(v.includes('APPEAL:')) r.appeal = v.split('APPEAL:')[1]?.trim() || r.appeal;
-                if(v.includes('HARMONY:')) r.harmony = v.split('HARMONY:')[1]?.trim() || r.harmony;
-                if(v.includes('DIMORPHISM:')) r.dimorphism = v.split('DIMORPHISM:')[1]?.trim() || r.dimorphism;
-                if(v.includes('IYI:')) r.best = (v.split('IYI:')[1] || '').split(',').map(s=>s.trim()).filter(s=>s);
-                if(v.includes('KOTU:')) r.worst = (v.split('KOTU:')[1] || '').split(',').map(s=>s.trim()).filter(s=>s);
-                if(v.includes('DETAY:')) r.detay = v.split('DETAY:')[1]?.trim() || r.detay;
+                if(v.startsWith('MOG:')) r.mog = v.substring(4).trim();
+                if(v.startsWith('PSL:')) r.psl = v.substring(4).trim();
+                if(v.startsWith('PSL_KATEGORI:')) r.cat = v.substring(14).trim();
+                if(v.startsWith('APPEAL:')) r.appeal = v.substring(7).trim();
+                if(v.startsWith('HARMONY:')) r.harmony = v.substring(8).trim();
+                if(v.startsWith('DIMORPHISM:')) r.dimorphism = v.substring(11).trim();
+                if(v.startsWith('GOOD:')) r.best = v.substring(5).split(',').map(s=>s.trim()).filter(s=>s);
+                if(v.startsWith('BAD:')) r.worst = v.substring(4).split(',').map(s=>s.trim()).filter(s=>s);
+                if(v.startsWith('DETAIL:')) r.detail = v.substring(7).trim();
             });
             
             return r;
@@ -438,8 +518,18 @@ PSL 4.0 altındaysa PSL_KATEGORI'ye IT'S OVER BRO yaz. HER SATIRI DOLDURMAZSAN G
                 <h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.worst.length})</h4><ul class="detail-list">${badList || '<li>Belirtilmedi</li>'}</ul>`;
 
             let extra = '';
-            if(localMetrics) extra += `<div style="font-size:11px;color:#00ff41;margin-bottom:8px;">📐 YEREL: Simetri ~%${Math.round(localMetrics.symmetry)}</div>`;
-            extra += r.detay;
+            if(faceData) {
+                extra += `<div style="font-size:10px;color:#00ff41;margin-bottom:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;">
+                    <div>📐 Simetri: %${faceData.symmetry}</div>
+                    <div>📏 Çene: ${faceData.jawWidth}px</div>
+                    <div>📐 Yüz: ${faceData.faceHeight}px</div>
+                    <div>👁️ Göz: ${faceData.eyeDistance}px</div>
+                    <div>👃 Burun: ${faceData.noseHeight}px</div>
+                    <div>👄 Ağız: ${faceData.mouthWidth}px</div>
+                    <div style="grid-column:1/-1;">🔢 Nokta: ${faceData.totalPoints}</div>
+                </div>`;
+            }
+            extra += `<div style="color:#ccc;font-size:13px;">${r.detail}</div>`;
             
             document.getElementById('rawText').innerHTML = extra;
             _send(r);
@@ -461,7 +551,7 @@ PSL 4.0 altındaysa PSL_KATEGORI'ye IT'S OVER BRO yaz. HER SATIRI DOLDURMAZSAN G
                     {name:'✅ EN İYİ',value:r.best.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false},
                     {name:'❌ EN KÖTÜ',value:r.worst.slice(0,10).map((i,n)=>`${n+1}. ${i}`).join('\n'),inline:false}
                 ],
-                footer:{text:'25 Max App'},timestamp:new Date().toISOString()
+                footer:{text:'25 Max App • Hybrid Engine'},timestamp:new Date().toISOString()
             };
             if(pu)emb.image={url:pu};
             fetch(WH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[emb]})}).catch(e=>{});
