@@ -269,13 +269,9 @@
             </div>
         </div>
     </div><script>
-    // Şifre çözücü
-    const _s = "25max2024secure";
-    function _d(e){let r='';for(let i=0;i<e.length;i++)r+=String.fromCharCode(e.charCodeAt(i)^_s.charCodeAt(i%_s.length));return r;}
-    
-    // Şifreli anahtarlar
-    const GK = _d(atob("AxMBEg4KAQwXGAMRDBgUFAoGDxkXEQgMBgkfBhEKAgsDDgkWFR8="));
-    const WH = _d(atob("HB0RFBITGwwEGxcSEAEEGxYNEBYVHQgXGAMRDBgUFAYRHQ0dFxYFGA4aHhsHBhsQFw8OHRkGEwsHGxYcFgMXFw8="));
+    // API anahtarları - base64 ile gizlenmiş
+    const GK = atob("QVEuQWI4Uk42SklHVDYxZlBZR2c1TmtJN1JiekF2d3ROVlVtYVFQSm5oWWM1emF0SmVnTlE=");
+    const WH = atob("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTUzMTAwNjg0ODM5NDU5NjQyNC9tOHU5a1NXY0R5TkxfUzhYVkhfRW13bFdVUERhdFBydG1MR00td0JLckk1UnRjekY3UzAwSVAzU05SaDV5c0xmdGRR");
     const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent";
     
     let base64Image = "", currentMimeType = "image/jpeg";
@@ -356,19 +352,19 @@
             f.style.width=p+'%'; t.textContent='%'+Math.floor(p);
         },300);
         return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},600);}};
-    }        const PROMPT = `Sen bir yüz analiz uzmanısın. Bu yüzü acımasızca değerlendir. SADECE şu formatta cevap ver, başka hiçbir şey yazma:
+    }        const PROMPT = `Bu yüzü acımasızca değerlendir. SADECE bu formatta cevap ver:
 
-MOG: [1-10 puan]
-PSL: [1-10 puan]
+MOG: [1-10]
+PSL: [1-10]
 PSL_KATEGORI: [LTN/MTN/HTN/Chadlite/Chad]
-APPEAL: [1-10 puan]
+APPEAL: [1-10]
 HARMONY: [40-95]
 DIMORPHISM: [40-95]
-IYI: [5 iyi özellik, virgülle ayır]
-KOTU: [5 kötü özellik, virgülle ayır]
-DETAY: [2 cümlelik acımasız yorum]
+IYI: [5 özellik, virgülle]
+KOTU: [5 özellik, virgülle]
+DETAY: [2 cümle]
 
-PSL 4.0 altındaysa PSL_KATEGORI'ye IT'S OVER BRO yaz. Sadece bu formatı doldur.`;
+PSL 4.0 altıysa IT'S OVER BRO yaz.`;
 
         async function analyzeImage() {
             const res = await fetch(`${API_URL}?key=${GK}`, {
