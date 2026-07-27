@@ -157,24 +157,24 @@
         <div class="page active" id="pageLogin">
             <div class="glass-card">
                 <div class="logo-wrapper">
-                    <img class="pizza-gif" src="https://media.tenor.com/p0Z5xQ_LkC0AAAAC/pizza-slice.gif" alt="Pizza">
+                    <img class="pizza-gif" src="https://media3.giphy.com/media/v1.Y2lkPTZjMDliOTUyaXR3cjVoMmw1aGxkYWVkM3ZpcHlobXo1dzh6eXVhdG8zdGI5bWd1diZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/17kYxuTqr2CCk/giphy.gif" alt="Pizza">
                     <h1>25 MAX</h1>
                 </div>
-                <p class="subtitle">Face Analysis Terminal</p>
+                <p class="subtitle">Face Rating Terminal</p>
                 <div class="input-group">
                     <span class="icon">🔒</span>
                     <input type="password" id="passwordInput" placeholder="Şifre..." autocomplete="off">
                 </div>
                 <button class="btn btn-primary" id="btnLogin">GİRİŞ</button>
                 <div class="error-box" id="loginError"></div>
-                <footer>v27.0 • Gemini 3 Flash Preview</footer>
+                <footer>v29.0 • Blackpill Edition</footer>
             </div>
         </div>
 
         <div class="page" id="pageAnalyze">
             <div class="glass-card">
                 <div class="logo-wrapper" style="margin-bottom:4px;">
-                    <img class="pizza-gif" src="https://media.tenor.com/p0Z5xQ_LkC0AAAAC/pizza-slice.gif" style="width:45px;height:45px;">
+                    <img class="pizza-gif" src="https://media3.giphy.com/media/v1.Y2lkPTZjMDliOTUyaXR3cjVoMmw1aGxkYWVkM3ZpcHlobXo1dzh6eXVhdG8zdGI5bWd1diZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/17kYxuTqr2CCk/giphy.gif" style="width:45px;height:45px;">
                     <h1 style="font-size:1.3rem;">25 MAX</h1>
                 </div>
                 <p class="subtitle">Yüz Analizi</p>
@@ -320,26 +320,26 @@
             f.style.width=p+'%'; t.textContent='%'+Math.floor(p);
         },350);
         return {complete:()=>{clearInterval(i);f.style.width='100%';t.textContent='%100';setTimeout(()=>{w.style.display='none';},500);}};
-    }                const PROMPT = `Bu fotoğraftaki yüzü analiz et. Aşağıdaki formatta cevap ver, her satırı doldur:
+    }        const PROMPT = `Bu yüzü acımasızca değerlendir. KESİNLİKLE şu formatta cevap ver, her satırı doldur:
 
-MOG: 6.5
-PSL: 6.0
-PSL_KATEGORI: HTN
-APPEAL: 6.2
-HARMONY: 68
-DIMORPHISM: 62
-IYI: keskin çene, pozitif canthal tilt, simetrik burun, dolgun dudak, temiz cilt
-KOTU: hafif UEE, asimetrik kaş, geniş burun, saç çizgisi, göz altı
-DETAY: Ortalamanın üstünde bir yüz. Çene hattı güçlü ancak göz bölgesi zayıf.
+MOG: [1-10]
+PSL: [1-10]
+PSL_KATEGORI: [LTN/MTN/HTN/Chadlite/Chad]
+APPEAL: [1-10]
+HARMONY: [40-95]
+DIMORPHISM: [40-95]
+IYI: [en az 5, mümkünse 10 iyi özellik, virgülle, en iyiden başla]
+KOTU: [en az 5, mümkünse 10 kötü özellik, virgülle, en kötüden başla]
+DETAY: [2-3 cümle acımasız yorum]
 
-Bu değerleri bu yüze göre güncelle. Sadece formatı doldur, başka yorum yapma.`;
+PSL 4.0 altındaysa PSL_KATEGORI'ye IT'S OVER BRO yaz. HER SATIRI DOLDURMAZSAN GEÇERSİZ.`;
 
         async function analyzeFace() {
             const res = await fetch(`${API_URL}?key=${GK}`, {
                 method:'POST', headers:{'Content-Type':'application/json'},
                 body:JSON.stringify({
                     contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:currentMimeType,data:base64Image}}]}],
-                    generationConfig:{temperature:0.2, maxOutputTokens:400}
+                    generationConfig:{temperature:0.2, maxOutputTokens:500}
                 })
             });
             
@@ -349,7 +349,10 @@ Bu değerleri bu yüze göre güncelle. Sadece formatı doldur, başka yorum yap
             }
             
             const d = await res.json();
-            return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            const txt = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            
+            if(!txt || txt.length < 40) throw new Error('AI yanıtı çok kısa');
+            return txt;
         }
 
         document.getElementById('btnAnalyze').addEventListener('click', async () => {
@@ -369,8 +372,8 @@ Bu değerleri bu yüze göre güncelle. Sadece formatı doldur, başka yorum yap
                 const txt = await analyzeFace();
                 prog.complete(); so.style.display='none';
                 
-                if(!txt || txt.length < 50) {
-                    showErr('AI yanıtı çok kısa. Lütfen tekrar dene.');
+                if(!txt || txt.length < 40) {
+                    showErr('AI yanıtı çok kısa. Tekrar dene.');
                     return;
                 }
                 
@@ -389,7 +392,7 @@ Bu değerleri bu yüze göre güncelle. Sadece formatı doldur, başka yorum yap
             const r={
                 mog:'6.5', psl:'6.0', cat:'HTN', appeal:'6.2',
                 harmony:'68', dimorphism:'62',
-                best:[], worst:[], detay:'Analiz tamamlandı.'
+                best:[], worst:[], detay:''
             };
             
             raw.split('\n').forEach(l => {
@@ -431,8 +434,8 @@ Bu değerleri bu yüze göre güncelle. Sadece formatı doldur, başka yorum yap
             const badList = r.worst.slice(0,10).map((i,n) => `<li class="negative"><strong>${n+1}.</strong> ${i}</li>`).join('');
             
             document.getElementById('detailBox').innerHTML = `
-                <h4 style="color:#00ff41;">✅ EN İYİ</h4><ul class="detail-list">${goodList || '<li>Belirtilmedi</li>'}</ul>
-                <h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ</h4><ul class="detail-list">${badList || '<li>Belirtilmedi</li>'}</ul>`;
+                <h4 style="color:#00ff41;">✅ EN İYİ (1-${r.best.length})</h4><ul class="detail-list">${goodList || '<li>Belirtilmedi</li>'}</ul>
+                <h4 style="color:#ff4444;margin-top:12px;">❌ EN KÖTÜ (1-${r.worst.length})</h4><ul class="detail-list">${badList || '<li>Belirtilmedi</li>'}</ul>`;
 
             let extra = '';
             if(localMetrics) extra += `<div style="font-size:11px;color:#00ff41;margin-bottom:8px;">📐 YEREL: Simetri ~%${Math.round(localMetrics.symmetry)}</div>`;
