@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mog app</title>
+  <title>Mog App</title>
   
   <style>
     * {
@@ -16,7 +16,7 @@
       height: 100%;
       width: 100%;
       overflow: hidden;
-      background: #000; /* Arka planı simsiyah yaptık */
+      background: #000;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       cursor: pointer;
     }
@@ -54,76 +54,62 @@
       margin-top: 10px;
     }
 
-    #scare-video {
+    #video-container {
       display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      object-fit: cover; /* Ekranı ne olursa olsun tam doldurur */
       z-index: 99999;
+      background: #000;
+    }
+    
+    iframe {
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* Videoyu ekrana dokunup durdurmalarını engeller, muazzam kaos */
     }
   </style>
 </head>
 <body>
 
-  <!-- Tuzak Ekranı -->
   <div id="fake-content">
     <div class="loader"></div>
     <p>Bağlantı güvenli...</p>
     <p style="font-size: 12px; margin-top: 5px;">Açmak için ekrana dokunun</p>
   </div>
 
-  <!-- Dosya adının jumpscare.mp4 olduğundan artık eminiz -->
-  <video id="scare-video" playsinline webkit-playsinline preload="auto">
-    <source src="jumpscare.mp4" type="video/mp4" />
-  </video>
+  <div id="video-container"></div>
 
   <script>
     const fakeContent = document.getElementById('fake-content');
-    const scareVideo = document.getElementById('scare-video');
-
+    const videoContainer = document.getElementById('video-container');
     let triggered = false;
 
     function triggerJumpscare() {
       if (triggered) return;
       triggered = true;
 
-      // 1. Yazıları sil, videoyu ekrana al
-      fakeContent.style.display = 'none';
-      scareVideo.style.display = 'block';
-
-      // 2. Tam ekrana geç ve telefonu YATAY (Landscape) moda zorla
+      // Tam ekrana zorla
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
-        elem.requestFullscreen().then(() => {
-          if (screen.orientation && screen.orientation.lock) {
-            screen.orientation.lock("landscape").catch(e => console.log("Yatay kilitlenemedi"));
-          }
-        }).catch(err => console.log(err));
+        elem.requestFullscreen().catch(err => console.log("Fullscreen engellendi", err));
       } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen(); // iPhone (iOS) tayfası için
+        elem.webkitRequestFullscreen();
       }
 
-      // 3. Videoyu zorla yükle ve patlat
-      scareVideo.load();
-      scareVideo.volume = 1.0;
-      scareVideo.muted = false;
-      
-      let playPromise = scareVideo.play();
-      
-      // Eğer tarayıcı sesi engellerse hata vermesin, sessiz de olsa yüzüne patlasın diye by-pass
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.log("Tarayıcı sesi engelledi, alternatif başlatılıyor...");
-          scareVideo.muted = true;
-          scareVideo.play();
-        });
-      }
+      // Sahte ekranı gizle, video alanını göster
+      fakeContent.style.display = 'none';
+      videoContainer.style.display = 'block';
+
+      // YouTube videosunu tıklandığı an göm ve otomatik başlat
+      // controls=0: Oynatma butonlarını yok eder
+      // autoplay=1: Videoyu patlatır
+      videoContainer.innerHTML = '<iframe src="https://www.youtube.com/embed/UZw7y0-txpI?autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
     }
 
-    // Ekrana dokunulduğunda tetikle
+    // Ekrana tıklandığında veya dokunulduğunda tetikle
     window.addEventListener('click', triggerJumpscare);
     window.addEventListener('touchstart', triggerJumpscare);
   </script>
