@@ -1,117 +1,88 @@
 <script>
+  // EN BASİT JUMBSCARE - BEYAZ EKRAN YOK, SADECE SİYAH + KIRMIZI YAZI + SES
   (function() {
-    // GIF URL'leri (yedekli)
-    const GIF_URLS = [
-      "https://i.makeagif.com/media/12-12-2023/O_rv3C.gif",
-      "https://media.tenor.com/xxxxx.gif"  // yedek URL
-    ];
-
-    // Doğrudan body'ye ekle, gizli başla
-    const overlay = document.createElement("div");
-    overlay.id = "jeff-overlay";
+    // 1. Siyah overlay'i direkt oluştur
+    const overlay = document.createElement('div');
     overlay.style.cssText = `
       position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 99999;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       background: black;
-      display: none;
-      justify-content: center;
+      z-index: 999999;
+      display: flex;
       align-items: center;
+      justify-content: center;
       cursor: pointer;
     `;
 
-    // GIF elementi
-    const img = document.createElement("img");
-    img.style.cssText = `
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    // 2. Büyük kırmızı "JEFF" yazısı (resim yüklenene kadar bu görünür)
+    const text = document.createElement('div');
+    text.style.cssText = `
+      color: #ff0000;
+      font-size: 120px;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      text-shadow: 0 0 50px #ff0000, 0 0 100px #ff0000;
+      animation: pulse 0.5s infinite alternate;
     `;
-    img.src = GIF_URLS[0];
-    img.alt = "";
+    text.textContent = 'JEFF';
+    overlay.appendChild(text);
 
-    // Hata durumunda yedek göster
-    let errorCount = 0;
-    img.onerror = function() {
-      errorCount++;
-      if (errorCount < GIF_URLS.length) {
-        this.src = GIF_URLS[errorCount];
-      } else {
-        // Hiçbir GIF yüklenmezse, siyah ekran + yazı
-        this.style.display = "none";
-        overlay.style.background = "black";
-        const text = document.createElement("div");
-        text.style.cssText = `
-          color: #ff0000;
-          font-size: 100px;
-          font-family: Arial;
-          text-shadow: 0 0 50px red;
-          animation: pulse 0.5s infinite;
-        `;
-        text.textContent = "💀";
-        overlay.appendChild(text);
-        
-        // CSS'yi manuel ekle
-        const style2 = document.createElement("style");
-        style2.textContent = `
-          @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.5); }
-          }
-        `;
-        document.head.appendChild(style2);
-      }
-    };
-
-    overlay.appendChild(img);
-    document.body.appendChild(overlay);
-
-    // Tıklayınca kapat
-    overlay.onclick = function() {
-      this.style.display = "none";
-    };
-
-    // 500ms sonra direkt patlat (gizlenme olmadan)
-    setTimeout(() => {
-      overlay.style.display = "flex";
-      overlay.style.animation = "jeffBoom 0.3s ease-out";
-      
-      // Ses efekti
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        
-        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
-        oscillator.type = "square";
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-        oscillator.start(audioCtx.currentTime);
-        oscillator.stop(audioCtx.currentTime + 0.3);
-      } catch(e) {}
-      
-      // 5 saniye sonra kaybol
-      setTimeout(() => {
-        overlay.style.display = "none";
-      }, 5000);
-      
-    }, 500);
-
-    // CSS animasyonunu ekle
-    const style = document.createElement("style");
+    // 3. Animasyonu ekle
+    const style = document.createElement('style');
     style.textContent = `
-      @keyframes jeffBoom {
-        0% { transform: scale(0.1) rotate(-20deg); opacity: 0; }
-        100% { transform: scale(1) rotate(0deg); opacity: 1; }
+      @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(1.3); opacity: 0.7; }
       }
     `;
     document.head.appendChild(style);
 
-    console.log("💀 Jeff hazır!");
+    // 4. Sayfaya ekle
+    document.body.appendChild(overlay);
+
+    // 5. Ses efekti (çığlık)
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.4);
+      oscillator.type = 'sawtooth';
+      gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + 0.4);
+    } catch(e) {}
+
+    // 6. Tıklayınca kapat
+    overlay.onclick = function() {
+      this.remove();
+    };
+
+    // 7. (İSTEĞE BAĞLI) GIF'i yüklemeyi dene, yüklenirse yazının yerine geçer
+    const img = new Image();
+    img.src = 'https://i.makeagif.com/media/12-12-2023/O_rv3C.gif';
+    img.style.cssText = `
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: none;
+    `;
+    img.onload = function() {
+      text.style.display = 'none';  // yazıyı gizle
+      overlay.appendChild(img);
+      img.style.display = 'block';
+    };
+    img.onerror = function() {
+      // GIF yüklenmezse yazı kalsın, sorun yok
+    };
+    overlay.appendChild(img);  // önceden ekle, arkaplanda yüklensin
+
+    console.log('💀 Jumpscare hazır!');
   })();
 </script>
