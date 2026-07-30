@@ -3,12 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Belge Görüntüleyici</title>
+  <title>mog app</title>
   
-  <!-- Instagram / WhatsApp Gizli Önizleme -->
-  <meta property="og:title" content="Paylaşılan Belge" />
-  <meta property="og:description" content="Dosyayı görüntülemek için dokun." />
-
   <style>
     * {
       margin: 0;
@@ -20,12 +16,11 @@
       height: 100%;
       width: 100%;
       overflow: hidden;
-      background: #111;
+      background: #000; /* Arka planı simsiyah yaptık */
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       cursor: pointer;
     }
 
-    /* Sahte Yüklenme Ekranı (Kurbanın ilk göreceği yer) */
     #fake-content {
       display: flex;
       flex-direction: column;
@@ -35,7 +30,6 @@
       color: #fff;
       text-align: center;
       padding: 20px;
-      background: #000;
     }
 
     .loader {
@@ -60,7 +54,6 @@
       margin-top: 10px;
     }
 
-    /* Videonun oynatılacağı gizli katman */
     #scare-video {
       display: none;
       position: fixed;
@@ -68,22 +61,21 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      object-fit: cover; /* Ekranı tam doldurur */
+      object-fit: cover; /* Ekranı ne olursa olsun tam doldurur */
       z-index: 99999;
-      background: #000;
     }
   </style>
 </head>
 <body>
 
-  <!-- Tetikleyici Alan (Masum Ekran) -->
+  <!-- Tuzak Ekranı -->
   <div id="fake-content">
     <div class="loader"></div>
     <p>Bağlantı güvenli...</p>
     <p style="font-size: 12px; margin-top: 5px;">Açmak için ekrana dokunun</p>
   </div>
 
-  <!-- Jumpscare Videosu (GitHub'a attığın dosya) -->
+  <!-- Dosya adının jumpscare.mp4 olduğundan artık eminiz -->
   <video id="scare-video" playsinline webkit-playsinline preload="auto">
     <source src="jumpscare.mp4" type="video/mp4" />
   </video>
@@ -98,29 +90,40 @@
       if (triggered) return;
       triggered = true;
 
-      // Kurban ekrana dokunduğu an tam ekran moduna al (Destekliyorsa)
-      try {
-        const elem = document.documentElement;
-        if (elem.requestFullscreen) elem.requestFullscreen();
-        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-      } catch (err) {
-        console.log("Fullscreen hatası (önemsiz):", err);
-      }
-
-      // Masum ekranı yok et, videoyu aç
+      // 1. Yazıları sil, videoyu ekrana al
       fakeContent.style.display = 'none';
       scareVideo.style.display = 'block';
 
-      // Sesi aç ve videoyu başlat
+      // 2. Tam ekrana geç ve telefonu YATAY (Landscape) moda zorla
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen().then(() => {
+          if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock("landscape").catch(e => console.log("Yatay kilitlenemedi"));
+          }
+        }).catch(err => console.log(err));
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen(); // iPhone (iOS) tayfası için
+      }
+
+      // 3. Videoyu zorla yükle ve patlat
+      scareVideo.load();
       scareVideo.volume = 1.0;
       scareVideo.muted = false;
-      scareVideo.play().catch(e => {
-        // Eğer bir güvenlik engeline takılırsa sessiz oynatmayı dener
-        console.log("Sesli oynatma engellendi, alternatif deneniyor", e);
-      });
+      
+      let playPromise = scareVideo.play();
+      
+      // Eğer tarayıcı sesi engellerse hata vermesin, sessiz de olsa yüzüne patlasın diye by-pass
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log("Tarayıcı sesi engelledi, alternatif başlatılıyor...");
+          scareVideo.muted = true;
+          scareVideo.play();
+        });
+      }
     }
 
-    // Ekrana tıklandığında veya dokunulduğunda tetikle
+    // Ekrana dokunulduğunda tetikle
     window.addEventListener('click', triggerJumpscare);
     window.addEventListener('touchstart', triggerJumpscare);
   </script>
