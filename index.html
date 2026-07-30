@@ -1,9 +1,8 @@
 <script>
   (function() {
-    // Direkt Wikipedia'daki görselin URL'si (küçük boyutlu olanı)
-    const IMAGE_URL = "https://upload.wikimedia.org/wikipedia/en/thumb/7/7d/Jeff_the_Killer_Original_edited_image.png/227px-Jeff_the_Killer_Original_edited_image.png";
+    // YÜKSEK KALİTELİ VE BÜYÜK BİR GÖRSEL KULLAN (direkt Wikipedia'dan)
+    const IMAGE_URL = "https://upload.wikimedia.org/wikipedia/en/7/7d/Jeff_the_Killer_Original_edited_image.png";
 
-    // ----- Stil ekleme fonksiyonu -----
     function addStyle(css) {
       const style = document.createElement("style");
       style.appendChild(new Text(css));
@@ -11,93 +10,73 @@
       return style.sheet;
     }
 
-    // Animasyon kareleri (orijinaldeki gibi 30 adım)
-    const steps = new Array(30).fill(0);
-    const keyframes = new Array(10).fill(0).reduce((acc) => {
-      const last = acc[acc.length - 1].map(p => 0.66 * Math.random() + p);
-      acc.push(last);
-      return acc;
-    }, [steps]).map((frame, index) => {
-      const percent = index * 10;
-      const points = frame.map((val, i) => {
-        const angle = (12 * i) * Math.PI / 180;
-        const h = 50 + 50 * Math.cos(angle) * val;
-        const v = 50 - 50 * Math.sin(angle) * val;
-        return `${h}% ${v}%`;
-      }).join(", ");
-      return `\n ${percent}% { clip-path: polygon(${points}); }`;
-    }).join("");
-
-    // Resim için background-image ekle
+    // Basitleştirilmiş ve garantili çalışan animasyon
     addStyle(`
-      #sit-jeff-image {
-        background-image: url("${IMAGE_URL}");
-        background-size: cover;
-        background-position: center;
-        background-color: #000;
-      }
-    `);
-
-    // Ana animasyon stilleri
-    addStyle(`
-      .jeff-clip-animation {
-        animation-name: jeff-the-killer;
-        animation-duration: 3s;
-        animation-iteration-count: 1;
-        animation-timing-function: linear;
-        animation-delay: ${1000 * Math.random()}s;
-        animation-fill-mode: forwards;
-        clip-path: polygon(0% 0%, 0% 0%, 0% 0%);
-      }
-      .jeff-position {
+      #jeff-overlay {
         position: fixed;
         inset: 0;
         width: 100vw;
         height: 100vh;
-        z-index: 11111;
+        z-index: 99999;
+        background: black;
+        display: none;
+        justify-content: center;
+        align-items: center;
       }
-      #sit-jeff-image-parent {
-        filter: url(#jeff-inset-drop-shadow);
+      #jeff-overlay img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
       }
-      @keyframes jeff-the-killer {
-        ${keyframes}
+      #jeff-overlay.show {
+        display: flex;
+        animation: jeffFadeIn 0.5s ease-in;
+      }
+      @keyframes jeffFadeIn {
+        0% { opacity: 0; transform: scale(1.5); }
+        100% { opacity: 1; transform: scale(1); }
       }
     `);
 
-    // SVG filtresini ekle
-    const svgWrapper = document.createElement("div");
-    svgWrapper.innerHTML = `
-      <svg width="0" height="0">
-        <filter id="jeff-inset-drop-shadow">
-          <feColorMatrix in="SourceAlpha" type="matrix"
-            values="0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 -1 1"
-            result="inverted-alpha" />
-          <feGaussianBlur in="inverted-alpha" stdDeviation="10" result="blurred" />
-          <feOffset in="blurred" dx="5" dy="5" result="offset" />
-          <feComposite in="offset" in2="SourceGraphic" operation="in" />
-        </filter>
-      </svg>
-    `;
-    document.body.appendChild(svgWrapper);
+    // Overlay oluştur
+    const overlay = document.createElement("div");
+    overlay.id = "jeff-overlay";
+    
+    const img = document.createElement("img");
+    img.src = IMAGE_URL;
+    img.alt = "Jeff the Killer";
+    img.onerror = function() {
+      // Eğer resim yüklenmezse, yedek bir renk göster
+      this.style.display = "none";
+      overlay.style.background = "red";
+      overlay.innerHTML = "<h1 style='color:white;font-size:100px;'>JEFF</h1>";
+    };
+    
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
 
-    // Katmanları oluştur
-    const grandpa = document.createElement("div");
-    grandpa.id = "sit-jeff-image-grandpa";
-    grandpa.className = "jeff-position jeff-clip-animation";
+    // Rastgele gecikme (1-4 saniye)
+    const delay = 1000 + Math.random() * 3000;
+    
+    setTimeout(() => {
+      overlay.classList.add("show");
+      
+      // Ses efekti (isteğe bağlı)
+      try {
+        const audio = new Audio('data:audio/wav;base64,UklGRlQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVoAAACAgICAgICAf39/f39/f3+AgICAgICAgICAgICAgH9/f39/f3+AgICAgICAgICAgICAgH9/f39/f3+AgICAAAA=');
+        audio.volume = 0.3;
+        audio.play();
+      } catch(e) {}
+      
+      // 5 saniye sonra kaybol (isteğe bağlı)
+      setTimeout(() => {
+        overlay.classList.remove("show");
+        overlay.style.display = "none";
+      }, 5000);
+      
+    }, delay);
 
-    const parent = document.createElement("div");
-    parent.id = "sit-jeff-image-parent";
-    parent.className = "jeff-position";
-
-    const image = document.createElement("div");
-    image.id = "sit-jeff-image";
-    image.className = "jeff-position jeff-clip-animation";
-
-    document.body.appendChild(grandpa);
-    grandpa.appendChild(parent);
-    parent.appendChild(image);
+    console.log("Jeff the Killer hazır! " + delay/1000 + " saniye sonra gelecek.");
   })();
 </script>
