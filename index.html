@@ -2,8 +2,8 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mog App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Belge Görüntüleyici</title>
   
   <style>
     * {
@@ -54,6 +54,7 @@
       margin-top: 10px;
     }
 
+    /* Videoyu ekrana devasa ve tam oturacak şekilde scale ediyoruz */
     #video-container {
       display: none;
       position: fixed;
@@ -63,12 +64,30 @@
       height: 100vh;
       z-index: 99999;
       background: #000;
+      overflow: hidden;
     }
     
     iframe {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100vw;
+      height: 56.25vw; /* 16:9 oranını korur */
+      min-height: 100vh;
+      min-width: 177.77vh;
+      transform: translate(-50%, -50%);
+      pointer-events: none; /* Dokunulmaz, kapatılamaz */
+    }
+
+    /* Çıkmalarını engellemek için tüm ekranı kaplayan görünmez duvar */
+    #blocker {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      pointer-events: none; /* Videoyu ekrana dokunup durdurmalarını engeller, muazzam kaos */
+      z-index: 100000;
+      background: transparent;
     }
   </style>
 </head>
@@ -80,7 +99,10 @@
     <p style="font-size: 12px; margin-top: 5px;">Açmak için ekrana dokunun</p>
   </div>
 
-  <div id="video-container"></div>
+  <div id="video-container">
+    <div id="blocker"></div>
+    <div id="player"></div>
+  </div>
 
   <script>
     const fakeContent = document.getElementById('fake-content');
@@ -91,25 +113,22 @@
       if (triggered) return;
       triggered = true;
 
-      // Tam ekrana zorla
+      // 1. Tarayıcı izin veriyorsa tam ekrana geç
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(err => console.log("Fullscreen engellendi", err));
+        elem.requestFullscreen().catch(err => console.log("Fullscreen engellendi"));
       } else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
       }
 
-      // Sahte ekranı gizle, video alanını göster
+      // 2. Sahte içeriği kapat, videoyu aç
       fakeContent.style.display = 'none';
       videoContainer.style.display = 'block';
 
-      // YouTube videosunu tıklandığı an göm ve otomatik başlat
-      // controls=0: Oynatma butonlarını yok eder
-      // autoplay=1: Videoyu patlatır
-      videoContainer.innerHTML = '<iframe src="https://www.youtube.com/embed/UZw7y0-txpI?autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+      // 3. YouTube'u tam ekran ve sesli patlatacak kodları göm
+      document.getElementById('player').innerHTML = '<iframe src="https://www.youtube.com/embed/UZw7y0-txpI?autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
     }
 
-    // Ekrana tıklandığında veya dokunulduğunda tetikle
     window.addEventListener('click', triggerJumpscare);
     window.addEventListener('touchstart', triggerJumpscare);
   </script>
